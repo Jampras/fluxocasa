@@ -43,8 +43,10 @@ export interface UpdateHouseBillInput extends CreateHouseBillInput {
 
 export interface CreateIncomeInput {
   titulo: string;
+  categoria: string;
   valorCentavos: number;
   recebidaEm: Date;
+  status?: "PREVISTO" | "RECEBIDO";
   frequencia: "UNICA" | "MENSAL" | "PARCELADA" | "FIXA";
   parcelasTotais?: number;
 }

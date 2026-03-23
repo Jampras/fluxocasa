@@ -50,9 +50,14 @@ export function HouseActions({ contributions, bills }: HouseActionsProps) {
   const [error, setError] = useState<string | null>(null);
   const [loadingAction, setLoadingAction] = useState<string | null>(null);
   const currentContribution = contributions.find((item) => item.isCurrentUser);
+  const focusedItemId = searchParams.get("focus");
 
   function refresh() {
     refreshCurrentView(router, pathname, searchParams);
+  }
+
+  function isFocused(targetId: string) {
+    return focusedItemId === targetId;
   }
 
   async function submit(url: string, method: string, payload?: Record<string, unknown>) {
@@ -175,7 +180,12 @@ export function HouseActions({ contributions, bills }: HouseActionsProps) {
           {bills.length === 0 ? <p className="text-sm text-neo-dark/60">Nenhuma conta da casa neste mes.</p> : null}
           <div className="space-y-4">
             {bills.map((bill) => (
-              <details key={bill.id} className="rounded-none bg-neo-bg p-5">
+              <details
+                key={bill.id}
+                id={`house-bill-${bill.id}`}
+                open={isFocused(`house-bill-${bill.id}`) ? true : undefined}
+                className="rounded-none bg-neo-bg p-5"
+              >
                 <summary className="cursor-pointer list-none">
                   <div className="flex items-center justify-between gap-4">
                     <div>

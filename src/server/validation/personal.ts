@@ -24,8 +24,10 @@ function validateRecurrence(
 
 export const incomeSchema = z.object({
   titulo: z.string().min(2, "Informe o titulo."),
+  categoria: z.enum(["SALARIO", "EXTRA"]).default("SALARIO"),
   valor: z.coerce.number().positive("Informe um valor valido."),
   recebidaEm: z.string().date("Informe uma data valida."),
+  status: z.enum(["PREVISTO", "RECEBIDO"]).default("PREVISTO"),
   ...recurrenceFields
 }).superRefine(validateRecurrence).transform(data => ({
   ...data,

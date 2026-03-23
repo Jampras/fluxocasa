@@ -31,6 +31,11 @@ interface DashboardVisualization {
   waterfallData: DashboardFlowStep[];
 }
 
+interface VisualizationResident {
+  id: string;
+  casaId: string | null;
+}
+
 function getCurrentMonthRange() {
   const now = new Date();
   const month = now.getMonth() + 1;
@@ -110,6 +115,7 @@ export async function createTransacao(data: {
   escopo: EscopoTransacao;
   tipo: TipoTransacao;
   data: string;
+  status?: "PREVISTO" | "RECEBIDO";
 }) {
   const user = await requireCurrentResident();
 
@@ -138,8 +144,10 @@ export async function createTransacao(data: {
   } else if (data.tipo === TipoTransacao.RECEITA) {
     await createIncome(user.id, {
       titulo: data.titulo,
+      categoria: data.categoria === "SALARIO" ? "SALARIO" : "EXTRA",
       valorCentavos: data.valorCentavos,
       recebidaEm: referenceDate,
+      status: data.status,
       frequencia: "UNICA"
     });
   } else {
@@ -157,9 +165,10 @@ export async function createTransacao(data: {
 }
 
 export async function getDashboardVisualization(
-  escopo: EscopoTransacao
+  escopo: EscopoTransacao,
+  resident?: VisualizationResident
 ): Promise<DashboardVisualization> {
-  const user = await requireCurrentResident();
+  const user = resident ?? await requireCurrentResident();
   const { month, year, start, end } = getCurrentMonthRange();
 
   if (escopo === EscopoTransacao.CASA) {
@@ -255,7 +264,7 @@ export async function getDashboardVisualization(
     })
   ]);
 
-  const incomes = transactions.filter((item) => item.tipo === TipoTransacao.RECEITA);
+  const incomes = transactions.filter((item) => item.tipo === TipoTransacao.RECEITA && item.status === StatusTransacao.CONCLUIDA);
   const outgoing = transactions.filter((item) => item.tipo === TipoTransacao.DESPESA);
   const waterfallItems = [
     ...incomes.map((item) => ({

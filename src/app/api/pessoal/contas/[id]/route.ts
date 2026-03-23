@@ -1,4 +1,4 @@
-import { created } from "@/server/http/response";
+import { ok } from "@/server/http/response";
 import { revalidateAppViews } from "@/server/cache/revalidate-app";
 import { readStringParam } from "@/server/http/params";
 import {
@@ -14,7 +14,7 @@ export const PATCH = apiHandler({
     const billId = readStringParam(params.id, "id");
     await markPersonalBillAsPaid(user.id, billId);
     revalidateAppViews();
-    return created({ message: "Conta pessoal marcada como paga." });
+    return ok({ message: "Conta pessoal marcada como paga." });
   }
 });
 
@@ -34,7 +34,7 @@ export const PUT = apiHandler({
     });
     revalidateAppViews();
 
-    return created({ message: "Conta pessoal atualizada com sucesso." });
+    return ok({ message: "Conta pessoal atualizada com sucesso." });
   }
 });
 
@@ -43,6 +43,6 @@ export const DELETE = apiHandler({
     const billId = readStringParam(params.id, "id");
     await deletePersonalBill(user.id, billId);
     revalidateAppViews();
-    return created({ message: "Conta pessoal removida com sucesso." });
+    return ok({ message: "Conta pessoal removida com sucesso." });
   }
 });

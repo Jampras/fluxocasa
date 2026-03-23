@@ -1,5 +1,5 @@
 import { SignJWT, jwtVerify, type JWTPayload } from "jose";
-import { cookies } from "next/headers";
+import { cookies, headers } from "next/headers";
 
 import { getServerEnv } from "@/config/env";
 
@@ -17,6 +17,22 @@ function getSecretKey() {
   }
 
   return new TextEncoder().encode(APP_SECRET);
+}
+
+async function shouldUseSecureCookies() {
+  const headerStore = await headers();
+  const host = headerStore.get("host") ?? "";
+  const forwardedProto = headerStore.get("x-forwarded-proto");
+
+  if (host.startsWith("localhost") || host.startsWith("127.0.0.1")) {
+    return false;
+  }
+
+  if (forwardedProto) {
+    return forwardedProto === "https";
+  }
+
+  return process.env.NODE_ENV === "production";
 }
 
 export async function createSessionToken(payload: SessionPayload) {
@@ -43,7 +59,7 @@ export async function setSessionCookie(userId: string) {
   cookieStore.set(SESSION_COOKIE, token, {
     httpOnly: true,
     sameSite: "lax",
-    secure: process.env.NODE_ENV === "production",
+    secure: await shouldUseSecureCookies(),
     path: "/",
     maxAge: 60 * 60 * 24 * 7
   });

@@ -1,4 +1,4 @@
-import { created } from "@/server/http/response";
+import { ok } from "@/server/http/response";
 import { revalidateAppViews } from "@/server/cache/revalidate-app";
 import {
   deleteHouseBill,
@@ -14,7 +14,7 @@ export const PATCH = apiHandler({
     const billId = readStringParam(params.id, "id");
     await markHouseBillAsPaid(user.id, billId);
     revalidateAppViews();
-    return created({ message: "Conta marcada como paga." });
+    return ok({ message: "Conta marcada como paga." });
   }
 });
 
@@ -34,7 +34,7 @@ export const PUT = apiHandler({
     });
     revalidateAppViews();
 
-    return created({ message: "Conta da casa atualizada com sucesso." });
+    return ok({ message: "Conta da casa atualizada com sucesso." });
   }
 });
 
@@ -43,6 +43,6 @@ export const DELETE = apiHandler({
     const billId = readStringParam(params.id, "id");
     await deleteHouseBill(user.id, billId);
     revalidateAppViews();
-    return created({ message: "Conta da casa removida com sucesso." });
+    return ok({ message: "Conta da casa removida com sucesso." });
   }
 });

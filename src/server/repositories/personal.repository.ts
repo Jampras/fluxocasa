@@ -2,7 +2,7 @@ import { randomUUID } from "node:crypto";
 
 import { prisma } from "@/lib/prisma";
 import { toCurrencyValue } from "@/lib/utils";
-import type { PersonalSnapshot, IncomeRecord, PersonalBillRecord, ExpenseRecord } from "@/types";
+import type { PersonalSnapshot, IncomeRecord, PersonalBillRecord, ExpenseRecord, IncomeStatus } from "@/types";
 import type { CreateIncomeInput, UpdateIncomeInput, CreatePersonalBillInput, UpdatePersonalBillInput, CreateExpenseInput, UpdateExpenseInput, UpsertBudgetGoalInput, UpdateBudgetGoalInput } from "./_types";
 import { dateInputValue, formatDueLabel, frequencyToUi, getMonthLabel, getMonthYear, getUserWithHouse, mapHouseBill, sumBy, toBillStatus } from "./_shared";
 import { ensurePersonalRecurringTransactions } from "./_recurrence";
@@ -20,25 +20,42 @@ function buildRecurringData(
   };
 }
 
+function normalizeIncomeCategory(category: string) {
+  return category === "SALARIO" ? "SALARIO" : "EXTRA";
+}
+
+function incomeUiStatus(status: StatusTransacao): IncomeStatus {
+  return status === StatusTransacao.CONCLUIDA ? "received" : "scheduled";
+}
+
+function incomeStatusToDb(status?: "PREVISTO" | "RECEBIDO") {
+  return status === "RECEBIDO" ? StatusTransacao.CONCLUIDA : StatusTransacao.PENDENTE;
+}
+
+function incomeCategoryLabel(category: string) {
+  return category === "SALARIO" ? "Salario" : "Renda extra";
+}
+
 export const personalRepository = {
   async createIncome(userId: string, input: CreateIncomeInput) {
     const recurrence = buildRecurringData(input.frequencia, input.parcelasTotais);
+    const status = incomeStatusToDb(input.status);
 
     await prisma.transacao.create({
       data: {
         moradorId: userId,
         titulo: input.titulo,
         valorCentavos: input.valorCentavos,
-        categoria: "SALARIO",
+        categoria: normalizeIncomeCategory(input.categoria),
         dataVencimento: input.recebidaEm,
-        dataPagamento: input.recebidaEm,
+        dataPagamento: status === StatusTransacao.CONCLUIDA ? input.recebidaEm : null,
         escopo: EscopoTransacao.PESSOAL,
         tipo: TipoTransacao.RECEITA,
         frequencia: recurrence.frequencia,
         serieId: recurrence.serieId,
         parcelaAtual: recurrence.parcelaAtual,
         parcelasTotais: recurrence.parcelasTotais,
-        status: StatusTransacao.CONCLUIDA
+        status
       }
     });
   },
@@ -46,18 +63,29 @@ export const personalRepository = {
     const income = await prisma.transacao.findUnique({ where: { id: incomeId } });
     if (!income || income.moradorId !== userId) throw new Error("Renda nao encontrada.");
     const frequency = input.frequencia as FrequenciaTransacao;
+    const status = incomeStatusToDb(input.status);
     await prisma.transacao.update({
       where: { id: incomeId },
       data: {
         titulo: input.titulo,
+        categoria: normalizeIncomeCategory(input.categoria),
         valorCentavos: input.valorCentavos,
         dataVencimento: input.recebidaEm,
-        dataPagamento: input.recebidaEm,
+        dataPagamento: status === StatusTransacao.CONCLUIDA ? income.dataPagamento ?? input.recebidaEm : null,
         frequencia: frequency,
         serieId: frequency === FrequenciaTransacao.UNICA ? null : income.serieId ?? randomUUID(),
         parcelaAtual: frequency === FrequenciaTransacao.PARCELADA ? income.parcelaAtual ?? 1 : null,
-        parcelasTotais: frequency === FrequenciaTransacao.PARCELADA ? input.parcelasTotais ?? income.parcelasTotais ?? 1 : null
+        parcelasTotais: frequency === FrequenciaTransacao.PARCELADA ? input.parcelasTotais ?? income.parcelasTotais ?? 1 : null,
+        status
       }
+    });
+  },
+  async markIncomeAsReceived(userId: string, incomeId: string) {
+    const income = await prisma.transacao.findUnique({ where: { id: incomeId } });
+    if (!income || income.moradorId !== userId || income.tipo !== TipoTransacao.RECEITA) throw new Error("Renda nao encontrada.");
+    await prisma.transacao.update({
+      where: { id: incomeId },
+      data: { status: StatusTransacao.CONCLUIDA, dataPagamento: income.dataPagamento ?? new Date() }
     });
   },
   async deleteIncome(userId: string, incomeId: string) {
@@ -164,11 +192,15 @@ export const personalRepository = {
 
     if (!user) throw new Error("Usuario nao encontrado.");
 
-    const rendas = user.transacoes.filter(t => t.tipo === "RECEITA" && t.escopo === "PESSOAL").map(t => ({...t, recebidaEm: t.dataVencimento}));
+    const rendas = user.transacoes
+      .filter(t => t.tipo === "RECEITA" && t.escopo === "PESSOAL")
+      .map(t => ({ ...t, recebidaEm: t.dataPagamento, previstaEm: t.dataVencimento }));
     const contasPessoais = user.transacoes.filter(t => t.tipo === "DESPESA" && t.escopo === "PESSOAL" && t.status === "PENDENTE").map(t => ({...t, vencimento: t.dataVencimento}));
     const gastos = user.transacoes.filter(t => t.tipo === "DESPESA" && t.escopo === "PESSOAL" && t.status === "CONCLUIDA").map(t => ({...t, gastoEm: t.dataVencimento}));
 
-    const incomes = rendas.filter((item) => item.recebidaEm.getMonth() + 1 === month && item.recebidaEm.getFullYear() === year).sort((a, b) => b.recebidaEm.getTime() - a.recebidaEm.getTime());
+    const incomes = rendas
+      .filter((item) => item.previstaEm.getMonth() + 1 === month && item.previstaEm.getFullYear() === year)
+      .sort((a, b) => (b.recebidaEm ?? b.previstaEm).getTime() - (a.recebidaEm ?? a.previstaEm).getTime());
     const personalBills = contasPessoais.filter((item) => item.vencimento.getMonth() + 1 === month && item.vencimento.getFullYear() === year).sort((a, b) => a.vencimento.getTime() - b.vencimento.getTime());
     const currentContribution = user.contribuicoes.find((item) => item.mes === month && item.ano === year);
     const expenses = gastos.filter((item) => item.gastoEm.getMonth() + 1 === month && item.gastoEm.getFullYear() === year).sort((a, b) => b.gastoEm.getTime() - a.gastoEm.getTime());
@@ -194,8 +226,9 @@ export const personalRepository = {
         )
       );
 
-    const salary = sumBy(incomes.filter((item) => item.titulo.toLowerCase().includes("sal")), (item) => item.valorCentavos);
-    const freelance = sumBy(incomes.filter((item) => !item.titulo.toLowerCase().includes("sal")), (item) => item.valorCentavos);
+    const settledIncomes = incomes.filter((item) => item.status === StatusTransacao.CONCLUIDA);
+    const salary = sumBy(settledIncomes.filter((item) => item.categoria === "SALARIO"), (item) => item.valorCentavos);
+    const freelance = sumBy(settledIncomes.filter((item) => item.categoria !== "SALARIO"), (item) => item.valorCentavos);
     const totalMonthlyCents = salary + freelance;
     const contributionCents = currentContribution?.valorCentavos ?? 0;
 
@@ -222,7 +255,16 @@ export const personalRepository = {
           id: item.id,
           title: item.titulo,
           amount: toCurrencyValue(item.valorCentavos),
-          receivedDate: dateInputValue(item.recebidaEm),
+          categoryLabel: incomeCategoryLabel(item.categoria),
+          status: incomeUiStatus(item.status),
+          statusLabel: item.status === StatusTransacao.CONCLUIDA ? "Recebido" : "Previsto",
+          dateLabel:
+            item.status === StatusTransacao.CONCLUIDA && item.recebidaEm
+              ? formatDueLabel(item.recebidaEm, "Recebido em")
+              : formatDueLabel(item.previstaEm, "Previsto em"),
+          plannedDate: dateInputValue(item.previstaEm),
+          referenceDate: dateInputValue(item.recebidaEm ?? item.previstaEm),
+          receivedDate: item.recebidaEm ? dateInputValue(item.recebidaEm) : undefined,
           recurrenceType: recurrence.recurrenceType,
           recurrenceLabel: recurrence.recurrenceLabel,
           installmentLabel: recurrence.installmentLabel,

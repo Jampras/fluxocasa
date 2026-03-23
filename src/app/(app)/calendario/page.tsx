@@ -24,6 +24,7 @@ interface CalendarItem {
     pathname: "/dashboard";
     query: {
       tab: "casa" | "pessoal";
+      focus: string;
     };
     hash: string;
   };
@@ -53,14 +54,17 @@ export default async function CalendarioPage({
   const user = await requireCurrentResident();
   const resolvedParams = await searchParams;
   const activeScope = resolveScope(resolvedParams.scope);
-
-  const [houseSnapshot, personalSnapshot] = await Promise.all([
-    getHouseSnapshot(user.id),
-    getPersonalSnapshot(user.id)
-  ]);
+  const shouldLoadHouse = activeScope !== "pessoal";
+  const shouldLoadPersonal = activeScope !== "casa";
+  const houseSnapshot = shouldLoadHouse ? await getHouseSnapshot(user.id) : null;
+  const personalSnapshot = shouldLoadPersonal ? await getPersonalSnapshot(user.id) : null;
+  const monthLabel =
+    personalSnapshot?.monthLabel ??
+    houseSnapshot?.monthLabel ??
+    new Intl.DateTimeFormat("pt-BR", { month: "long", year: "numeric" }).format(new Date());
 
   const allEvents: CalendarItem[] = [
-    ...houseSnapshot.pendingBills.map((bill) => ({
+    ...(houseSnapshot?.pendingBills.map((bill) => ({
       id: `house-pending-${bill.id}`,
       title: bill.title,
       amount: bill.amount,
@@ -72,12 +76,12 @@ export default async function CalendarioPage({
       recurrenceLabel: bill.recurrenceLabel,
       href: {
         pathname: "/dashboard" as const,
-        query: { tab: "casa" as const },
-        hash: "house-manage-bills"
+        query: { tab: "casa" as const, focus: `house-bill-${bill.id}` },
+        hash: `house-bill-${bill.id}`
       },
       actionLabel: "Editar conta"
-    })),
-    ...houseSnapshot.paidBills.map((bill) => ({
+    })) ?? []),
+    ...(houseSnapshot?.paidBills.map((bill) => ({
       id: `house-paid-${bill.id}`,
       title: bill.title,
       amount: bill.amount,
@@ -89,12 +93,12 @@ export default async function CalendarioPage({
       recurrenceLabel: bill.recurrenceLabel,
       href: {
         pathname: "/dashboard" as const,
-        query: { tab: "casa" as const },
-        hash: "house-manage-bills"
+        query: { tab: "casa" as const, focus: `house-bill-${bill.id}` },
+        hash: `house-bill-${bill.id}`
       },
       actionLabel: "Ver conta"
-    })),
-    ...personalSnapshot.personalBills.map((bill) => ({
+    })) ?? []),
+    ...(personalSnapshot?.personalBills.map((bill) => ({
       id: `personal-bill-${bill.id}`,
       title: bill.title,
       amount: bill.amount,
@@ -106,29 +110,29 @@ export default async function CalendarioPage({
       recurrenceLabel: bill.recurrenceLabel,
       href: {
         pathname: "/dashboard" as const,
-        query: { tab: "pessoal" as const },
-        hash: "personal-manage-bills"
+        query: { tab: "pessoal" as const, focus: `personal-bill-${bill.id}` },
+        hash: `personal-bill-${bill.id}`
       },
       actionLabel: "Editar conta"
-    })),
-    ...personalSnapshot.incomes.map((income) => ({
+    })) ?? []),
+    ...(personalSnapshot?.incomes.map((income) => ({
       id: `income-${income.id}`,
       title: income.title,
       amount: income.amount,
       scope: "Pessoal" as const,
       type: "Recebimento" as const,
-      date: income.receivedDate,
-      dateLabel: `Recebido em ${formatDateLabel(income.receivedDate)}`,
-      status: "Recebido",
+      date: income.referenceDate,
+      dateLabel: income.dateLabel,
+      status: income.status === "received" ? "Recebido" : "Previsto",
       recurrenceLabel: income.recurrenceLabel,
       href: {
         pathname: "/dashboard" as const,
-        query: { tab: "pessoal" as const },
-        hash: "personal-manage-income"
+        query: { tab: "pessoal" as const, focus: `income-${income.id}` },
+        hash: `income-${income.id}`
       },
       actionLabel: "Editar recebimento"
-    })),
-    ...personalSnapshot.expenses.map((expense) => ({
+    })) ?? []),
+    ...(personalSnapshot?.expenses.map((expense) => ({
       id: `expense-${expense.id}`,
       title: expense.title,
       amount: expense.amount,
@@ -139,11 +143,11 @@ export default async function CalendarioPage({
       status: "Registrado",
       href: {
         pathname: "/dashboard" as const,
-        query: { tab: "pessoal" as const },
-        hash: "personal-expense-history"
+        query: { tab: "pessoal" as const, focus: `expense-${expense.id}` },
+        hash: `expense-${expense.id}`
       },
       actionLabel: "Ver gasto"
-    }))
+    })) ?? [])
   ].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
 
   const events = allEvents.filter((item) => {
@@ -167,7 +171,7 @@ export default async function CalendarioPage({
 
   return (
     <div className="space-y-8 pb-20">
-      <AppHeader monthLabel={personalSnapshot.monthLabel} title="Calendario" />
+      <AppHeader monthLabel={monthLabel} title="Calendario" />
 
       <ScopeTabs
         currentScope={activeScope}

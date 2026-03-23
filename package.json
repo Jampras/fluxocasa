@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "node -e \"require('fs').rmSync('.next',{recursive:true,force:true})\" && next build",
+    "build": "node scripts/run_next_build.cjs",
     "start": "next start",
     "lint": "eslint . --ext .js,.jsx,.ts,.tsx --max-warnings=0",
     "test": "npm run test:unit && npm run test:integration",

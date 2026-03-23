@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { Input } from "@/components/ui/Input";
 import { formatCurrency } from "@/lib/utils";
+import { MarkIncomeReceivedButton } from "@/components/forms/MarkIncomeReceivedButton";
 import { MarkPersonalBillPaidButton } from "@/components/forms/MarkPersonalBillPaidButton";
 import { RecurrenceFields } from "@/components/forms/RecurrenceFields";
 
@@ -54,9 +55,14 @@ export function PersonalActions({
   const searchParams = useSearchParams();
   const [error, setError] = useState<string | null>(null);
   const [loadingAction, setLoadingAction] = useState<string | null>(null);
+  const focusedItemId = searchParams.get("focus");
 
   function refresh() {
     refreshCurrentView(router, pathname, searchParams);
+  }
+
+  function isFocused(targetId: string) {
+    return focusedItemId === targetId;
   }
 
   async function submit(url: string, method: string, payload?: Record<string, unknown>) {
@@ -95,8 +101,10 @@ export function PersonalActions({
                 () =>
                   submit("/api/pessoal/renda", "POST", {
                     titulo: formData.get("tituloRenda"),
+                    categoria: formData.get("categoriaRenda"),
                     valor: formData.get("valorRenda"),
                     recebidaEm: formData.get("recebidaEm"),
+                    status: formData.get("statusRenda"),
                     frequencia: formData.get("frequencia"),
                     parcelasTotais: formData.get("parcelasTotais")
                   }),
@@ -105,8 +113,32 @@ export function PersonalActions({
             }}
           >
             <Input id="tituloRenda" name="tituloRenda" label="Titulo" placeholder="Salario" />
+            <label className="grid gap-2 text-sm font-medium text-neo-dark/75" htmlFor="categoriaRenda">
+              <span>Tipo da renda</span>
+              <select
+                id="categoriaRenda"
+                name="categoriaRenda"
+                defaultValue="SALARIO"
+                className="h-12 rounded-none border-4 border-neo-dark bg-neo-bg px-4 text-sm text-neo-dark"
+              >
+                <option value="SALARIO">Salario</option>
+                <option value="EXTRA">Renda extra</option>
+              </select>
+            </label>
             <Input id="valorRenda" name="valorRenda" label="Valor" type="number" step="0.01" />
-            <Input id="recebidaEm" name="recebidaEm" label="Data de recebimento" type="date" />
+            <Input id="recebidaEm" name="recebidaEm" label="Data prevista" type="date" />
+            <label className="grid gap-2 text-sm font-medium text-neo-dark/75" htmlFor="statusRenda">
+              <span>Status</span>
+              <select
+                id="statusRenda"
+                name="statusRenda"
+                defaultValue="PREVISTO"
+                className="h-12 rounded-none border-4 border-neo-dark bg-neo-bg px-4 text-sm text-neo-dark"
+              >
+                <option value="PREVISTO">Previsto</option>
+                <option value="RECEBIDO">Recebido</option>
+              </select>
+            </label>
             <RecurrenceFields installmentsLabel="Parcelas da renda" />
             <Button fullWidth disabled={loadingAction === "income"}>
               {loadingAction === "income" ? "Salvando..." : "Salvar renda"}
@@ -219,11 +251,22 @@ export function PersonalActions({
           <h3 className="text-2xl font-semibold text-neo-dark">Gerenciar renda</h3>
           {incomes.length === 0 ? <p className="text-sm text-neo-dark/60">Nenhuma renda registrada neste mes.</p> : null}
           {incomes.map((income) => (
-            <details key={income.id} className="rounded-none bg-neo-bg p-5">
+            <details
+              key={income.id}
+              id={`income-${income.id}`}
+              open={isFocused(`income-${income.id}`) ? true : undefined}
+              className="rounded-none bg-neo-bg p-5"
+            >
               <summary className="cursor-pointer list-none">
                 <div className="flex items-center justify-between gap-4">
                   <div>
                     <p className="text-lg font-semibold text-neo-dark">{income.title}</p>
+                    <p className="text-xs font-semibold uppercase tracking-[0.18em] text-neo-pink">
+                      {income.categoryLabel} - {income.statusLabel}
+                    </p>
+                    <p className="text-xs font-semibold uppercase tracking-[0.18em] text-neo-dark/60">
+                      {income.dateLabel}
+                    </p>
                     <p className="text-xs font-semibold uppercase tracking-[0.18em] text-neo-pink">
                       {income.recurrenceLabel}
                       {income.installmentLabel ? ` - ${income.installmentLabel}` : ""}
@@ -242,8 +285,10 @@ export function PersonalActions({
                     () =>
                       submit(`/api/pessoal/renda/${income.id}`, "PUT", {
                         titulo: formData.get("titulo"),
+                        categoria: formData.get("categoria"),
                         valor: formData.get("valor"),
                         recebidaEm: formData.get("recebidaEm"),
+                        status: formData.get("status"),
                         frequencia: formData.get("frequencia"),
                         parcelasTotais: formData.get("parcelasTotais")
                       }),
@@ -252,6 +297,18 @@ export function PersonalActions({
                 }}
               >
                 <Input id={`income-title-${income.id}`} name="titulo" label="Titulo" defaultValue={income.title} />
+                <label className="grid gap-2 text-sm font-medium text-neo-dark/75" htmlFor={`income-category-${income.id}`}>
+                  <span>Tipo da renda</span>
+                  <select
+                    id={`income-category-${income.id}`}
+                    name="categoria"
+                    defaultValue={income.categoryLabel === "Salario" ? "SALARIO" : "EXTRA"}
+                    className="h-12 rounded-none border-4 border-neo-dark bg-neo-bg px-4 text-sm text-neo-dark"
+                  >
+                    <option value="SALARIO">Salario</option>
+                    <option value="EXTRA">Renda extra</option>
+                  </select>
+                </label>
                 <Input
                   id={`income-value-${income.id}`}
                   name="valor"
@@ -263,10 +320,22 @@ export function PersonalActions({
                 <Input
                   id={`income-date-${income.id}`}
                   name="recebidaEm"
-                  label="Recebida em"
+                  label="Data prevista"
                   type="date"
-                  defaultValue={income.receivedDate}
+                  defaultValue={income.plannedDate}
                 />
+                <label className="grid gap-2 text-sm font-medium text-neo-dark/75" htmlFor={`income-status-${income.id}`}>
+                  <span>Status</span>
+                  <select
+                    id={`income-status-${income.id}`}
+                    name="status"
+                    defaultValue={income.status === "received" ? "RECEBIDO" : "PREVISTO"}
+                    className="h-12 rounded-none border-4 border-neo-dark bg-neo-bg px-4 text-sm text-neo-dark"
+                  >
+                    <option value="PREVISTO">Previsto</option>
+                    <option value="RECEBIDO">Recebido</option>
+                  </select>
+                </label>
                 <RecurrenceFields
                   defaultFrequency={uiRecurrenceToApi(income.recurrenceType)}
                   defaultInstallments={income.installmentTotal}
@@ -274,6 +343,7 @@ export function PersonalActions({
                 />
                 <div className="flex gap-3">
                   <Button disabled={loadingAction === `income-update-${income.id}`}>Atualizar</Button>
+                  {income.status !== "received" ? <MarkIncomeReceivedButton incomeId={income.id} /> : null}
                   <Button
                     type="button"
                     variant="secondary"
@@ -300,7 +370,12 @@ export function PersonalActions({
           <h3 className="text-2xl font-semibold text-neo-dark">Gerenciar contas pessoais</h3>
           {personalBills.length === 0 ? <p className="text-sm text-neo-dark/60">Nenhuma conta pessoal registrada.</p> : null}
           {personalBills.map((bill) => (
-            <details key={bill.id} className="rounded-none bg-neo-bg p-5">
+            <details
+              key={bill.id}
+              id={`personal-bill-${bill.id}`}
+              open={isFocused(`personal-bill-${bill.id}`) ? true : undefined}
+              className="rounded-none bg-neo-bg p-5"
+            >
               <summary className="cursor-pointer list-none">
                 <div className="flex items-center justify-between gap-4">
                   <div>
@@ -401,7 +476,12 @@ export function PersonalActions({
           {expenses.length === 0 ? <p className="text-sm text-neo-pink pl-2">Nenhum gasto registrado neste mes.</p> : null}
           <div className="grid gap-3">
           {expenses.map((expense) => (
-            <details key={expense.id} className="rounded-none bg-neo-bg p-4 shadow-[4px_4px_0_#0F172A] border border-white/80 transition-all hover:-translate-y-0.5 group">
+            <details
+              key={expense.id}
+              id={`expense-${expense.id}`}
+              open={isFocused(`expense-${expense.id}`) ? true : undefined}
+              className="rounded-none bg-neo-bg p-4 shadow-[4px_4px_0_#0F172A] border border-white/80 transition-all hover:-translate-y-0.5 group"
+            >
               <summary className="cursor-pointer list-none flex items-center justify-between gap-4 outline-none">
                 <div className="flex items-center gap-4">
                   <div className="grid h-[3.25rem] w-[3.25rem] shrink-0 place-items-center rounded-full bg-neo-bg/15 text-neo-yellow font-bold text-xl mix-blend-multiply">
@@ -485,7 +565,12 @@ export function PersonalActions({
           <h3 className="text-2xl font-semibold text-neo-dark">Gerenciar metas</h3>
           {goals.length === 0 ? <p className="text-sm text-neo-dark/60">Nenhuma meta registrada neste mes.</p> : null}
           {goals.map((goal) => (
-            <details key={goal.id} className="rounded-none bg-neo-bg p-5">
+            <details
+              key={goal.id}
+              id={`goal-${goal.id}`}
+              open={isFocused(`goal-${goal.id}`) ? true : undefined}
+              className="rounded-none bg-neo-bg p-5"
+            >
               <summary className="cursor-pointer list-none">
                 <div className="flex items-center justify-between gap-4">
                   <p className="text-lg font-semibold text-neo-dark">{goal.label}</p>

@@ -79,6 +79,7 @@ export function FabWizard() {
   const [title, setTitle] = useState("");
   const [value, setValue] = useState("");
   const [date, setDate] = useState(todayInputValue());
+  const [incomeStatus, setIncomeStatus] = useState<"PREVISTO" | "RECEBIDO">("PREVISTO");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [showToast, setShowToast] = useState(false);
@@ -177,6 +178,7 @@ export function FabWizard() {
     setTitle("");
     setValue("");
     setDate(todayInputValue());
+    setIncomeStatus("PREVISTO");
     setError(null);
   }
 
@@ -284,7 +286,8 @@ export function FabWizard() {
         categoria: category,
         escopo: currentScope,
         tipo: currentScope === EscopoTransacao.CASA ? TipoTransacao.DESPESA : tipo,
-        data: date
+        data: date,
+        status: currentScope === EscopoTransacao.PESSOAL && tipo === TipoTransacao.RECEITA ? incomeStatus : undefined
       });
 
       closeWizard();
@@ -516,6 +519,20 @@ export function FabWizard() {
                           />
                         </label>
                       </div>
+
+                      {currentScope === EscopoTransacao.PESSOAL && tipo === TipoTransacao.RECEITA ? (
+                        <label className="grid gap-2">
+                          <span className="font-heading text-2xl uppercase text-neo-dark">Status</span>
+                          <select
+                            value={incomeStatus}
+                            onChange={(event) => setIncomeStatus(event.target.value as "PREVISTO" | "RECEBIDO")}
+                            className="border-4 border-neo-dark bg-neo-bg px-4 py-4 font-body text-xl font-bold outline-none focus:bg-neo-yellow"
+                          >
+                            <option value="PREVISTO">Previsto</option>
+                            <option value="RECEBIDO">Recebido</option>
+                          </select>
+                        </label>
+                      ) : null}
 
                       <div className="border-4 border-neo-dark bg-neo-yellow px-4 py-3">
                         <p className="font-heading text-xl uppercase text-neo-dark">

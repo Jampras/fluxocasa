@@ -34,16 +34,17 @@ function resolvePanelTab(tab?: string): PanelTab {
 export default async function DashboardPage({
   searchParams
 }: {
-  searchParams: Promise<{ tab?: string }>;
+  searchParams: Promise<{ tab?: string; focus?: string }>;
 }) {
   const resolvedParams = await searchParams;
   const activeTab = resolvePanelTab(resolvedParams.tab);
   const user = await requireCurrentResident();
+  const resident = { id: user.id, casaId: user.casaId };
 
   if (activeTab === "casa") {
     const [snapshot, visualization] = await Promise.all([
       getHouseSnapshot(user.id),
-      getDashboardVisualization(EscopoTransacao.CASA)
+      getDashboardVisualization(EscopoTransacao.CASA, resident)
     ]);
 
     return (
@@ -97,7 +98,7 @@ export default async function DashboardPage({
   if (activeTab === "pessoal") {
     const [snapshot, visualization] = await Promise.all([
       getPersonalSnapshot(user.id),
-      getDashboardVisualization(EscopoTransacao.PESSOAL)
+      getDashboardVisualization(EscopoTransacao.PESSOAL, resident)
     ]);
 
     return (
@@ -145,8 +146,8 @@ export default async function DashboardPage({
 
   const [snapshot, houseVisualization, personalVisualization] = await Promise.all([
     getDashboardSnapshot(user.id),
-    getDashboardVisualization(EscopoTransacao.CASA),
-    getDashboardVisualization(EscopoTransacao.PESSOAL)
+    getDashboardVisualization(EscopoTransacao.CASA, resident),
+    getDashboardVisualization(EscopoTransacao.PESSOAL, resident)
   ]);
 
   return (

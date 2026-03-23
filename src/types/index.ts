@@ -2,6 +2,7 @@ export type Tone = "emerald" | "zinc" | "amber" | "slate" | "danger" | "success"
 
 export type BillStatus = "pending" | "paid" | "warning";
 export type RecurrenceType = "single" | "monthly" | "installment" | "fixed";
+export type IncomeStatus = "scheduled" | "received";
 
 export type ResidentRole = "ADMIN" | "MEMBER";
 
@@ -58,6 +59,8 @@ export interface ActivityItem {
   houseBillId?: string;
   canMarkPersonalAsPaid?: boolean;
   personalBillId?: string;
+  canMarkIncomeAsReceived?: boolean;
+  incomeId?: string;
 }
 
 export interface BudgetGoal {
@@ -75,7 +78,13 @@ export interface IncomeRecord {
   id: string;
   title: string;
   amount: number;
-  receivedDate: string;
+  categoryLabel: string;
+  status: IncomeStatus;
+  statusLabel: string;
+  dateLabel: string;
+  plannedDate: string;
+  referenceDate: string;
+  receivedDate?: string;
   recurrenceType: RecurrenceType;
   recurrenceLabel: string;
   installmentLabel?: string;

@@ -1,4 +1,4 @@
-import { created } from "@/server/http/response";
+import { ok } from "@/server/http/response";
 import { revalidateAppViews } from "@/server/cache/revalidate-app";
 import { readStringParam } from "@/server/http/params";
 import { deleteBudgetGoal, updateBudgetGoal } from "@/server/services/personal.service";
@@ -15,7 +15,7 @@ export const PUT = apiHandler({
     });
     revalidateAppViews();
 
-    return created({ message: "Meta atualizada com sucesso." });
+    return ok({ message: "Meta atualizada com sucesso." });
   }
 });
 
@@ -24,6 +24,6 @@ export const DELETE = apiHandler({
     const goalId = readStringParam(params.id, "id");
     await deleteBudgetGoal(user.id, goalId);
     revalidateAppViews();
-    return created({ message: "Meta removida com sucesso." });
+    return ok({ message: "Meta removida com sucesso." });
   }
 });

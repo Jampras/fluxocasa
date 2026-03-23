@@ -1,8 +1,7 @@
-import { cache } from "react";
-
 import { EscopoTransacao, FrequenciaTransacao, StatusTransacao, TipoTransacao } from "@prisma/client";
 
 import { prisma } from "@/lib/prisma";
+import { safeCache } from "@/lib/safe-cache";
 
 function addMonth(date: Date) {
   const next = new Date(date);
@@ -63,10 +62,8 @@ function buildCreatePayload(transaction: {
     escopo: transaction.escopo,
     tipo: transaction.tipo,
     frequencia: transaction.frequencia,
-    status:
-      transaction.tipo === TipoTransacao.RECEITA ? StatusTransacao.CONCLUIDA : StatusTransacao.PENDENTE,
-    dataPagamento:
-      transaction.tipo === TipoTransacao.RECEITA ? nextDueDate : null,
+    status: StatusTransacao.PENDENTE,
+    dataPagamento: null,
     parcelaAtual: nextInstallment,
     parcelasTotais: transaction.parcelasTotais,
     moradorId: transaction.moradorId,
@@ -129,14 +126,14 @@ async function ensureRecurringTransactions(where: {
   }
 }
 
-export const ensurePersonalRecurringTransactions = cache(async function ensurePersonalRecurringTransactions(userId: string) {
+export const ensurePersonalRecurringTransactions = safeCache(async function ensurePersonalRecurringTransactions(userId: string) {
   await ensureRecurringTransactions({
     moradorId: userId,
     escopo: EscopoTransacao.PESSOAL
   });
 });
 
-export const ensureHouseRecurringTransactions = cache(async function ensureHouseRecurringTransactions(casaId: string) {
+export const ensureHouseRecurringTransactions = safeCache(async function ensureHouseRecurringTransactions(casaId: string) {
   await ensureRecurringTransactions({
     casaId,
     escopo: EscopoTransacao.CASA

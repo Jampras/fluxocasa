@@ -1,10 +1,25 @@
 import { prisma } from "@/lib/prisma";
 import { getSupabaseServerClient } from "@/lib/supabase/server";
+import { getE2EBypassUserId } from "@/server/auth/e2e";
 import { unauthorized } from "@/server/http/response";
 import { getSessionUserId } from "@/server/auth/session";
 import type { Prisma } from "@prisma/client";
 
 export async function requireApiUser() {
+  const e2eUserId = await getE2EBypassUserId();
+
+  if (e2eUserId) {
+    const user = await prisma.morador.findUnique({
+      where: { id: e2eUserId }
+    });
+
+    if (!user) {
+      return { error: unauthorized("Usuario nao encontrado.") };
+    }
+
+    return { user };
+  }
+
   const supabase = await getSupabaseServerClient();
 
   if (supabase) {

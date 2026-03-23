@@ -21,8 +21,10 @@ export const POST = apiHandler({
   handler: async ({ user, data }) => {
     await createIncome(user.id, {
       titulo: data.titulo,
+      categoria: data.categoria,
       valorCentavos: data.valorCentavos,
       recebidaEm: data.recebidaEmDate,
+      status: data.status,
       frequencia: data.frequencia,
       parcelasTotais: data.parcelasTotais
     });

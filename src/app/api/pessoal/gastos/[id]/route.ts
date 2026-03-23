@@ -1,4 +1,4 @@
-import { created } from "@/server/http/response";
+import { ok } from "@/server/http/response";
 import { revalidateAppViews } from "@/server/cache/revalidate-app";
 import { readStringParam } from "@/server/http/params";
 import { deleteExpense, updateExpense } from "@/server/services/personal.service";
@@ -17,7 +17,7 @@ export const PUT = apiHandler({
     });
     revalidateAppViews();
 
-    return created({ message: "Gasto atualizado com sucesso." });
+    return ok({ message: "Gasto atualizado com sucesso." });
   }
 });
 
@@ -26,6 +26,6 @@ export const DELETE = apiHandler({
     const expenseId = readStringParam(params.id, "id");
     await deleteExpense(user.id, expenseId);
     revalidateAppViews();
-    return created({ message: "Gasto removido com sucesso." });
+    return ok({ message: "Gasto removido com sucesso." });
   }
 });

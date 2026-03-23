@@ -1,6 +1,5 @@
-import { cache } from "react";
-
 import { prisma } from "@/lib/prisma";
+import { safeCache } from "@/lib/safe-cache";
 import { toCurrencyValue } from "@/lib/utils";
 import type { HouseAuditEvent, HouseBill, HouseCycleSummary, RecurrenceType, ResidentRole } from "@/types";
 
@@ -148,7 +147,7 @@ export function mapAuditDescription(entry: { tipo: string; descricao: string; at
 }
 
 // ─── Query Helpers ─────────────────────────────────────────
-export const getUserWithHouse = cache(async function getUserWithHouse(userId: string) {
+export const getUserWithHouse = safeCache(async function getUserWithHouse(userId: string) {
   return prisma.morador.findUnique({
     where: { id: userId },
     include: {
@@ -185,7 +184,7 @@ export async function createHouseAuditEntry(input: { casaId: string; type: strin
   });
 }
 
-export const ensureCurrentCycle = cache(async function ensureCurrentCycle(casaId: string, month: number, year: number): Promise<HouseCycleSummary> {
+export const ensureCurrentCycle = safeCache(async function ensureCurrentCycle(casaId: string, month: number, year: number): Promise<HouseCycleSummary> {
   const { start, end } = getMonthRange(month, year);
   const [historicalContributionAggregate, historicalBillAggregate, contributionAggregate, billAggregate] = await Promise.all([
     prisma.contribuicao.aggregate({ where: { casaId, OR: [ { ano: { lt: year } }, { ano: year, mes: { lt: month } } ] }, _sum: { valorCentavos: true } }),

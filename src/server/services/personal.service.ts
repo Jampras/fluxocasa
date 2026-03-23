@@ -22,8 +22,10 @@ export async function createIncome(
   userId: string,
   input: {
     titulo: string;
+    categoria: string;
     valorCentavos: number;
     recebidaEm: Date;
+    status?: "PREVISTO" | "RECEBIDO";
     frequencia: "UNICA" | "MENSAL" | "PARCELADA" | "FIXA";
     parcelasTotais?: number;
   }
@@ -39,13 +41,19 @@ export async function updateIncome(
   incomeId: string,
   input: {
     titulo: string;
+    categoria: string;
     valorCentavos: number;
     recebidaEm: Date;
+    status?: "PREVISTO" | "RECEBIDO";
     frequencia: "UNICA" | "MENSAL" | "PARCELADA" | "FIXA";
     parcelasTotais?: number;
   }
 ) {
   return fluxoCasaRepository.updateIncome(userId, incomeId, input);
+}
+
+export async function markIncomeAsReceived(userId: string, incomeId: string) {
+  return fluxoCasaRepository.markIncomeAsReceived(userId, incomeId);
 }
 
 /**
