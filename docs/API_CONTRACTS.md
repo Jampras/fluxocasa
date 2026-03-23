@@ -1,89 +1,323 @@
-# 🔌 API Contracts: FluxoCasa
+# API Contracts
 
-Esta documentação detalha os inputs, outputs e comportamentos das rotas de API do sistema, seguindo o padrão estabelecido pelo `apiHandler`.
+Este documento resume os contratos relevantes das APIs atuais.
 
-## 📦 Padrão de Respostas
+## Padrao de Resposta
 
-Todas as respostas são retornadas em formato JSON, com os seguintes status codes padrão:
+Helpers em [`response.ts`](C:/Users/Jotape/Desktop/contas/src/server/http/response.ts).
 
-| Status | Significado | Quando ocorre |
-|--------|-------------|---------------|
-| `200`  | **OK** | Sucesso na leitura de dados. |
-| `201`  | **Created** | Sucesso em operações de escrita (POST/PUT/PATCH). |
-| `400`  | **Bad Request** | Payload inválido, erro de validação Zod ou erro de regra de negócio. |
-| `401`  | **Unauthorized** | Sessão expirada ou usuário não autenticado. |
-| `403`  | **Forbidden** | Usuário autenticado mas sem permissão para o recurso (ex: Morador alterando outra casa). |
-| `500`  | **Server Error** | Erro inesperado no processamento interno. |
+Status usados hoje:
 
----
+- `200` para leitura, atualizacao, marcacao e remocao
+- `201` para criacao
+- `400` para payload invalido ou erro de regra
+- `401` para sessao invalida ou expirada
+- `403` para acesso proibido
+- `404` quando aplicavel
+- `500` para erro interno inesperado
 
-## 🔐 Autenticação (Auth)
+Todas as rotas protegidas passam por [`apiHandler`](C:/Users/Jotape/Desktop/contas/src/server/http/handler.ts).
+
+## Autenticacao
 
 ### `POST /api/auth/login`
-- **Body**: `{ email, password }`
-- **Nota**: Atualmente bloqueado no MVP para forçar login via Google (Supabase).
+
+Uso:
+
+- modo local, sem Supabase configurado
+
+Body:
+
+```json
+{
+  "email": "voce@email.com",
+  "senha": "sua-senha"
+}
+```
+
+Resposta:
+
+- `200` com `redirectTo`
+- `400` se o ambiente estiver com Supabase ativo
+
+### `POST /api/auth/register`
+
+Uso:
+
+- modo local, sem Supabase configurado
+
+Body:
+
+```json
+{
+  "nome": "Joao",
+  "email": "voce@email.com",
+  "senha": "senha-forte"
+}
+```
+
+Resposta:
+
+- `201` com `redirectTo`
+- `400` se o ambiente estiver com Supabase ativo
 
 ### `POST /api/auth/logout`
-- **Efeito**: Limpa os cookies de sessão e desloga do Supabase.
 
----
+Efeito:
 
-## 🏠 Casa (House)
+- remove sessao local
+- limpa sessao Supabase quando disponivel
+
+## Onboarding
+
+### `POST /api/onboarding/create-house`
+
+Cria uma casa para o morador autenticado.
+
+Body:
+
+```json
+{
+  "nome": "Casa Centro"
+}
+```
+
+Resposta:
+
+- `201` com `casaId`
+
+### `POST /api/onboarding/join-house`
+
+Entra em uma casa existente por codigo de convite.
+
+Body:
+
+```json
+{
+  "codigoConvite": "ABC123"
+}
+```
+
+Resposta:
+
+- `201` com `casaId`
+
+## Casa
 
 ### `GET /api/casa`
-- **Response**: Snapshot completo da casa no mês corrente.
-- **Campos**: `id`, `nome`, `contas`, `moradores`, `resumoFinanceiro`.
+
+Retorna o snapshot atual da casa.
+
+### `DELETE /api/casa`
+
+Executa o fluxo de saida da casa para o morador autenticado.
+
+## Contas da casa
+
+### `GET /api/casa/contas`
+
+Lista as contas visiveis no contexto da casa.
 
 ### `POST /api/casa/contas`
-- **Body (Zod Transform)**:
-  ```json
-  {
-    "titulo": "Internet",
-    "categoria": "Essenciais",
-    "valor": 120.50, // Convertido para valorCentavos internally
-    "vencimento": "2024-05-15", // Convertido para Date internally
-    "observacao": "Fibra optica"
-  }
-  ```
 
----
+Cria conta da casa.
 
-## 👤 Pessoal (Personal)
+Body:
 
-### `GET /api/pessoal/contas`
-- **Response**: Lista de `weeklyBills` do morador autenticado.
+```json
+{
+  "titulo": "Aluguel",
+  "categoria": "Moradia",
+  "valor": 1800,
+  "vencimento": "2026-03-25",
+  "observacao": "Opcional",
+  "frequencia": "MENSAL",
+  "parcelasTotais": null
+}
+```
 
-### `POST /api/pessoal/gastos`
-- **Body**:
-  ```json
-  {
-    "titulo": "Almoço",
-    "categoria": "Alimentação",
-    "valor": 45.90,
-    "gastoEm": "2024-05-01"
-  }
-  ```
+Resposta:
 
----
+- `201`
 
-## 👥 Moradores (Residents)
+### `PATCH /api/casa/contas/:id`
+
+Marca a conta como paga.
+
+Resposta:
+
+- `200`
+
+### `PUT /api/casa/contas/:id`
+
+Atualiza a conta.
+
+Resposta:
+
+- `200`
+
+### `DELETE /api/casa/contas/:id`
+
+Remove a conta.
+
+Resposta:
+
+- `200`
+
+## Contribuicoes
+
+### `POST /api/casa/contribuicoes`
+
+Cria ou atualiza a contribuicao do morador no ciclo atual.
+
+Body:
+
+```json
+{
+  "valor": 800,
+  "mes": 3,
+  "ano": 2026
+}
+```
+
+### `DELETE /api/casa/contribuicoes/:id`
+
+Remove a contribuicao.
+
+Resposta:
+
+- `200`
+
+## Pessoal
+
+### Rendas
+
+`POST /api/pessoal/renda`
+
+Body:
+
+```json
+{
+  "titulo": "Salario",
+  "categoria": "SALARIO",
+  "valor": 3500,
+  "recebidaEm": "2026-03-05",
+  "status": "PREVISTO",
+  "frequencia": "FIXA",
+  "parcelasTotais": null
+}
+```
+
+Regras:
+
+- `status` pode ser `PREVISTO` ou `RECEBIDO`
+- `categoria` pode ser `SALARIO` ou `EXTRA`
+
+Rotas complementares:
+
+- `PATCH /api/pessoal/renda/:id` marca como recebida
+- `PUT /api/pessoal/renda/:id` atualiza
+- `DELETE /api/pessoal/renda/:id` remove
+
+### Contas pessoais
+
+`POST /api/pessoal/contas`
+
+Body:
+
+```json
+{
+  "titulo": "Cartao",
+  "categoria": "Financeiro",
+  "valor": 420,
+  "vencimento": "2026-03-28",
+  "observacao": "Opcional",
+  "frequencia": "UNICA",
+  "parcelasTotais": null
+}
+```
+
+Rotas complementares:
+
+- `PATCH /api/pessoal/contas/:id` marca como paga
+- `PUT /api/pessoal/contas/:id` atualiza
+- `DELETE /api/pessoal/contas/:id` remove
+
+### Gastos
+
+`POST /api/pessoal/gastos`
+
+Body:
+
+```json
+{
+  "titulo": "Mercado",
+  "categoria": "Alimentacao",
+  "valor": 120,
+  "gastoEm": "2026-03-20"
+}
+```
+
+Rotas complementares:
+
+- `PUT /api/pessoal/gastos/:id`
+- `DELETE /api/pessoal/gastos/:id`
+
+### Metas
+
+`POST /api/pessoal/metas`
+
+Body:
+
+```json
+{
+  "categoria": "Alimentacao",
+  "valorMeta": 800,
+  "mes": 3,
+  "ano": 2026
+}
+```
+
+Rotas complementares:
+
+- `PUT /api/pessoal/metas/:id`
+- `DELETE /api/pessoal/metas/:id`
+
+## Moradores
 
 ### `DELETE /api/moradores/:id`
-- **Permissão**: Apenas `ADMIN` da casa.
-- **Ação**: Remove um morador da casa atual.
+
+Remove um morador da casa atual.
 
 ### `PATCH /api/moradores/:id/admin`
-- **Permissão**: Apenas `ADMIN` atual da casa.
-- **Ação**: Transfere o cargo de administrador para o morador destino.
 
----
+Transfere a administracao da casa.
 
-## 🏥 Saúde (Operational)
+## Convite
+
+### `GET /api/casa/convite`
+
+Retorna o codigo de convite atual.
+
+### `PATCH /api/casa/convite`
+
+Rotaciona o codigo de convite.
+
+## Operacional
 
 ### `GET /api/health`
-- **Public**: Sim (auth: false).
-- **Ação**: Verifica se a instância está respondendo.
 
----
+Healthcheck publico.
 
-*Documentação gerada automaticamente baseada nos schemas de validação Zod.*
+### `POST /api/test/session`
+
+Rota usada apenas na suite E2E.
+
+Condicao:
+
+- so funciona quando `E2E_BYPASS_AUTH=1`
+
+Efeito:
+
+- cria sessao de teste autenticada
+- permite validar areas protegidas no Playwright

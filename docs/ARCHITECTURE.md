@@ -1,77 +1,199 @@
-# 🏗️ Architecture: FluxoCasa
+# Architecture
 
-Este documento detalha a estrutura técnica do projeto, servindo como guia para manutenção e evolução do sistema.
+Este documento descreve a arquitetura atual do FluxoCasa depois das ultimas rodadas de estabilizacao.
 
-## 🗺️ Visão Geral
+## Visao Geral
 
-O FluxoCasa segue uma arquitetura de camadas rigorosa para garantir separação de preocupações e facilitar testes automatizados.
+O projeto usa App Router do Next.js com separacao clara entre UI, pagina, API, services, repositories e persistencia Prisma.
 
 ```mermaid
 graph TD
-    UI[Components / Pages] --> API[API Routes / App Router]
-    API --> H[apiHandler HOF]
-    H --> S[Services]
-    S --> R[Repository Cluster]
-    R --> D[Prisma / Database]
-    
-    subgraph "Server Layers"
-        H
-        S
-        R
-    end
+    UI["Components / Client UI"] --> Pages["App Pages"]
+    UI --> ApiRoutes["API Routes"]
+    Pages --> Services["Services / Use Cases"]
+    ApiRoutes --> Handler["apiHandler"]
+    Handler --> Services
+    Services --> Repositories["Repositories por dominio"]
+    Repositories --> Prisma["Prisma Client"]
+    Prisma --> DB["SQLite ou PostgreSQL"]
 ```
 
-## 📚 Camadas Adotadas
+## Camadas
 
-### 1. Controllers (API Routes)
-Localizadas em `src/app/api`, utilizam o wrapper `apiHandler` para padronizar o comportamento.
-- **Responsabilidade**: Orquestrar a entrada, chamar services e retornar respostas HTTP.
-- **Padrão**: Não deve conter lógica de negócio, apenas delegação.
+### UI e paginas
 
-### 2. Services (Use Cases)
-Localizados em `src/server/services`.
-- **Responsabilidade**: Implementar as regras de negócio puras (ex: "quem pode rotacionar convite", "como calcular balanço mensal").
-- **Auth**: Quase todos os métodos aceitam um `userId` para garantir isolamento de dados por morador.
+- `src/app`
+- `src/components`
 
-### 3. Repository Cluster (Data Access)
-Localizados em `src/server/repositories`. Implementado via **Strangler Fig Pattern**.
-- **Shared**: Helpers de data e auditoria (`_shared.ts`).
-- **Domains**: 5 sub-repositórios divididos por contexto (Auth, House, Personal, Residents, Dashboard).
-- **Barrel**: O arquivo `fluxocasa.repository.ts` sincroniza todos os domínios em um único objeto exportado para os services.
+Responsabilidades:
 
-## 🛡️ Fluxo de Segurança e Validação
+- renderizacao server-side das telas
+- interacao do usuario
+- formularios cliente
+- navegacao principal
+- leitura de snapshots para montagem das telas
 
-Todas as escritas (POST, PUT, PATCH, DELETE) seguem este pipeline:
+### API layer
 
-1. **Schema Validation**: O `apiHandler` valida o payload via `Zod` antes de chegar ao service.
-2. **Data Transformation**: O schema Zod converte dados (ex: Moeda -> Centavos) automaticamente.
-3. **Authentication**: O morador é identificado via JWT (Supabase ou Session local).
-4. **Authorization**: O Service verifica se o morador pertence à casa ou se possui Role de Admin para a ação.
+- `src/app/api`
+- `src/server/http/handler.ts`
 
-## 📊 Estrutura de Repositórios
+Responsabilidades:
 
-```mermaid
-graph LR
-    SR[fluxocasa.repository.ts] --> AR[auth.repository.ts]
-    SR --> HR[house.repository.ts]
-    SR --> PR[personal.repository.ts]
-    SR --> RR[residents.repository.ts]
-    SR --> DR[dashboard.repository.ts]
-    
-    AR & HR & PR & RR & DR --> Shared[_shared.ts]
-```
+- autenticar requisicoes
+- validar payloads com `zod`
+- padronizar respostas
+- centralizar tratamento de erro e logging
 
-## 🛠️ Guia de Manutenção: Como adicionar um novo recurso
+### Services
 
-Para manter a consistência, siga sempre esta ordem:
+- `src/server/services`
 
-1. **Contracts**: Atualize/Crie interfaces em `src/types/index.ts`.
-2. **Validation**: Crie o schema Zod com transformers em `src/server/validation`.
-3. **Repository**: Adicione os métodos de banco no repositório de domínio correspondente.
-4. **Service**: Implemente a regra de negócio e chame o repositório.
-5. **API Route**: Crie a rota usando o `apiHandler`.
-6. **UI**: Consuma o endpoint e renderize o componente.
+Responsabilidades:
 
----
+- expor casos de uso para paginas e APIs
+- manter a camada de entrada fina
+- encapsular a orquestracao entre domnios
 
-*Documentação atualizada em Março de 2026 após refatoração para Arquitetura de Clúster.*
+### Repositories
+
+- `src/server/repositories`
+
+Responsabilidades:
+
+- concentrar regras de dominio e acesso a dados
+- montar snapshots usados nas telas
+- padronizar contratos entre banco e UI
+
+Repositorios principais:
+
+- `fluxocasa.repository.ts`
+- `personal.repository.ts`
+- `house.repository.ts`
+- `dashboard.repository.ts`
+- `residents.repository.ts`
+- `_shared.ts`
+- `_recurrence.ts`
+
+### Persistencia
+
+- Prisma
+- `prisma/schema.prisma`
+
+Banco atual:
+
+- producao: PostgreSQL / Supabase
+- fallback local: SQLite
+
+## Autenticacao
+
+Existem dois modos reais:
+
+### Producao e ambientes com Supabase configurado
+
+- login com Google via Supabase Auth
+- callback em `/auth/callback`
+- sincronizacao do usuario autenticado para `Morador`
+
+### Desenvolvimento sem Supabase
+
+- login e cadastro local por e-mail/senha
+- sessao local via JWT assinado em cookie
+
+## Fluxo de escrita
+
+Toda mutacao relevante segue este pipeline:
+
+1. componente cliente chama rota ou action
+2. rota passa pelo `apiHandler`
+3. `apiHandler` autentica e valida
+4. service chama repository
+5. repository persiste no Prisma
+6. `revalidateAppViews()` invalida as views necessarias
+7. UI executa refresh leve da tela atual
+
+## Dominios atuais
+
+### Casa
+
+- criacao e entrada por convite
+- codigo de convite rotativo
+- contribuicoes mensais
+- contas da casa
+- saida da casa
+- remocao de morador
+- troca de admin
+- auditoria da casa
+- saude financeira compartilhada
+
+### Pessoal
+
+- rendas
+- contas pessoais
+- gastos
+- metas
+- recebimento previsto x recebido
+- recorrencia
+- status de urgencia
+
+### Dashboard e analytics
+
+- painel geral
+- painel da casa
+- painel pessoal
+- historico recente
+- donut chart
+- waterfall chart
+- insight do mes
+- calendario por escopo
+- metas por escopo
+
+## Modelo de dados
+
+Entidades centrais:
+
+- `Casa`
+- `Morador`
+- `Transacao`
+- `Contribuicao`
+- `MetaOrcamento`
+- `CicloMensal`
+- `AuditoriaCasa`
+
+Enums principais:
+
+- `EscopoTransacao`
+- `TipoTransacao`
+- `FrequenciaTransacao`
+- `StatusTransacao`
+
+## Regras importantes
+
+- um morador nao pode criar ou entrar em outra casa se ja estiver vinculado
+- o admin nao sai da casa de qualquer jeito: ha fluxo explicito de saida e troca
+- urgencia e saude financeira sao calculadas, nao digitadas manualmente
+- renda futura nao entra no saldo como recebida
+- itens recorrentes geram ocorrencias do ciclo atual
+- calendario e atividade recente apontam para o item exato, nao apenas para a secao
+
+## Performance e consistencia
+
+A arquitetura atual ja incorpora alguns ajustes importantes:
+
+- `safeCache` para compatibilizar cache server-side com testes
+- reaproveitamento do morador autenticado nas visualizacoes do dashboard
+- carregamento condicional por escopo em `metas` e `calendario`
+- script de build com limpeza de `.next`
+- E2E autenticado com sessao de teste isolada
+
+## Como evoluir sem quebrar o padrao
+
+Para adicionar um recurso novo:
+
+1. definir contrato em `src/types`
+2. criar ou atualizar schema em `src/server/validation`
+3. implementar regra no repository correto
+4. expor no service
+5. ligar em pagina ou rota de API
+6. cobrir com teste unitario e, se fizer sentido, Playwright
+7. atualizar a documentacao em `docs/`

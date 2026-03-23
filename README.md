@@ -1,88 +1,207 @@
 # FluxoCasa
 
-MVP funcional do FluxoCasa com `Next.js`, `TypeScript`, `Tailwind CSS`, `Prisma`, `Supabase Auth` e preparo para deploy na `Vercel`.
+Aplicacao web para organizacao financeira de casa compartilhada e vida pessoal, com UI neo-brutalista, App Router do Next.js, Prisma e autenticacao via Supabase Auth com Google em producao.
 
-## Como rodar
+Producao atual:
+- App: [fluxocasa.vercel.app](https://fluxocasa.vercel.app)
+- Repositorio: [Jampras/fluxocasa](https://github.com/Jampras/fluxocasa)
+
+## Stack
+
+- Next.js 15
+- React 18
+- TypeScript
+- Tailwind CSS
+- Prisma
+- Supabase Auth
+- PostgreSQL / Supabase em producao
+- SQLite como fallback local
+- Vitest para testes unitarios
+- Playwright para integracao e E2E
+- Vercel Analytics e Speed Insights
+
+## Estado Atual
+
+O projeto esta operando com os seguintes blocos:
+
+- autenticacao com Google via Supabase em ambientes configurados
+- fallback local de login/cadastro por e-mail e senha quando Supabase nao esta configurado
+- onboarding de casa por criacao ou entrada por codigo de convite
+- painel principal com abas `Geral`, `Casa` e `Pessoal`
+- calendario financeiro com filtros por escopo
+- tela de metas e graficos por escopo
+- tela de configuracoes com perfil, casa, moradores e saida
+- CRUD de:
+  - contribuicoes da casa
+  - contas da casa
+  - rendas pessoais
+  - contas pessoais
+  - gastos pessoais
+  - metas de categoria
+- recorrencia real para contas e rendas:
+  - unica
+  - mensal
+  - parcelada
+  - fixa
+- marcacao rapida de:
+  - conta da casa paga
+  - conta pessoal paga
+  - renda recebida
+- historico recente com acoes contextuais
+- auditoria da casa para eventos administrativos
+- cobertura automatizada de fluxos autenticados e nao autenticados
+
+## Navegacao Atual
+
+Navegacao principal:
+
+- `Painel` em `/dashboard`
+- `Calendario` em `/calendario`
+- `Metas` em `/metas`
+- `Configuracoes` em `/configuracoes`
+
+Dentro do painel:
+
+- `Geral`
+- `Casa`
+- `Pessoal`
+
+As listas editaveis do painel aceitam foco por item via query string, usado pelo calendario e pelo historico recente para abrir o registro correto.
+
+## Como Rodar
+
+### 1. Instalar dependencias
 
 ```bash
 npm install
+```
+
+### 2. Escolher o banco
+
+Modo local com SQLite:
+
+```bash
+npm run db:use:sqlite
+npm run prisma:generate
 npm run db:init
-npx prisma generate
+```
+
+Modo Postgres / Supabase:
+
+```bash
+npm run db:use:postgres
+npm run prisma:generate
+npm run db:push
+```
+
+### 3. Subir o app
+
+```bash
 npm run dev
 ```
 
-Para validar o build de producao local:
+## Variaveis de Ambiente
+
+Exemplo completo em [.env.example](C:/Users/Jotape/Desktop/contas/.env.example).
+
+Campos principais:
+
+- `DATABASE_PROVIDER`
+- `DATABASE_URL`
+- `DIRECT_URL`
+- `APP_SECRET`
+- `NEXT_PUBLIC_SUPABASE_URL`
+- `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+- `NEXT_PUBLIC_APP_URL`
+
+## Scripts Principais
 
 ```bash
-npm run lint
+npm run dev
 npm run build
-npm start
+npm run start
+npm run lint
+npm run test
+npm run test:unit
+npm run test:integration
+npm run db:init
+npm run db:push
+npm run db:use:sqlite
+npm run db:use:postgres
 ```
+
+Observacao:
+- `npm run build` usa [`scripts/run_next_build.cjs`](C:/Users/Jotape/Desktop/contas/scripts/run_next_build.cjs) para limpar `.next` e reduzir falhas intermitentes de build no Windows.
 
 ## Estrutura
 
-- `src/app`: paginas e handlers do App Router
-- `src/components`: interface reutilizavel e formularios cliente
-- `src/config`: rotas, navegacao, metadados e ambiente
-- `src/server/auth`: sessao, senha, guards e leitura do usuario autenticado
-- `src/server/http`: helpers de resposta padronizada
-- `src/server/repositories`: unica fonte de acesso aos dados do dominio
-- `src/server/services`: casos de uso para paginas e APIs
-- `src/server/validation`: schemas `zod` para payloads de escrita
-- `src/types`: contratos compartilhados entre pagina, API e UI
-- `prisma/schema.prisma`: modelagem do banco
-- `prisma/init.sql`: bootstrap deterministico do SQLite local
+- `src/app`
+  - paginas do App Router
+  - layouts
+  - rotas de API
+- `src/components`
+  - UI compartilhada
+  - formularios
+  - blocos de dashboard, casa, pessoal e configuracoes
+- `src/config`
+  - rotas
+  - navegacao
+  - ambiente
+- `src/lib`
+  - cliente Prisma
+  - cliente Supabase
+  - helpers de cliente e utilitarios
+- `src/server/auth`
+  - sessao local
+  - integracao Supabase server-side
+  - helpers de usuario autenticado
+  - bypass controlado para E2E
+- `src/server/http`
+  - `apiHandler`
+  - helpers de resposta
+  - parsing de params
+- `src/server/repositories`
+  - regras e acesso a dados por dominio
+- `src/server/services`
+  - casos de uso consumidos por paginas e APIs
+- `src/server/validation`
+  - schemas `zod`
+- `src/types`
+  - contratos compartilhados
+- `prisma`
+  - schema atual e utilitarios de troca de provider
+- `e2e`
+  - testes Playwright
+- `docs`
+  - documentacao complementar
 
-## Estado atual
+## Testes
 
-- Login com Google via Supabase Auth
-- Callback OAuth com sincronizacao para `Morador`
-- Criacao de casa e entrada por codigo de convite
-- Dashboard, casa, pessoal e moradores lendo do banco
-- CRUD de contribuicoes, contas da casa, renda, contas pessoais, gastos e metas
-- Regra mensal persistida em `CicloMensal` com saldo inicial, variacao e saldo final
-- Gestao de convite com copia e rotacao protegida por role de administrador
-- Transferencia de administracao e remocao de moradores via API e UI
-- Auditoria central de casa para criacao, entrada, convite, troca de admin e remocao
-- Schema Prisma alternavel entre SQLite local e Postgres/Supabase
-- Vercel Analytics e Speed Insights ligados no layout global
-- Arquitetura centralizada em `repository -> service -> page/api -> component`
+Cobertura atual:
 
-## Banco local
+- unitarios com Vitest
+- integracao e E2E com Playwright
+- fluxos autenticados com sessao de teste controlada em `E2E_BYPASS_AUTH`
+- smoke tests de auth, dashboard e seguranca basica de API
 
-O ambiente atual usa SQLite por padrao para manter o MVP executavel sem dependencia externa.
+Executar tudo:
 
-- Arquivo local: `prisma/dev.db`
-- Bootstrap: `npm run db:init`
-- Client Prisma: `npx prisma generate`
+```bash
+npm test
+```
 
-Quando o ambiente permitir migrations Prisma estaveis, o projeto pode sair de `init.sql` para migrations sem alterar as camadas superiores.
+Executar por suite:
 
-## Troca para Postgres ou Supabase
+```bash
+npm run test:unit
+npm run test:integration
+```
 
-O projeto agora tem duas variantes de schema Prisma:
+## Documentacao Complementar
 
-- `prisma/schema.sqlite.prisma`
-- `prisma/schema.postgres.prisma`
-
-Fluxo de troca:
-
-1. `npm run db:use:postgres`
-2. Ajustar `DATABASE_URL` e `DIRECT_URL` no `.env`
-3. `npm run prisma:generate`
-4. `npm run db:push`
-
-Para voltar ao modo local:
-
-1. `npm run db:use:sqlite`
-2. `npm run prisma:generate`
-3. `npm run db:init`
-
-## Proximos passos
-
-1. Criar suite de testes automatizados para fluxos criticos.
-2. Adicionar captura estruturada de erros e tracing.
-3. Adicionar pagina dedicada de historico da casa com filtros por evento.
-4. Fechar o primeiro deploy integrado GitHub + Vercel + Supabase.
-
-Mais detalhes em [ARCHITECTURE.md](docs/ARCHITECTURE.md), [HANDOFF.md](docs/HANDOFF.md), [PRODUCT_MVP.md](docs/PRODUCT_MVP.md), [API_CONTRACTS.md](docs/API_CONTRACTS.md), [DEPLOYMENT.md](docs/DEPLOYMENT.md) e [ROADMAP.md](docs/ROADMAP.md).
+- [Arquitetura](C:/Users/Jotape/Desktop/contas/docs/ARCHITECTURE.md)
+- [Contratos de API](C:/Users/Jotape/Desktop/contas/docs/API_CONTRACTS.md)
+- [Deploy](C:/Users/Jotape/Desktop/contas/docs/DEPLOYMENT.md)
+- [Produto Atual](C:/Users/Jotape/Desktop/contas/docs/PRODUCT_MVP.md)
+- [Roadmap](C:/Users/Jotape/Desktop/contas/docs/ROADMAP.md)
+- [Handoff](C:/Users/Jotape/Desktop/contas/docs/HANDOFF.md)

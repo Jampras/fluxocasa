@@ -1,68 +1,98 @@
 # Handoff
 
-## Objetivo
+Este documento resume o que um novo mantenedor precisa saber para continuar o projeto sem depender do historico da conversa.
 
-Este repositório entrega o MVP funcional do FluxoCasa como base de continuidade para time de produto, design e engenharia.
+## Resumo Executivo
 
-## Stack
+FluxoCasa esta publicado, funcional e com cobertura automatizada dos fluxos principais.
+
+Links:
+
+- producao: [fluxocasa.vercel.app](https://fluxocasa.vercel.app)
+- repositorio: [Jampras/fluxocasa](https://github.com/Jampras/fluxocasa)
+
+## Stack Atual
 
 - Next.js 15 App Router
+- React 18
 - TypeScript
 - Tailwind CSS
 - Prisma
-- SQLite local para desenvolvimento
-- Postgres/Supabase como alvo de produção
-- Supabase Auth com login Google
-- Vercel Analytics e Speed Insights
-- **Testing**: Vitest (Unit/Integration) & Playwright (E2E)
+- PostgreSQL / Supabase em producao
+- SQLite em fallback local
+- Supabase Auth com Google
+- Vitest
+- Playwright
+- Vercel
 
-## Estado atual
+## Estado Atual do Produto
 
-O projeto já cobre:
+O sistema cobre:
 
-- login com Google via Supabase
-- sincronização do usuário autenticado para o modelo `Morador`
+- login Google em ambiente com Supabase
 - onboarding de casa
-- gestão financeira da casa
-- gestão financeira pessoal
-- gestão de moradores, convite e auditoria
-- **Arquitetura**: Repository Cluster (Strangler Fig) e API Layer HOF (`apiHandler`)
+- casa, pessoal, calendario, metas e configuracoes
+- CRUD completo dos registros financeiros principais
+- recorrencia
+- saude financeira
+- auditoria da casa
+- gestao de moradores
 
-## Decisões importantes
+## Arquivos para Ler Primeiro
 
-- O domínio do produto continua em `Morador`, `Casa`, `ContaCasa`, `Contribuicao` e agregados relacionados.
-- O Supabase é a fonte de identidade, não de regra de negócio.
-- O Prisma continua sendo a camada única de persistência do domínio.
-- A decomposição de repositórios permite escalabilidade sem inflar um "God File".
-- O `apiHandler` centraliza auth, validação Zod e tratamento de erros.
+1. [README.md](C:/Users/Jotape/Desktop/contas/README.md)
+2. [docs/ARCHITECTURE.md](C:/Users/Jotape/Desktop/contas/docs/ARCHITECTURE.md)
+3. [docs/API_CONTRACTS.md](C:/Users/Jotape/Desktop/contas/docs/API_CONTRACTS.md)
+4. [docs/DEPLOYMENT.md](C:/Users/Jotape/Desktop/contas/docs/DEPLOYMENT.md)
+5. [docs/PRODUCT_MVP.md](C:/Users/Jotape/Desktop/contas/docs/PRODUCT_MVP.md)
 
-## Fluxo técnico esperado
+## Fluxo Tecnico Recomendado
 
-1. Definir contrato em `src/types`
-2. Validar payload em `src/server/validation` (usar transformers para Centavos/Date)
-3. Implementar persistência no respectivo repositório em `src/server/repositories`
-4. Expor caso de uso em `src/server/services` (adicionar JSDoc)
-5. Consumir em `src/app/api` via `apiHandler`
-6. Renderizar em `src/app` / `src/components`
+Ao mexer em funcionalidade:
 
-## Arquivos que o time deve ler primeiro
+1. atualizar contratos em `src/types`
+2. ajustar schema `zod` em `src/server/validation`
+3. implementar regra no repository
+4. expor no service
+5. ligar em API ou pagina
+6. validar com testes
+7. atualizar docs se o comportamento mudar
 
-1. [README.md](../README.md)
-2. [ARCHITECTURE.md](./ARCHITECTURE.md)
-3. [API_CONTRACTS.md](./API_CONTRACTS.md)
-4. [PRODUCT_MVP.md](./PRODUCT_MVP.md)
-5. [DEPLOYMENT.md](./DEPLOYMENT.md)
+## Pontos Importantes
 
-## Gaps ainda abertos
+- `apiHandler` e o ponto central de validacao, auth e tratamento de erro das APIs
+- `repositories` carregam a maior parte da regra de negocio e montagem de snapshot
+- `revalidateAppViews()` faz parte do fluxo normal de mutacao
+- o dashboard, o calendario e o historico recente hoje usam navegacao por item com `focus`
+- o bypass E2E existe apenas para teste e nao faz parte do fluxo de producao
 
-- ambiente Supabase/Vercel ainda depende de credenciais reais do usuário no `.env`
-- auth por e-mail/senha foi desativado; o caminho suportado agora e Google
-- historico da casa ainda aparece apenas resumido em `Moradores`
+## Ambientes
 
-## Definicao de pronto para proximas entregas
+### Producao
 
-- regra implementada no repositório e service correspondentes
-- endpoint ou pagina cobrindo o fluxo usando os padrões estabelecidos
-- feedback de erro previsível e tipagem completa
-- documentação JSDoc e atualização do `API_CONTRACTS.md`
-- testes passando (Vitest + Playwright)
+- Vercel
+- Supabase
+- PostgreSQL
+- login Google
+
+### Local
+
+Pode rodar em dois modos:
+
+- SQLite sem Supabase
+- Postgres / Supabase
+
+## Validacao Minima Antes de Subir
+
+```bash
+npm run lint
+npm run build
+npm run test:unit
+npm run test:integration
+```
+
+## Atencao Especial
+
+- nao ativar `E2E_BYPASS_AUTH` fora da suite de testes
+- nao assumir que `build` tolera execucoes concorrentes mexendo em `.next`
+- manter `NEXT_PUBLIC_APP_URL` coerente com o ambiente publicado
