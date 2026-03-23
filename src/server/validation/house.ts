@@ -36,7 +36,7 @@ export const updateHouseBillSchema = z.object({
   valor: z.coerce.number().positive("Informe um valor valido."),
   vencimento: z.string().date("Informe uma data valida."),
   observacao: z.string().optional().or(z.literal("")),
-  status: z.enum(["PENDENTE", "PAGA", "ALERTA"]).optional()
+  status: z.enum(["PENDENTE", "PAGA"]).optional()
 }).transform(data => ({
   ...data,
   valorCentavos: toCents(data.valor),

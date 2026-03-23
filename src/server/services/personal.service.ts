@@ -79,6 +79,13 @@ export async function deletePersonalBill(userId: string, billId: string) {
 }
 
 /**
+ * Marca uma conta pessoal pendente como paga.
+ */
+export async function markPersonalBillAsPaid(userId: string, billId: string) {
+  return fluxoCasaRepository.markPersonalBillAsPaid(userId, billId);
+}
+
+/**
  * Registra um gasto variável (ex: mercado, farmácia).
  */
 export async function createExpense(

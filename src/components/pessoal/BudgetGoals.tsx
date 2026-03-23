@@ -3,6 +3,7 @@ import { Car, Target, Utensils } from "lucide-react";
 import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { ProgressBar } from "@/components/ui/ProgressBar";
+import { MarkPersonalBillPaidButton } from "@/components/forms/MarkPersonalBillPaidButton";
 import { formatCurrency, progressValue } from "@/lib/utils";
 import type { BudgetGoal, HouseBill } from "@/types";
 
@@ -38,7 +39,15 @@ export function BudgetGoals({ bills, goals }: BudgetGoalsProps) {
               <p className="text-2xl font-semibold text-neo-dark">{bill.title}</p>
               <p className="text-sm font-medium text-rose-600">{bill.dueLabel}</p>
             </div>
-            <p className="text-3xl font-semibold text-neo-dark">{formatCurrency(bill.amount)}</p>
+            <div className="text-right">
+              <p className="text-3xl font-semibold text-neo-dark">{formatCurrency(bill.amount)}</p>
+              <div className="mt-2 flex items-center justify-end gap-3">
+                <Badge tone={bill.status === "warning" ? "amber" : "danger"}>
+                  {bill.status === "warning" ? "Atrasada" : "Pendente"}
+                </Badge>
+                <MarkPersonalBillPaidButton billId={bill.id} className="mt-0 text-neo-pink" />
+              </div>
+            </div>
           </div>
         ))}
       </Card>

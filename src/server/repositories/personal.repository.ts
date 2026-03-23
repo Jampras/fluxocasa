@@ -29,9 +29,26 @@ export const personalRepository = {
   async updatePersonalBill(userId: string, billId: string, input: UpdatePersonalBillInput) {
     const bill = await prisma.transacao.findUnique({ where: { id: billId } });
     if (!bill || bill.moradorId !== userId) throw new Error("Conta pessoal nao encontrada.");
+    const nextStatus = input.status === STATUS_PAID ? StatusTransacao.CONCLUIDA : StatusTransacao.PENDENTE;
     await prisma.transacao.update({
       where: { id: billId },
-      data: { titulo: input.titulo, categoria: input.categoria, valorCentavos: input.valorCentavos, dataVencimento: input.vencimento, observacao: input.observacao, status: input.status === STATUS_PAID ? StatusTransacao.CONCLUIDA : StatusTransacao.PENDENTE }
+      data: {
+        titulo: input.titulo,
+        categoria: input.categoria,
+        valorCentavos: input.valorCentavos,
+        dataVencimento: input.vencimento,
+        observacao: input.observacao,
+        status: nextStatus,
+        dataPagamento: nextStatus === StatusTransacao.CONCLUIDA ? bill.dataPagamento ?? new Date() : null
+      }
+    });
+  },
+  async markPersonalBillAsPaid(userId: string, billId: string) {
+    const bill = await prisma.transacao.findUnique({ where: { id: billId } });
+    if (!bill || bill.moradorId !== userId) throw new Error("Conta pessoal nao encontrada.");
+    await prisma.transacao.update({
+      where: { id: billId },
+      data: { status: StatusTransacao.CONCLUIDA, dataPagamento: bill.dataPagamento ?? new Date() }
     });
   },
   async deletePersonalBill(userId: string, billId: string) {
@@ -114,7 +131,7 @@ export const personalRepository = {
         };
       }),
       incomes: incomes.map<IncomeRecord>((item) => ({ id: item.id, title: item.titulo, amount: toCurrencyValue(item.valorCentavos), receivedDate: dateInputValue(item.recebidaEm) })),
-      personalBills: personalBills.map<PersonalBillRecord>((item) => ({ id: item.id, title: item.titulo, category: item.categoria, amount: toCurrencyValue(item.valorCentavos), dueLabel: formatDueLabel(item.vencimento, "Vence em"), dueDate: dateInputValue(item.vencimento), status: toBillStatus(item.status), note: item.observacao ?? undefined })),
+      personalBills: personalBills.map<PersonalBillRecord>((item) => ({ id: item.id, title: item.titulo, category: item.categoria, amount: toCurrencyValue(item.valorCentavos), dueLabel: formatDueLabel(item.vencimento, "Vence em"), dueDate: dateInputValue(item.vencimento), status: toBillStatus(item.status, item.vencimento), note: item.observacao ?? undefined })),
       expenses: expenses.map<ExpenseRecord>((item) => ({ id: item.id, title: item.titulo, category: item.categoria, amount: toCurrencyValue(item.valorCentavos), expenseDate: dateInputValue(item.gastoEm) }))
     };
   },

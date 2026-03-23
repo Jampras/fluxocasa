@@ -3,6 +3,7 @@ import Link from "next/link";
 import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { MarkHouseBillPaidButton } from "@/components/forms/MarkHouseBillPaidButton";
+import { MarkPersonalBillPaidButton } from "@/components/forms/MarkPersonalBillPaidButton";
 import { formatCurrency } from "@/lib/utils";
 import type { ActivityItem } from "@/types";
 
@@ -49,6 +50,12 @@ export function RecentActivity({ items }: RecentActivityProps) {
                 {item.canMarkAsPaid && item.houseBillId ? (
                   <MarkHouseBillPaidButton
                     billId={item.houseBillId}
+                    className="mt-0 text-neo-pink"
+                  />
+                ) : null}
+                {item.canMarkPersonalAsPaid && item.personalBillId ? (
+                  <MarkPersonalBillPaidButton
+                    billId={item.personalBillId}
                     className="mt-0 text-neo-pink"
                   />
                 ) : null}

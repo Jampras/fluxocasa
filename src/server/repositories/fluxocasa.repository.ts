@@ -87,6 +87,7 @@ export interface FluxoCasaRepository {
   deleteIncome(userId: string, incomeId: string): Promise<void>;
   createPersonalBill(userId: string, input: CreatePersonalBillInput): Promise<void>;
   updatePersonalBill(userId: string, billId: string, input: UpdatePersonalBillInput): Promise<void>;
+  markPersonalBillAsPaid(userId: string, billId: string): Promise<void>;
   deletePersonalBill(userId: string, billId: string): Promise<void>;
   createExpense(userId: string, input: CreateExpenseInput): Promise<void>;
   updateExpense(userId: string, expenseId: string, input: UpdateExpenseInput): Promise<void>;

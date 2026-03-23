@@ -2,6 +2,7 @@ import { describe, it, expect } from "vitest";
 import {
   incomeSchema,
   personalBillSchema,
+  updatePersonalBillSchema,
   expenseSchema,
   budgetGoalSchema,
   updateBudgetGoalSchema,
@@ -38,6 +39,19 @@ describe("personalBillSchema", () => {
       vencimento: "2026-03-10",
     });
     expect(result.success).toBe(false);
+  });
+});
+
+describe("updatePersonalBillSchema", () => {
+  it("accepts a paid status update", () => {
+    const result = updatePersonalBillSchema.safeParse({
+      titulo: "Netflix",
+      categoria: "Assinaturas",
+      valor: 39.9,
+      vencimento: "2026-03-10",
+      status: "PAGA",
+    });
+    expect(result.success).toBe(true);
   });
 });
 

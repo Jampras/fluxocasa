@@ -80,9 +80,18 @@ export const houseRepository = {
     const user = await requireHouseMember(userId);
     const current = await prisma.transacao.findUnique({ where: { id: billId } });
     if (!current || current.casaId !== user.casaId) throw new Error("Conta da casa nao encontrada.");
+    const nextStatus = input.status === STATUS_PAID ? StatusTransacao.CONCLUIDA : StatusTransacao.PENDENTE;
     await prisma.transacao.update({
       where: { id: billId },
-      data: { titulo: input.titulo, categoria: input.categoria, valorCentavos: input.valorCentavos, dataVencimento: input.vencimento, observacao: input.observacao, status: input.status === STATUS_PAID ? StatusTransacao.CONCLUIDA : StatusTransacao.PENDENTE }
+      data: {
+        titulo: input.titulo,
+        categoria: input.categoria,
+        valorCentavos: input.valorCentavos,
+        dataVencimento: input.vencimento,
+        observacao: input.observacao,
+        status: nextStatus,
+        dataPagamento: nextStatus === StatusTransacao.CONCLUIDA ? current.dataPagamento ?? new Date() : null
+      }
     });
     await ensureCurrentCycle(user.casaId!, current.dataVencimento.getMonth() + 1, current.dataVencimento.getFullYear());
     await ensureCurrentCycle(user.casaId!, input.vencimento.getMonth() + 1, input.vencimento.getFullYear());

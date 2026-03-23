@@ -1,5 +1,4 @@
 import { Card } from "@/components/ui/Card";
-import { Badge } from "@/components/ui/Badge";
 import { formatCurrency } from "@/lib/utils";
 import type { PersonalSnapshot } from "@/types";
 
@@ -19,10 +18,10 @@ export function PersonalOverview({ snapshot }: PersonalOverviewProps) {
           </div>
         </div>
       </Card>
-      
+
       <div className="grid grid-cols-2 gap-4">
         <Card className="bg-neo-bg  border-4 border-neo-dark rounded-none p-4 text-neo-dark transition-all hover:-translate-y-1 hover:shadow-[4px_4px_0_#0F172A] active:scale-95 transition-all">
-          <p className="text-[10px] font-bold uppercase tracking-[0.1em] text-neo-pink">Salário</p>
+          <p className="text-[10px] font-bold uppercase tracking-[0.1em] text-neo-pink">Salario</p>
           <p className="mt-1 text-2xl font-bold tracking-tight">{formatCurrency(snapshot.salary)}</p>
         </Card>
         <Card className="bg-neo-bg  border-4 border-neo-dark rounded-none p-4 text-neo-dark transition-all hover:-translate-y-1 hover:shadow-[4px_4px_0_#0F172A] active:scale-95 transition-all">
@@ -40,4 +39,3 @@ export function PersonalOverview({ snapshot }: PersonalOverviewProps) {
     </section>
   );
 }
-

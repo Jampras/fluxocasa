@@ -1,7 +1,7 @@
 import { ROUTES } from "@/config/routes";
 import { toCurrencyValue } from "@/lib/utils";
 import type { ActivityItem, DashboardSnapshot } from "@/types";
-import { STATUS_PAID, ensureCurrentCycle, getMonthLabel, getMonthYear, getUserWithHouse, sumBy } from "./_shared";
+import { STATUS_PAID, ensureCurrentCycle, getMonthLabel, getMonthYear, getUserWithHouse, sumBy, toBillStatus } from "./_shared";
 
 function formatActivityDate(date: Date, prefix: string) { return `${prefix} ${new Intl.DateTimeFormat("pt-BR", { day: "2-digit", month: "2-digit" }).format(date)}`; }
 
@@ -66,15 +66,19 @@ export const dashboardRepository = {
 
     const items = [
       ...contasPessoais.map((bill) => {
-        const tone: ActivityItem["badge"]["tone"] = bill.status === STATUS_PAID ? "success" : "danger";
+        const uiStatus = toBillStatus(bill.status, bill.vencimento);
+        const tone: ActivityItem["badge"]["tone"] =
+          uiStatus === "paid" ? "success" : uiStatus === "warning" ? "amber" : "danger";
         return {
-          id: `personal-${bill.id}`, title: bill.titulo, subtitle: bill.categoria, amount: toCurrencyValue(bill.valorCentavos), dateLabel: formatActivityDate(bill.vencimento, bill.status === STATUS_PAID ? "Pago ate" : "Vence em"), badge: { label: bill.status === STATUS_PAID ? "Paga" : "Pendente", tone }, detailsHref: ROUTES.pessoal, detailsLabel: "Editar", sortDate: bill.vencimento.getTime()
+          id: `personal-${bill.id}`, title: bill.titulo, subtitle: bill.categoria, amount: toCurrencyValue(bill.valorCentavos), dateLabel: formatActivityDate(bill.vencimento, uiStatus === "paid" ? "Pago ate" : "Vence em"), badge: { label: uiStatus === "paid" ? "Paga" : uiStatus === "warning" ? "Atrasada" : "Pendente", tone }, detailsHref: ROUTES.pessoal, detailsLabel: "Editar", canMarkPersonalAsPaid: uiStatus !== "paid", personalBillId: bill.id, sortDate: bill.vencimento.getTime()
         };
       }),
       ...contasCasa.map((bill) => {
-        const tone: ActivityItem["badge"]["tone"] = bill.status === STATUS_PAID ? "success" : "danger";
+        const uiStatus = toBillStatus(bill.status, bill.vencimento);
+        const tone: ActivityItem["badge"]["tone"] =
+          uiStatus === "paid" ? "success" : uiStatus === "warning" ? "amber" : "danger";
         return {
-          id: `house-${bill.id}`, title: bill.titulo, subtitle: `Casa - ${bill.categoria}`, amount: toCurrencyValue(bill.valorCentavos), dateLabel: bill.status === STATUS_PAID && bill.pagaEm ? formatActivityDate(bill.pagaEm, "Paga em") : formatActivityDate(bill.vencimento, "Vence em"), badge: { label: bill.status === STATUS_PAID ? "Paga" : "Pendente", tone }, detailsHref: ROUTES.casa, detailsLabel: "Editar", canMarkAsPaid: bill.status !== STATUS_PAID, houseBillId: bill.id, sortDate: bill.pagaEm?.getTime() ?? bill.vencimento.getTime()
+          id: `house-${bill.id}`, title: bill.titulo, subtitle: `Casa - ${bill.categoria}`, amount: toCurrencyValue(bill.valorCentavos), dateLabel: uiStatus === "paid" && bill.pagaEm ? formatActivityDate(bill.pagaEm, "Paga em") : formatActivityDate(bill.vencimento, "Vence em"), badge: { label: uiStatus === "paid" ? "Paga" : uiStatus === "warning" ? "Atrasada" : "Pendente", tone }, detailsHref: ROUTES.casa, detailsLabel: "Editar", canMarkAsPaid: uiStatus !== "paid", houseBillId: bill.id, sortDate: bill.pagaEm?.getTime() ?? bill.vencimento.getTime()
         };
       })
     ].sort((a, b) => b.sortDate - a.sortDate).slice(0, 3);

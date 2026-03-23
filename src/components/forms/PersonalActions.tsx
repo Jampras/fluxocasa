@@ -10,8 +10,13 @@ import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { Input } from "@/components/ui/Input";
 import { formatCurrency } from "@/lib/utils";
+import { MarkPersonalBillPaidButton } from "@/components/forms/MarkPersonalBillPaidButton";
 
 const now = new Date();
+
+function uiStatusToApi(status: PersonalBillRecord["status"]) {
+  return status === "paid" ? "PAGA" : "PENDENTE";
+}
 
 interface PersonalActionsProps {
   incomes: IncomeRecord[];
@@ -305,8 +310,21 @@ export function PersonalActions({
                   defaultValue={bill.dueDate}
                 />
                 <Input id={`pb-note-${bill.id}`} name="observacao" label="Observacao" defaultValue={bill.note ?? ""} />
+                <label className="grid gap-2 text-sm font-medium text-neo-dark/75" htmlFor={`pb-status-${bill.id}`}>
+                  <span>Status</span>
+                  <select
+                    id={`pb-status-${bill.id}`}
+                    name="status"
+                    defaultValue={uiStatusToApi(bill.status)}
+                    className="h-12 rounded-none border-4 border-neo-dark bg-neo-bg px-4 text-sm text-neo-dark"
+                  >
+                    <option value="PENDENTE">Pendente</option>
+                    <option value="PAGA">Paga</option>
+                  </select>
+                </label>
                 <div className="flex gap-3">
                   <Button disabled={loadingAction === `personal-bill-update-${bill.id}`}>Atualizar</Button>
+                  {bill.status !== "paid" ? <MarkPersonalBillPaidButton billId={bill.id} /> : null}
                   <Button
                     type="button"
                     variant="secondary"

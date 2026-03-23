@@ -19,15 +19,7 @@ interface HouseActionsProps {
 }
 
 function uiStatusToApi(status: HouseBill["status"]) {
-  if (status === "paid") {
-    return "PAGA";
-  }
-
-  if (status === "warning") {
-    return "ALERTA";
-  }
-
-  return "PENDENTE";
+  return status === "paid" ? "PAGA" : "PENDENTE";
 }
 
 export function HouseActions({ contributions, bills }: HouseActionsProps) {
@@ -229,7 +221,6 @@ export function HouseActions({ contributions, bills }: HouseActionsProps) {
                       className="h-12 rounded-none border-4 border-neo-dark bg-neo-bg px-4 text-sm text-neo-dark"
                     >
                       <option value="PENDENTE">Pendente</option>
-                      <option value="ALERTA">Alerta</option>
                       <option value="PAGA">Paga</option>
                     </select>
                   </label>

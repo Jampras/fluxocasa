@@ -24,11 +24,13 @@ export function getMonthLabel(date = getCurrentReferenceDate()) { return new Int
 export function formatDueLabel(date: Date, prefix: string) { return `${prefix} ${new Intl.DateTimeFormat("pt-BR", { day: "2-digit", month: "short" }).format(date)}`; }
 export function dateInputValue(date: Date) { return date.toISOString().slice(0, 10); }
 export function formatAuditDate(date: Date) { return new Intl.DateTimeFormat("pt-BR", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" }).format(date); }
+function startOfDay(date: Date) { return new Date(date.getFullYear(), date.getMonth(), date.getDate()); }
 
 // ─── Data Helpers ──────────────────────────────────────────
-export function toBillStatus(status: string): "pending" | "paid" | "warning" {
+export function toBillStatus(status: string, dueDate?: Date): "pending" | "paid" | "warning" {
   if (status === STATUS_PAID || status === "CONCLUIDA") return "paid";
   if (status === STATUS_WARNING) return "warning";
+  if (dueDate && startOfDay(dueDate).getTime() < startOfDay(getCurrentReferenceDate()).getTime()) return "warning";
   return "pending";
 }
 export function initials(name: string) { return name.slice(0, 1).toUpperCase(); }
@@ -39,6 +41,7 @@ export function mapHouseBill(
   bill: { id: string; titulo: string; categoria: string; valorCentavos: number; vencimento: Date; status: string; observacao: string | null; pagaEm?: Date | null; },
   paid = false
 ): HouseBill {
+  const status = paid ? "paid" : toBillStatus(bill.status, bill.vencimento);
   return {
     id: bill.id,
     title: bill.titulo,
@@ -46,7 +49,7 @@ export function mapHouseBill(
     amount: toCurrencyValue(bill.valorCentavos),
     dueLabel: paid && bill.pagaEm ? formatDueLabel(bill.pagaEm, "Pago em") : formatDueLabel(bill.vencimento, "Vencimento"),
     dueDate: dateInputValue(bill.vencimento),
-    status: paid ? "paid" : toBillStatus(bill.status),
+    status,
     note: bill.observacao ?? undefined
   };
 }

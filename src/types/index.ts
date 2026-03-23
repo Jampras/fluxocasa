@@ -52,6 +52,8 @@ export interface ActivityItem {
   detailsLabel?: string;
   canMarkAsPaid?: boolean;
   houseBillId?: string;
+  canMarkPersonalAsPaid?: boolean;
+  personalBillId?: string;
 }
 
 export interface BudgetGoal {
