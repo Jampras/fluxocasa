@@ -22,6 +22,18 @@ function uiStatusToApi(status: HouseBill["status"]) {
   return status === "paid" ? "PAGA" : "PENDENTE";
 }
 
+function uiStatusLabel(status: HouseBill["status"]) {
+  if (status === "paid") {
+    return "Paga";
+  }
+
+  if (status === "warning") {
+    return "Atrasada";
+  }
+
+  return "Pendente";
+}
+
 export function HouseActions({ contributions, bills }: HouseActionsProps) {
   const router = useRouter();
   const [error, setError] = useState<string | null>(null);
@@ -102,7 +114,7 @@ export function HouseActions({ contributions, bills }: HouseActionsProps) {
               placeholder="1600"
               type="number"
               step="0.01"
-              defaultValue={currentContribution?.amount ?? ""}
+              defaultValue={currentContribution?.status === "confirmed" ? currentContribution.amount : ""}
             />
             <Button className="sm:self-end" disabled={loadingAction === "contribution"}>
               {loadingAction === "contribution" ? "Salvando..." : "Salvar"}
@@ -160,7 +172,7 @@ export function HouseActions({ contributions, bills }: HouseActionsProps) {
                     </div>
                     <div className="text-right">
                       <p className="text-lg font-semibold text-neo-dark">{formatCurrency(bill.amount)}</p>
-                      <p className="text-xs uppercase tracking-[0.16em] text-neo-dark/45">{bill.status}</p>
+                      <p className="text-xs uppercase tracking-[0.16em] text-neo-dark/45">{uiStatusLabel(bill.status)}</p>
                     </div>
                   </div>
                 </summary>

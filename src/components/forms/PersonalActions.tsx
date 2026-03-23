@@ -18,6 +18,13 @@ function uiStatusToApi(status: PersonalBillRecord["status"]) {
   return status === "paid" ? "PAGA" : "PENDENTE";
 }
 
+function formatDisplayDate(value: string) {
+  return new Intl.DateTimeFormat("pt-BR", {
+    day: "2-digit",
+    month: "short"
+  }).format(new Date(`${value}T12:00:00`));
+}
+
 interface PersonalActionsProps {
   incomes: IncomeRecord[];
   personalBills: PersonalBillRecord[];
@@ -360,7 +367,7 @@ export function PersonalActions({
                   </div>
                   <div>
                     <p className="text-base font-bold text-neo-dark ">{expense.title}</p>
-                    <p className="text-xs font-semibold text-neo-pink tracking-wide mt-0.5">{expense.expenseDate}</p>
+                    <p className="text-xs font-semibold text-neo-pink tracking-wide mt-0.5">{formatDisplayDate(expense.expenseDate)}</p>
                   </div>
                 </div>
                 <p className="text-base font-bold text-neo-dark tracking-tight">-{formatCurrency(expense.amount)}</p>
