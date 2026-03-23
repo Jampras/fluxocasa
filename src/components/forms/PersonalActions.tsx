@@ -1,9 +1,10 @@
 "use client";
 
 import type { FormEvent } from "react";
-import { useRouter } from "next/navigation";
-import { startTransition, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useState } from "react";
 
+import { refreshCurrentView } from "@/lib/app-refresh";
 import { requestJson } from "@/lib/client-api";
 import type { BudgetGoal, ExpenseRecord, IncomeRecord, PersonalBillRecord } from "@/types";
 import { Button } from "@/components/ui/Button";
@@ -11,11 +12,21 @@ import { Card } from "@/components/ui/Card";
 import { Input } from "@/components/ui/Input";
 import { formatCurrency } from "@/lib/utils";
 import { MarkPersonalBillPaidButton } from "@/components/forms/MarkPersonalBillPaidButton";
+import { RecurrenceFields } from "@/components/forms/RecurrenceFields";
 
 const now = new Date();
 
 function uiStatusToApi(status: PersonalBillRecord["status"]) {
   return status === "paid" ? "PAGA" : "PENDENTE";
+}
+
+function uiRecurrenceToApi(
+  recurrenceType: IncomeRecord["recurrenceType"] | PersonalBillRecord["recurrenceType"]
+) {
+  if (recurrenceType === "monthly") return "MENSAL";
+  if (recurrenceType === "installment") return "PARCELADA";
+  if (recurrenceType === "fixed") return "FIXA";
+  return "UNICA";
 }
 
 function formatDisplayDate(value: string) {
@@ -39,13 +50,13 @@ export function PersonalActions({
   goals
 }: PersonalActionsProps) {
   const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
   const [error, setError] = useState<string | null>(null);
   const [loadingAction, setLoadingAction] = useState<string | null>(null);
 
   function refresh() {
-    startTransition(() => {
-      router.refresh();
-    });
+    refreshCurrentView(router, pathname, searchParams);
   }
 
   async function submit(url: string, method: string, payload?: Record<string, unknown>) {
@@ -71,7 +82,7 @@ export function PersonalActions({
 
   return (
     <div className="grid gap-6">
-      <Card className="bg-neo-bg">
+      <Card id="personal-create-income" className="bg-neo-bg">
         <div className="space-y-4">
           <h3 className="text-2xl font-semibold text-neo-dark">Registrar renda</h3>
           <form
@@ -85,7 +96,9 @@ export function PersonalActions({
                   submit("/api/pessoal/renda", "POST", {
                     titulo: formData.get("tituloRenda"),
                     valor: formData.get("valorRenda"),
-                    recebidaEm: formData.get("recebidaEm")
+                    recebidaEm: formData.get("recebidaEm"),
+                    frequencia: formData.get("frequencia"),
+                    parcelasTotais: formData.get("parcelasTotais")
                   }),
                 "Nao foi possivel salvar a renda."
               );
@@ -94,6 +107,7 @@ export function PersonalActions({
             <Input id="tituloRenda" name="tituloRenda" label="Titulo" placeholder="Salario" />
             <Input id="valorRenda" name="valorRenda" label="Valor" type="number" step="0.01" />
             <Input id="recebidaEm" name="recebidaEm" label="Data de recebimento" type="date" />
+            <RecurrenceFields installmentsLabel="Parcelas da renda" />
             <Button fullWidth disabled={loadingAction === "income"}>
               {loadingAction === "income" ? "Salvando..." : "Salvar renda"}
             </Button>
@@ -101,7 +115,7 @@ export function PersonalActions({
         </div>
       </Card>
 
-      <Card className="bg-neo-bg border-4 border-neo-dark ">
+      <Card id="personal-create-bill" className="bg-neo-bg border-4 border-neo-dark ">
         <div className="space-y-4">
           <h3 className="text-2xl font-semibold text-neo-dark">Adicionar conta pessoal</h3>
           <form
@@ -117,7 +131,9 @@ export function PersonalActions({
                     categoria: formData.get("categoriaConta"),
                     valor: formData.get("valorConta"),
                     vencimento: formData.get("vencimentoConta"),
-                    observacao: formData.get("observacaoConta")
+                    observacao: formData.get("observacaoConta"),
+                    frequencia: formData.get("frequencia"),
+                    parcelasTotais: formData.get("parcelasTotais")
                   }),
                 "Nao foi possivel salvar a conta."
               );
@@ -128,6 +144,7 @@ export function PersonalActions({
             <Input id="valorConta" name="valorConta" label="Valor" type="number" step="0.01" />
             <Input id="vencimentoConta" name="vencimentoConta" label="Vencimento" type="date" />
             <Input id="observacaoConta" name="observacaoConta" label="Observacao" placeholder="Opcional" />
+            <RecurrenceFields installmentsLabel="Parcelas da conta" />
             <Button fullWidth disabled={loadingAction === "bill"}>
               {loadingAction === "bill" ? "Salvando..." : "Salvar conta"}
             </Button>
@@ -135,7 +152,7 @@ export function PersonalActions({
         </div>
       </Card>
 
-      <Card className="bg-neo-bg">
+      <Card id="personal-create-expense" className="bg-neo-bg">
         <div className="space-y-4">
           <h3 className="text-2xl font-semibold text-neo-dark">Registrar gasto</h3>
           <form
@@ -167,7 +184,7 @@ export function PersonalActions({
         </div>
       </Card>
 
-      <Card className="bg-neo-bg border-4 border-neo-dark ">
+      <Card id="personal-create-goal" className="bg-neo-bg border-4 border-neo-dark ">
         <div className="space-y-4">
           <h3 className="text-2xl font-semibold text-neo-dark">Definir meta de categoria</h3>
           <form
@@ -197,7 +214,7 @@ export function PersonalActions({
         </div>
       </Card>
 
-      <Card className="bg-neo-bg">
+      <Card id="personal-manage-income" className="bg-neo-bg">
         <div className="space-y-4">
           <h3 className="text-2xl font-semibold text-neo-dark">Gerenciar renda</h3>
           {incomes.length === 0 ? <p className="text-sm text-neo-dark/60">Nenhuma renda registrada neste mes.</p> : null}
@@ -205,7 +222,13 @@ export function PersonalActions({
             <details key={income.id} className="rounded-none bg-neo-bg p-5">
               <summary className="cursor-pointer list-none">
                 <div className="flex items-center justify-between gap-4">
-                  <p className="text-lg font-semibold text-neo-dark">{income.title}</p>
+                  <div>
+                    <p className="text-lg font-semibold text-neo-dark">{income.title}</p>
+                    <p className="text-xs font-semibold uppercase tracking-[0.18em] text-neo-pink">
+                      {income.recurrenceLabel}
+                      {income.installmentLabel ? ` - ${income.installmentLabel}` : ""}
+                    </p>
+                  </div>
                   <p className="text-lg font-semibold text-neo-dark">{formatCurrency(income.amount)}</p>
                 </div>
               </summary>
@@ -220,7 +243,9 @@ export function PersonalActions({
                       submit(`/api/pessoal/renda/${income.id}`, "PUT", {
                         titulo: formData.get("titulo"),
                         valor: formData.get("valor"),
-                        recebidaEm: formData.get("recebidaEm")
+                        recebidaEm: formData.get("recebidaEm"),
+                        frequencia: formData.get("frequencia"),
+                        parcelasTotais: formData.get("parcelasTotais")
                       }),
                     "Nao foi possivel atualizar a renda."
                   );
@@ -241,6 +266,11 @@ export function PersonalActions({
                   label="Recebida em"
                   type="date"
                   defaultValue={income.receivedDate}
+                />
+                <RecurrenceFields
+                  defaultFrequency={uiRecurrenceToApi(income.recurrenceType)}
+                  defaultInstallments={income.installmentTotal}
+                  installmentsLabel="Parcelas da renda"
                 />
                 <div className="flex gap-3">
                   <Button disabled={loadingAction === `income-update-${income.id}`}>Atualizar</Button>
@@ -265,7 +295,7 @@ export function PersonalActions({
         </div>
       </Card>
 
-      <Card className="bg-neo-bg border-4 border-neo-dark ">
+      <Card id="personal-manage-bills" className="bg-neo-bg border-4 border-neo-dark ">
         <div className="space-y-4">
           <h3 className="text-2xl font-semibold text-neo-dark">Gerenciar contas pessoais</h3>
           {personalBills.length === 0 ? <p className="text-sm text-neo-dark/60">Nenhuma conta pessoal registrada.</p> : null}
@@ -276,6 +306,10 @@ export function PersonalActions({
                   <div>
                     <p className="text-lg font-semibold text-neo-dark">{bill.title}</p>
                     <p className="text-sm text-neo-dark/60">{bill.dueLabel}</p>
+                    <p className="text-xs font-semibold uppercase tracking-[0.18em] text-neo-pink">
+                      {bill.recurrenceLabel}
+                      {bill.installmentLabel ? ` - ${bill.installmentLabel}` : ""}
+                    </p>
                   </div>
                   <p className="text-lg font-semibold text-neo-dark">{formatCurrency(bill.amount)}</p>
                 </div>
@@ -293,7 +327,10 @@ export function PersonalActions({
                         categoria: formData.get("categoria"),
                         valor: formData.get("valor"),
                         vencimento: formData.get("vencimento"),
-                        observacao: formData.get("observacao")
+                        observacao: formData.get("observacao"),
+                        status: formData.get("status"),
+                        frequencia: formData.get("frequencia"),
+                        parcelasTotais: formData.get("parcelasTotais")
                       }),
                     "Nao foi possivel atualizar a conta."
                   );
@@ -317,6 +354,11 @@ export function PersonalActions({
                   defaultValue={bill.dueDate}
                 />
                 <Input id={`pb-note-${bill.id}`} name="observacao" label="Observacao" defaultValue={bill.note ?? ""} />
+                <RecurrenceFields
+                  defaultFrequency={uiRecurrenceToApi(bill.recurrenceType)}
+                  defaultInstallments={bill.installmentTotal}
+                  installmentsLabel="Parcelas da conta"
+                />
                 <label className="grid gap-2 text-sm font-medium text-neo-dark/75" htmlFor={`pb-status-${bill.id}`}>
                   <span>Status</span>
                   <select
@@ -353,7 +395,7 @@ export function PersonalActions({
         </div>
       </Card>
 
-      <Card className="bg-transparent  border-none p-0 mt-8">
+      <Card id="personal-expense-history" className="bg-transparent  border-none p-0 mt-8">
         <div className="space-y-4">
           <h3 className="text-2xl font-bold text-neo-dark pl-2">Historico de gastos</h3>
           {expenses.length === 0 ? <p className="text-sm text-neo-pink pl-2">Nenhum gasto registrado neste mes.</p> : null}
@@ -438,7 +480,7 @@ export function PersonalActions({
         </div>
       </Card>
 
-      <Card className="bg-neo-bg border-4 border-neo-dark ">
+      <Card id="personal-manage-goals" className="bg-neo-bg border-4 border-neo-dark ">
         <div className="space-y-4">
           <h3 className="text-2xl font-semibold text-neo-dark">Gerenciar metas</h3>
           {goals.length === 0 ? <p className="text-sm text-neo-dark/60">Nenhuma meta registrada neste mes.</p> : null}

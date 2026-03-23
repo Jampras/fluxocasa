@@ -1,5 +1,3 @@
-import Link from "next/link";
-
 import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { MarkHouseBillPaidButton } from "@/components/forms/MarkHouseBillPaidButton";
@@ -40,12 +38,12 @@ export function RecentActivity({ items }: RecentActivityProps) {
               <Badge tone={item.badge.tone}>{item.badge.label}</Badge>
               <div className="mt-3 flex flex-wrap items-center justify-end gap-3">
                 {item.detailsHref ? (
-                  <Link
+                  <a
                     href={item.detailsHref}
                     className="text-xs font-semibold uppercase tracking-[0.18em] text-neo-dark/70 transition-colors hover:text-neo-pink"
                   >
                     {item.detailsLabel ?? "Abrir"}
-                  </Link>
+                  </a>
                 ) : null}
                 {item.canMarkAsPaid && item.houseBillId ? (
                   <MarkHouseBillPaidButton

@@ -6,6 +6,9 @@ export const ROUTES = {
   cadastro: "/cadastro" as Route,
   onboarding: "/onboarding" as Route,
   dashboard: "/dashboard" as Route,
+  calendario: "/calendario" as Route,
+  metas: "/metas" as Route,
+  configuracoes: "/configuracoes" as Route,
   casa: "/casa" as Route,
   pessoal: "/pessoal" as Route,
   moradores: "/moradores" as Route
@@ -13,8 +16,7 @@ export const ROUTES = {
 
 export const APP_ROUTE_LIST = [
   ROUTES.dashboard,
-  ROUTES.pessoal,
-  ROUTES.casa,
-  ROUTES.moradores
+  ROUTES.calendario,
+  ROUTES.metas,
+  ROUTES.configuracoes
 ] as const;
-

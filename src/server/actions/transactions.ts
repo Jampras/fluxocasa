@@ -1,10 +1,10 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
 import { EscopoTransacao, StatusTransacao, TipoTransacao } from "@prisma/client";
 
 import { prisma } from "@/lib/prisma";
 import { requireCurrentResident } from "@/server/auth/user";
+import { revalidateAppViews } from "@/server/cache/revalidate-app";
 import { createExpense, createIncome } from "@/server/services/personal.service";
 import { createHouseBill } from "@/server/services/house.service";
 
@@ -132,13 +132,15 @@ export async function createTransacao(data: {
       titulo: data.titulo,
       categoria: data.categoria,
       valorCentavos: data.valorCentavos,
-      vencimento: referenceDate
+      vencimento: referenceDate,
+      frequencia: "UNICA"
     });
   } else if (data.tipo === TipoTransacao.RECEITA) {
     await createIncome(user.id, {
       titulo: data.titulo,
       valorCentavos: data.valorCentavos,
-      recebidaEm: referenceDate
+      recebidaEm: referenceDate,
+      frequencia: "UNICA"
     });
   } else {
     await createExpense(user.id, {
@@ -149,9 +151,7 @@ export async function createTransacao(data: {
     });
   }
 
-  revalidatePath("/dashboard");
-  revalidatePath("/casa");
-  revalidatePath("/pessoal");
+  revalidateAppViews();
 
   return { success: true };
 }

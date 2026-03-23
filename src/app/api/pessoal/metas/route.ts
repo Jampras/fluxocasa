@@ -1,4 +1,5 @@
 import { created, ok } from "@/server/http/response";
+import { revalidateAppViews } from "@/server/cache/revalidate-app";
 import { budgetGoalSchema } from "@/server/validation/personal";
 import { getPersonalGoals, upsertBudgetGoal } from "@/server/services/personal.service";
 import { apiHandler } from "@/server/http/handler";
@@ -18,6 +19,7 @@ export const POST = apiHandler({
       mes: data.mes,
       ano: data.ano
     });
+    revalidateAppViews();
 
     return created({ message: "Meta salva com sucesso." });
   }

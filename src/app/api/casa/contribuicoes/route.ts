@@ -1,4 +1,5 @@
 import { created, ok } from "@/server/http/response";
+import { revalidateAppViews } from "@/server/cache/revalidate-app";
 import { getHouseContributions, upsertContribution } from "@/server/services/house.service";
 import { contributionSchema } from "@/server/validation/house";
 import { apiHandler } from "@/server/http/handler";
@@ -17,6 +18,7 @@ export const POST = apiHandler({
       mes: data.mes,
       ano: data.ano
     });
+    revalidateAppViews();
 
     return created({ message: "Contribuicao salva com sucesso." });
   }

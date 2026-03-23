@@ -1,0 +1,144 @@
+import { cache } from "react";
+
+import { EscopoTransacao, FrequenciaTransacao, StatusTransacao, TipoTransacao } from "@prisma/client";
+
+import { prisma } from "@/lib/prisma";
+
+function addMonth(date: Date) {
+  const next = new Date(date);
+  next.setMonth(next.getMonth() + 1);
+  return next;
+}
+
+function monthKey(date: Date) {
+  return date.getFullYear() * 12 + date.getMonth();
+}
+
+function isRecurring(frequency: FrequenciaTransacao) {
+  return frequency === FrequenciaTransacao.MENSAL ||
+    frequency === FrequenciaTransacao.PARCELADA ||
+    frequency === FrequenciaTransacao.FIXA;
+}
+
+function canCreateNextOccurrence(transaction: {
+  frequencia: FrequenciaTransacao;
+  parcelaAtual: number | null;
+  parcelasTotais: number | null;
+}) {
+  if (transaction.frequencia !== FrequenciaTransacao.PARCELADA) {
+    return true;
+  }
+
+  return (transaction.parcelaAtual ?? 1) < (transaction.parcelasTotais ?? 1);
+}
+
+function buildCreatePayload(transaction: {
+  serieId: string | null;
+  titulo: string;
+  valorCentavos: number;
+  categoria: string;
+  dataVencimento: Date;
+  observacao: string | null;
+  escopo: EscopoTransacao;
+  tipo: TipoTransacao;
+  frequencia: FrequenciaTransacao;
+  parcelaAtual: number | null;
+  parcelasTotais: number | null;
+  moradorId: string;
+  casaId: string | null;
+}) {
+  const nextDueDate = addMonth(transaction.dataVencimento);
+  const nextInstallment =
+    transaction.frequencia === FrequenciaTransacao.PARCELADA
+      ? (transaction.parcelaAtual ?? 1) + 1
+      : transaction.parcelaAtual;
+
+  return {
+    serieId: transaction.serieId,
+    titulo: transaction.titulo,
+    valorCentavos: transaction.valorCentavos,
+    categoria: transaction.categoria,
+    dataVencimento: nextDueDate,
+    observacao: transaction.observacao,
+    escopo: transaction.escopo,
+    tipo: transaction.tipo,
+    frequencia: transaction.frequencia,
+    status:
+      transaction.tipo === TipoTransacao.RECEITA ? StatusTransacao.CONCLUIDA : StatusTransacao.PENDENTE,
+    dataPagamento:
+      transaction.tipo === TipoTransacao.RECEITA ? nextDueDate : null,
+    parcelaAtual: nextInstallment,
+    parcelasTotais: transaction.parcelasTotais,
+    moradorId: transaction.moradorId,
+    casaId: transaction.casaId
+  };
+}
+
+async function ensureRecurringTransactions(where: {
+  moradorId?: string;
+  casaId?: string;
+  escopo: EscopoTransacao;
+}) {
+  const referenceDate = new Date();
+  const recurringTransactions = await prisma.transacao.findMany({
+    where: {
+      ...where,
+      frequencia: {
+        in: [
+          FrequenciaTransacao.MENSAL,
+          FrequenciaTransacao.PARCELADA,
+          FrequenciaTransacao.FIXA
+        ]
+      }
+    },
+    orderBy: [{ dataVencimento: "asc" }, { criadaEm: "asc" }]
+  });
+
+  const series = new Map<string, typeof recurringTransactions>();
+
+  recurringTransactions.forEach((transaction) => {
+    const key = transaction.serieId ?? transaction.id;
+    const current = series.get(key) ?? [];
+    current.push(transaction);
+    series.set(key, current);
+  });
+
+  for (const transactions of series.values()) {
+    let latest = transactions[transactions.length - 1];
+
+    while (
+      monthKey(latest.dataVencimento) < monthKey(referenceDate) &&
+      isRecurring(latest.frequencia) &&
+      canCreateNextOccurrence(latest)
+    ) {
+      const nextDueDate = addMonth(latest.dataVencimento);
+      const existing = transactions.find((transaction) => monthKey(transaction.dataVencimento) === monthKey(nextDueDate));
+
+      if (existing) {
+        latest = existing;
+        continue;
+      }
+
+      const created = await prisma.transacao.create({
+        data: buildCreatePayload(latest)
+      });
+
+      transactions.push(created);
+      latest = created;
+    }
+  }
+}
+
+export const ensurePersonalRecurringTransactions = cache(async function ensurePersonalRecurringTransactions(userId: string) {
+  await ensureRecurringTransactions({
+    moradorId: userId,
+    escopo: EscopoTransacao.PESSOAL
+  });
+});
+
+export const ensureHouseRecurringTransactions = cache(async function ensureHouseRecurringTransactions(casaId: string) {
+  await ensureRecurringTransactions({
+    casaId,
+    escopo: EscopoTransacao.CASA
+  });
+});

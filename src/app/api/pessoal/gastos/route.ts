@@ -1,4 +1,5 @@
 import { created, ok } from "@/server/http/response";
+import { revalidateAppViews } from "@/server/cache/revalidate-app";
 import { expenseSchema } from "@/server/validation/personal";
 import { createExpense, getPersonalGoals } from "@/server/services/personal.service";
 import { apiHandler } from "@/server/http/handler";
@@ -24,6 +25,7 @@ export const POST = apiHandler({
       valorCentavos: data.valorCentavos,
       gastoEm: data.gastoEmDate
     });
+    revalidateAppViews();
 
     return created({ message: "Gasto salvo com sucesso." });
   }

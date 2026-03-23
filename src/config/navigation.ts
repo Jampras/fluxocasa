@@ -1,10 +1,10 @@
-import { Home, House, Lock, Users } from "lucide-react";
+import { CalendarDays, Home, Settings2, Target } from "lucide-react";
 
 import { ROUTES } from "@/config/routes";
 
 export const APP_NAVIGATION = [
   { href: ROUTES.dashboard, label: "Painel", icon: Home },
-  { href: ROUTES.pessoal, label: "Pessoal", icon: Lock },
-  { href: ROUTES.casa, label: "Casa", icon: House },
-  { href: ROUTES.moradores, label: "Moradores", icon: Users }
+  { href: ROUTES.calendario, label: "Calendario", icon: CalendarDays },
+  { href: ROUTES.metas, label: "Metas", icon: Target },
+  { href: ROUTES.configuracoes, label: "Configuracoes", icon: Settings2 }
 ] as const;

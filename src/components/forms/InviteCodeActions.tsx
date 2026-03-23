@@ -1,8 +1,9 @@
 "use client";
 
-import { startTransition, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
+import { refreshCurrentView } from "@/lib/app-refresh";
 import { requestJson } from "@/lib/client-api";
 import { Button } from "@/components/ui/Button";
 
@@ -13,14 +14,14 @@ interface InviteCodeActionsProps {
 
 export function InviteCodeActions({ inviteCode, canRotate }: InviteCodeActionsProps) {
   const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
   const [error, setError] = useState<string | null>(null);
   const [feedback, setFeedback] = useState<string | null>(null);
   const [loading, setLoading] = useState<"copy" | "rotate" | null>(null);
 
   function refresh() {
-    startTransition(() => {
-      router.refresh();
-    });
+    refreshCurrentView(router, pathname, searchParams);
   }
 
   async function copyInviteCode() {

@@ -55,7 +55,7 @@ export function HouseOverview({ snapshot }: HouseOverviewProps) {
           </div>
 
           <p className="max-w-sm text-sm font-medium text-neo-dark/70">
-            Todas as contas essenciais estao cobertas. Proxima revisao em {snapshot.reviewDate}.
+            {snapshot.healthDescription} Proxima revisao em {snapshot.reviewDate}.
           </p>
 
           <div className="grid gap-4 rounded-none border-4 border-neo-dark bg-neo-bg p-4 sm:grid-cols-3">

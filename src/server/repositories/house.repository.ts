@@ -1,9 +1,24 @@
+import { randomUUID } from "node:crypto";
+
 import { prisma } from "@/lib/prisma";
 import { toCurrencyValue } from "@/lib/utils";
 import type { HouseSnapshot } from "@/types";
 import type { CreateHouseInput, CreateHouseBillInput, JoinHouseInput, LeaveHouseResult, UpdateHouseBillInput, UpsertContributionInput } from "./_types";
-import { AUDIT_HOUSE_CREATED, AUDIT_MEMBER_LEFT, AUDIT_MEMBER_JOINED, AUDIT_INVITE_ROTATED, ROLE_ADMIN, ROLE_MEMBER, RECORD_CONFIRMED, STATUS_PAID, createHouseAuditEntry, ensureUserWithoutHouse, ensureCurrentCycle, getMonthLabel, getMonthYear, getUserWithHouse, initials, mapHouseBill, randomInviteCode, requireHouseAdmin, requireHouseMember, roleToUi, sumBy } from "./_shared";
-import { EscopoTransacao, TipoTransacao, StatusTransacao } from "@prisma/client";
+import { AUDIT_HOUSE_CREATED, AUDIT_MEMBER_LEFT, AUDIT_MEMBER_JOINED, AUDIT_INVITE_ROTATED, ROLE_ADMIN, ROLE_MEMBER, RECORD_CONFIRMED, STATUS_PAID, createHouseAuditEntry, ensureUserWithoutHouse, ensureCurrentCycle, getMonthLabel, getMonthYear, getUserWithHouse, initials, mapHouseBill, randomInviteCode, requireHouseAdmin, requireHouseMember, roleToUi, sumBy, toBillStatus } from "./_shared";
+import { ensureHouseRecurringTransactions } from "./_recurrence";
+import { EscopoTransacao, FrequenciaTransacao, TipoTransacao, StatusTransacao } from "@prisma/client";
+
+function buildRecurringData(
+  frequency: CreateHouseBillInput["frequencia"],
+  installmentTotal?: number
+) {
+  return {
+    frequencia: frequency as FrequenciaTransacao,
+    serieId: frequency === "UNICA" ? null : randomUUID(),
+    parcelaAtual: frequency === "PARCELADA" ? 1 : null,
+    parcelasTotais: frequency === "PARCELADA" ? installmentTotal ?? null : null
+  };
+}
 
 export const houseRepository = {
   async createHouseForUser(userId: string, input: CreateHouseInput) {
@@ -69,9 +84,23 @@ export const houseRepository = {
   },
   async createHouseBill(userId: string, input: CreateHouseBillInput) {
     const user = await requireHouseMember(userId);
+    const recurrence = buildRecurringData(input.frequencia, input.parcelasTotais);
     await prisma.transacao.create({
       data: {
-        casaId: user.casaId!, moradorId: userId, titulo: input.titulo, categoria: input.categoria, valorCentavos: input.valorCentavos, dataVencimento: input.vencimento, observacao: input.observacao, escopo: EscopoTransacao.CASA, tipo: TipoTransacao.DESPESA, frequencia: "UNICA", status: StatusTransacao.PENDENTE
+        casaId: user.casaId!,
+        moradorId: userId,
+        titulo: input.titulo,
+        categoria: input.categoria,
+        valorCentavos: input.valorCentavos,
+        dataVencimento: input.vencimento,
+        observacao: input.observacao,
+        escopo: EscopoTransacao.CASA,
+        tipo: TipoTransacao.DESPESA,
+        frequencia: recurrence.frequencia,
+        serieId: recurrence.serieId,
+        parcelaAtual: recurrence.parcelaAtual,
+        parcelasTotais: recurrence.parcelasTotais,
+        status: StatusTransacao.PENDENTE
       }
     });
     await ensureCurrentCycle(user.casaId!, input.vencimento.getMonth() + 1, input.vencimento.getFullYear());
@@ -81,6 +110,7 @@ export const houseRepository = {
     const current = await prisma.transacao.findUnique({ where: { id: billId } });
     if (!current || current.casaId !== user.casaId) throw new Error("Conta da casa nao encontrada.");
     const nextStatus = input.status === STATUS_PAID ? StatusTransacao.CONCLUIDA : StatusTransacao.PENDENTE;
+    const frequency = input.frequencia as FrequenciaTransacao;
     await prisma.transacao.update({
       where: { id: billId },
       data: {
@@ -89,6 +119,10 @@ export const houseRepository = {
         valorCentavos: input.valorCentavos,
         dataVencimento: input.vencimento,
         observacao: input.observacao,
+        frequencia: frequency,
+        serieId: frequency === FrequenciaTransacao.UNICA ? null : current.serieId ?? randomUUID(),
+        parcelaAtual: frequency === FrequenciaTransacao.PARCELADA ? current.parcelaAtual ?? 1 : null,
+        parcelasTotais: frequency === FrequenciaTransacao.PARCELADA ? input.parcelasTotais ?? current.parcelasTotais ?? 1 : null,
         status: nextStatus,
         dataPagamento: nextStatus === StatusTransacao.CONCLUIDA ? current.dataPagamento ?? new Date() : null
       }
@@ -110,6 +144,10 @@ export const houseRepository = {
     await prisma.transacao.update({ where: { id: billId }, data: { status: StatusTransacao.CONCLUIDA, dataPagamento: new Date() } });
   },
   async getHouseSnapshot(userId: string): Promise<HouseSnapshot> {
+    const resident = await prisma.morador.findUnique({ where: { id: userId }, select: { casaId: true } });
+    if (!resident?.casaId) throw new Error("Usuario ainda nao participa de uma casa.");
+    await ensureHouseRecurringTransactions(resident.casaId);
+
     const { month, year } = getMonthYear();
     const user = await getUserWithHouse(userId);
     if (!user?.casa) throw new Error("Usuario ainda nao participa de uma casa.");
@@ -128,9 +166,25 @@ export const houseRepository = {
     const totalDeclaredCents = sumBy(currentContributions, (item) => item.valorCentavos);
     const totalCommittedCents = sumBy(currentBills, (item) => item.valorCentavos);
     const dueDate = currentBills.filter((item) => item.status !== STATUS_PAID).sort((a, b) => a.vencimento.getTime() - b.vencimento.getTime())[0]?.vencimento;
+    const urgentBills = currentBills.filter((item) => toBillStatus(item.status, item.vencimento) === "warning");
+    const pendingCount = currentBills.filter((item) => item.status !== STATUS_PAID).length;
+
+    const healthStatus =
+      cycle.endingBalance < 0 || urgentBills.some((item) => item.vencimento.getTime() < new Date().getTime())
+        ? "Critico"
+        : urgentBills.length > 0 || pendingCount > 0
+          ? "Atencao"
+          : "Saudavel";
+
+    const healthDescription =
+      healthStatus === "Critico"
+        ? "Existem contas urgentes ou o caixa projetado ficou negativo. Revise a casa hoje."
+        : healthStatus === "Atencao"
+          ? "O caixa ainda sustenta a casa, mas ja existem contas proximas do vencimento."
+          : "A casa esta equilibrada e sem contas urgentes no ciclo atual.";
 
     return {
-      monthLabel: getMonthLabel(), houseName: casa.nome, totalDeclared: toCurrencyValue(totalDeclaredCents), totalCommitted: toCurrencyValue(totalCommittedCents), freeBalance: cycle.endingBalance, cycle, healthStatus: cycle.endingBalance >= 0 ? "Equilibrado" : "Atencao", reviewDate: dueDate ? new Intl.DateTimeFormat("pt-BR", { day: "2-digit", month: "long" }).format(dueDate) : "sem revisao pendente",
+      monthLabel: getMonthLabel(), houseName: casa.nome, totalDeclared: toCurrencyValue(totalDeclaredCents), totalCommitted: toCurrencyValue(totalCommittedCents), freeBalance: cycle.endingBalance, cycle, healthStatus, healthDescription, reviewDate: dueDate ? new Intl.DateTimeFormat("pt-BR", { day: "2-digit", month: "long" }).format(dueDate) : "sem revisao pendente",
       contributions: casa.moradores.map((resident) => {
         const contribution = currentContributions.find((item) => item.moradorId === resident.id);
         const contributionStatus: "confirmed" | "pending" = contribution ? "confirmed" : "pending";

@@ -1,3 +1,4 @@
+import { cache } from "react";
 import { redirect } from "next/navigation";
 import type { Prisma } from "@prisma/client";
 
@@ -6,7 +7,7 @@ import { prisma } from "@/lib/prisma";
 import { getSupabaseServerClient } from "@/lib/supabase/server";
 import { getSessionUserId } from "@/server/auth/session";
 
-export async function getOptionalCurrentUser() {
+export const getOptionalCurrentUser = cache(async function getOptionalCurrentUser() {
   const supabase = await getSupabaseServerClient();
 
   if (supabase) {
@@ -40,9 +41,9 @@ export async function getOptionalCurrentUser() {
   return prisma.morador.findUnique({
     where: { id: userId }
   });
-}
+});
 
-export async function requireCurrentUser() {
+export const requireCurrentUser = cache(async function requireCurrentUser() {
   const user = await getOptionalCurrentUser();
 
   if (!user) {
@@ -50,9 +51,9 @@ export async function requireCurrentUser() {
   }
 
   return user;
-}
+});
 
-export async function requireCurrentResident() {
+export const requireCurrentResident = cache(async function requireCurrentResident() {
   const user = await requireCurrentUser();
 
   if (!user.casaId) {
@@ -60,7 +61,7 @@ export async function requireCurrentResident() {
   }
 
   return user;
-}
+});
 
 export async function redirectIfAuthenticated() {
   const user = await getOptionalCurrentUser();

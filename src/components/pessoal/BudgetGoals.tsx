@@ -38,12 +38,16 @@ export function BudgetGoals({ bills, goals }: BudgetGoalsProps) {
             <div>
               <p className="text-2xl font-semibold text-neo-dark">{bill.title}</p>
               <p className="text-sm font-medium text-rose-600">{bill.dueLabel}</p>
+              <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-neo-dark/55">
+                {bill.recurrenceLabel}
+                {bill.installmentLabel ? ` - ${bill.installmentLabel}` : ""}
+              </p>
             </div>
             <div className="text-right">
               <p className="text-3xl font-semibold text-neo-dark">{formatCurrency(bill.amount)}</p>
               <div className="mt-2 flex items-center justify-end gap-3">
                 <Badge tone={bill.status === "warning" ? "amber" : "danger"}>
-                  {bill.status === "warning" ? "Atrasada" : "Pendente"}
+                  {bill.status === "warning" ? "Urgente" : "Pendente"}
                 </Badge>
                 <MarkPersonalBillPaidButton billId={bill.id} className="mt-0 text-neo-pink" />
               </div>

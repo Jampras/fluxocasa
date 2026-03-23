@@ -33,6 +33,8 @@ export interface CreateHouseBillInput {
   valorCentavos: number;
   vencimento: Date;
   observacao?: string;
+  frequencia: "UNICA" | "MENSAL" | "PARCELADA" | "FIXA";
+  parcelasTotais?: number;
 }
 
 export interface UpdateHouseBillInput extends CreateHouseBillInput {
@@ -43,6 +45,8 @@ export interface CreateIncomeInput {
   titulo: string;
   valorCentavos: number;
   recebidaEm: Date;
+  frequencia: "UNICA" | "MENSAL" | "PARCELADA" | "FIXA";
+  parcelasTotais?: number;
 }
 
 export interface UpdateIncomeInput extends CreateIncomeInput {}
@@ -53,6 +57,8 @@ export interface CreatePersonalBillInput {
   valorCentavos: number;
   vencimento: Date;
   observacao?: string;
+  frequencia: "UNICA" | "MENSAL" | "PARCELADA" | "FIXA";
+  parcelasTotais?: number;
 }
 
 export interface UpdatePersonalBillInput extends CreatePersonalBillInput {

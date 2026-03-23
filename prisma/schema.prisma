@@ -60,6 +60,7 @@ enum FrequenciaTransacao {
   UNICA
   MENSAL
   PARCELADA
+  FIXA
 }
 
 enum StatusTransacao {
@@ -78,6 +79,7 @@ model Transacao {
   escopo          EscopoTransacao
   tipo            TipoTransacao
   frequencia      FrequenciaTransacao
+  serieId         String?
   status          StatusTransacao    @default(PENDENTE)
   
   parcelaAtual    Int?

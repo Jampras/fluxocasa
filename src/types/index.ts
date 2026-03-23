@@ -1,8 +1,7 @@
-import type { Route } from "next";
-
 export type Tone = "emerald" | "zinc" | "amber" | "slate" | "danger" | "success";
 
 export type BillStatus = "pending" | "paid" | "warning";
+export type RecurrenceType = "single" | "monthly" | "installment" | "fixed";
 
 export type ResidentRole = "ADMIN" | "MEMBER";
 
@@ -36,6 +35,11 @@ export interface HouseBill {
   dueDate: string;
   status: BillStatus;
   note?: string;
+  recurrenceType: RecurrenceType;
+  recurrenceLabel: string;
+  installmentLabel?: string;
+  installmentCurrent?: number;
+  installmentTotal?: number;
 }
 
 export interface ActivityItem {
@@ -48,7 +52,7 @@ export interface ActivityItem {
     label: string;
     tone: Tone;
   };
-  detailsHref?: Route;
+  detailsHref?: string;
   detailsLabel?: string;
   canMarkAsPaid?: boolean;
   houseBillId?: string;
@@ -72,6 +76,11 @@ export interface IncomeRecord {
   title: string;
   amount: number;
   receivedDate: string;
+  recurrenceType: RecurrenceType;
+  recurrenceLabel: string;
+  installmentLabel?: string;
+  installmentCurrent?: number;
+  installmentTotal?: number;
 }
 
 export interface ExpenseRecord {
@@ -91,6 +100,11 @@ export interface PersonalBillRecord {
   dueDate: string;
   status: BillStatus;
   note?: string;
+  recurrenceType: RecurrenceType;
+  recurrenceLabel: string;
+  installmentLabel?: string;
+  installmentCurrent?: number;
+  installmentTotal?: number;
 }
 
 export interface HouseCycleSummary {
@@ -141,6 +155,7 @@ export interface HouseSnapshot {
   freeBalance: number;
   cycle: HouseCycleSummary;
   healthStatus: string;
+  healthDescription: string;
   reviewDate: string;
   contributions: HouseContribution[];
   pendingBills: HouseBill[];

@@ -82,7 +82,15 @@ export async function deleteContribution(userId: string, contributionId: string)
  */
 export async function createHouseBill(
   userId: string,
-  input: { titulo: string; categoria: string; valorCentavos: number; vencimento: Date; observacao?: string }
+  input: {
+    titulo: string;
+    categoria: string;
+    valorCentavos: number;
+    vencimento: Date;
+    observacao?: string;
+    frequencia: "UNICA" | "MENSAL" | "PARCELADA" | "FIXA";
+    parcelasTotais?: number;
+  }
 ) {
   return fluxoCasaRepository.createHouseBill(userId, input);
 }
@@ -100,6 +108,8 @@ export async function updateHouseBill(
     vencimento: Date;
     observacao?: string;
     status?: string;
+    frequencia: "UNICA" | "MENSAL" | "PARCELADA" | "FIXA";
+    parcelasTotais?: number;
   }
 ) {
   return fluxoCasaRepository.updateHouseBill(userId, billId, input);

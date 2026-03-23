@@ -20,7 +20,13 @@ export async function getPersonalGoals(userId: string) {
  */
 export async function createIncome(
   userId: string,
-  input: { titulo: string; valorCentavos: number; recebidaEm: Date }
+  input: {
+    titulo: string;
+    valorCentavos: number;
+    recebidaEm: Date;
+    frequencia: "UNICA" | "MENSAL" | "PARCELADA" | "FIXA";
+    parcelasTotais?: number;
+  }
 ) {
   return fluxoCasaRepository.createIncome(userId, input);
 }
@@ -31,7 +37,13 @@ export async function createIncome(
 export async function updateIncome(
   userId: string,
   incomeId: string,
-  input: { titulo: string; valorCentavos: number; recebidaEm: Date }
+  input: {
+    titulo: string;
+    valorCentavos: number;
+    recebidaEm: Date;
+    frequencia: "UNICA" | "MENSAL" | "PARCELADA" | "FIXA";
+    parcelasTotais?: number;
+  }
 ) {
   return fluxoCasaRepository.updateIncome(userId, incomeId, input);
 }
@@ -48,7 +60,15 @@ export async function deleteIncome(userId: string, incomeId: string) {
  */
 export async function createPersonalBill(
   userId: string,
-  input: { titulo: string; categoria: string; valorCentavos: number; vencimento: Date; observacao?: string }
+  input: {
+    titulo: string;
+    categoria: string;
+    valorCentavos: number;
+    vencimento: Date;
+    observacao?: string;
+    frequencia: "UNICA" | "MENSAL" | "PARCELADA" | "FIXA";
+    parcelasTotais?: number;
+  }
 ) {
   return fluxoCasaRepository.createPersonalBill(userId, input);
 }
@@ -66,6 +86,8 @@ export async function updatePersonalBill(
     vencimento: Date;
     observacao?: string;
     status?: string;
+    frequencia: "UNICA" | "MENSAL" | "PARCELADA" | "FIXA";
+    parcelasTotais?: number;
   }
 ) {
   return fluxoCasaRepository.updatePersonalBill(userId, billId, input);

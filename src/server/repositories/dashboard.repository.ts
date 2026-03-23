@@ -39,12 +39,12 @@ export const dashboardRepository = {
       if (nextPendingHouseBill) {
         return {
           title: houseBillsThisMonth.filter((item) => item.status !== STATUS_PAID).length > 1 ? "Existem contas da casa pedindo atencao" : "Existe uma conta da casa pedindo atencao",
-          description: `A proxima vence em ${new Intl.DateTimeFormat("pt-BR", { day: "2-digit", month: "2-digit" }).format(nextPendingHouseBill.vencimento)}. Priorize essa revisao para evitar atraso.`, actionLabel: "Abrir contas da casa", actionHref: ROUTES.casa
+          description: `A proxima vence em ${new Intl.DateTimeFormat("pt-BR", { day: "2-digit", month: "2-digit" }).format(nextPendingHouseBill.vencimento)}. Priorize essa revisao para evitar atraso.`, actionLabel: "Abrir contas da casa", actionHref: "/dashboard?tab=casa#house-manage-bills"
         };
       }
-      if (privateWalletCents < 0) { return { title: "Sua carteira pessoal fechou no vermelho", description: "Revise gastos e contas pessoais para recuperar margem ainda neste mes.", actionLabel: "Abrir painel pessoal", actionHref: ROUTES.pessoal }; }
-      if (goalsThisMonth.length === 0) { return { title: "Voce ainda nao definiu metas para este mes", description: "Cadastre limites por categoria para acompanhar seus gastos variaveis.", actionLabel: "Criar metas", actionHref: ROUTES.pessoal }; }
-      if ((cycle?.endingBalance ?? 0) > 0) { return { title: "A casa terminou o mes com folga", description: `O caixa projetado esta em ${new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(cycle?.endingBalance ?? 0)}. Considere reservar parte do saldo.`, actionLabel: "Ver resumo da casa", actionHref: ROUTES.casa }; }
+      if (privateWalletCents < 0) { return { title: "Sua carteira pessoal fechou no vermelho", description: "Revise gastos e contas pessoais para recuperar margem ainda neste mes.", actionLabel: "Abrir painel pessoal", actionHref: "/dashboard?tab=pessoal#personal-manage-bills" }; }
+      if (goalsThisMonth.length === 0) { return { title: "Voce ainda nao definiu metas para este mes", description: "Cadastre limites por categoria para acompanhar seus gastos variaveis.", actionLabel: "Criar metas", actionHref: "/dashboard?tab=pessoal#personal-create-goal" }; }
+      if ((cycle?.endingBalance ?? 0) > 0) { return { title: "A casa terminou o mes com folga", description: `O caixa projetado esta em ${new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(cycle?.endingBalance ?? 0)}. Considere reservar parte do saldo.`, actionLabel: "Ver resumo da casa", actionHref: "/dashboard?tab=casa" }; }
       return { title: "Panorama do mes atualizado", description: "Continue registrando contas e contribuicoes para manter o fechamento confiavel.", actionLabel: "Acompanhar dashboard", actionHref: ROUTES.dashboard };
     })();
 
@@ -70,7 +70,7 @@ export const dashboardRepository = {
         const tone: ActivityItem["badge"]["tone"] =
           uiStatus === "paid" ? "success" : uiStatus === "warning" ? "amber" : "danger";
         return {
-          id: `personal-${bill.id}`, title: bill.titulo, subtitle: bill.categoria, amount: toCurrencyValue(bill.valorCentavos), dateLabel: formatActivityDate(bill.vencimento, uiStatus === "paid" ? "Pago ate" : "Vence em"), badge: { label: uiStatus === "paid" ? "Paga" : uiStatus === "warning" ? "Atrasada" : "Pendente", tone }, detailsHref: ROUTES.pessoal, detailsLabel: "Editar", canMarkPersonalAsPaid: uiStatus !== "paid", personalBillId: bill.id, sortDate: bill.vencimento.getTime()
+          id: `personal-${bill.id}`, title: bill.titulo, subtitle: bill.categoria, amount: toCurrencyValue(bill.valorCentavos), dateLabel: formatActivityDate(bill.vencimento, uiStatus === "paid" ? "Pago ate" : "Vence em"), badge: { label: uiStatus === "paid" ? "Paga" : uiStatus === "warning" ? "Urgente" : "Pendente", tone }, detailsHref: "/dashboard?tab=pessoal#personal-manage-bills", detailsLabel: "Editar", canMarkPersonalAsPaid: uiStatus !== "paid", personalBillId: bill.id, sortDate: bill.vencimento.getTime()
         };
       }),
       ...contasCasa.map((bill) => {
@@ -78,7 +78,7 @@ export const dashboardRepository = {
         const tone: ActivityItem["badge"]["tone"] =
           uiStatus === "paid" ? "success" : uiStatus === "warning" ? "amber" : "danger";
         return {
-          id: `house-${bill.id}`, title: bill.titulo, subtitle: `Casa - ${bill.categoria}`, amount: toCurrencyValue(bill.valorCentavos), dateLabel: uiStatus === "paid" && bill.pagaEm ? formatActivityDate(bill.pagaEm, "Paga em") : formatActivityDate(bill.vencimento, "Vence em"), badge: { label: uiStatus === "paid" ? "Paga" : uiStatus === "warning" ? "Atrasada" : "Pendente", tone }, detailsHref: ROUTES.casa, detailsLabel: "Editar", canMarkAsPaid: uiStatus !== "paid", houseBillId: bill.id, sortDate: bill.pagaEm?.getTime() ?? bill.vencimento.getTime()
+          id: `house-${bill.id}`, title: bill.titulo, subtitle: `Casa - ${bill.categoria}`, amount: toCurrencyValue(bill.valorCentavos), dateLabel: uiStatus === "paid" && bill.pagaEm ? formatActivityDate(bill.pagaEm, "Paga em") : formatActivityDate(bill.vencimento, "Vence em"), badge: { label: uiStatus === "paid" ? "Paga" : uiStatus === "warning" ? "Urgente" : "Pendente", tone }, detailsHref: "/dashboard?tab=casa#house-manage-bills", detailsLabel: "Editar", canMarkAsPaid: uiStatus !== "paid", houseBillId: bill.id, sortDate: bill.pagaEm?.getTime() ?? bill.vencimento.getTime()
         };
       })
     ].sort((a, b) => b.sortDate - a.sortDate).slice(0, 3);

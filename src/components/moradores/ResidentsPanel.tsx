@@ -14,7 +14,7 @@ export function ResidentsPanel({ snapshot }: ResidentsPanelProps) {
   return (
     <section className="grid gap-4 animate-fade-in-up pb-10">
 
-        {/* Reordering residents to show current user first */}
+        <div id="config-moradores" />
         {[...snapshot.residents].sort((a, b) => (a.isCurrentUser === b.isCurrentUser ? 0 : a.isCurrentUser ? -1 : 1)).map((resident) => {
           const isMe = resident.isCurrentUser;
           return (
@@ -55,14 +55,14 @@ export function ResidentsPanel({ snapshot }: ResidentsPanelProps) {
           );
         })}
 
-        <div className="mt-4">
+        <div id="config-convite" className="mt-4">
           <InviteCodeActions
             inviteCode={snapshot.inviteCode}
             canRotate={snapshot.canManageResidents}
           />
         </div>
 
-        <Card className="bg-neo-bg border-4 border-neo-dark  rounded-none p-5">
+        <Card id="config-historico" className="bg-neo-bg border-4 border-neo-dark  rounded-none p-5">
           <div className="space-y-4">
             <div>
               <h3 className="text-2xl font-bold text-neo-dark">Historico da casa</h3>
@@ -87,10 +87,12 @@ export function ResidentsPanel({ snapshot }: ResidentsPanelProps) {
           </div>
         </Card>
 
-        <LeaveHouseActions
-          isAdmin={snapshot.currentUserRole === "ADMIN"}
-          residentCount={snapshot.residents.length}
-        />
+        <div id="config-saida">
+          <LeaveHouseActions
+            isAdmin={snapshot.currentUserRole === "ADMIN"}
+            residentCount={snapshot.residents.length}
+          />
+        </div>
 
     </section>
   );

@@ -14,7 +14,7 @@ interface HouseBillsSectionProps {
 const statusLabelMap: Record<HouseBill["status"], string> = {
   pending: "Pendente",
   paid: "Paga",
-  warning: "Alerta"
+  warning: "Urgente"
 };
 
 export function HouseBillsSection({
@@ -39,6 +39,10 @@ export function HouseBillsSection({
               <div>
                 <p className="text-lg font-bold text-neo-dark ">{item.title}</p>
                 <p className="text-xs font-semibold text-neo-pink tracking-wide mt-0.5">{item.dueLabel}</p>
+                <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-neo-dark/55">
+                  {item.recurrenceLabel}
+                  {item.installmentLabel ? ` - ${item.installmentLabel}` : ""}
+                </p>
               </div>
               <Badge
                 className={`text-[10px] uppercase font-bold tracking-wider border-none px-2.5 py-1 ${

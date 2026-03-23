@@ -1,11 +1,13 @@
 "use client";
 
 import type { FormEvent } from "react";
-import { useRouter } from "next/navigation";
-import { startTransition, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useState } from "react";
 
+import { refreshCurrentView } from "@/lib/app-refresh";
 import { requestJson } from "@/lib/client-api";
 import type { HouseBill, HouseContribution } from "@/types";
+import { RecurrenceFields } from "@/components/forms/RecurrenceFields";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { Input } from "@/components/ui/Input";
@@ -22,13 +24,20 @@ function uiStatusToApi(status: HouseBill["status"]) {
   return status === "paid" ? "PAGA" : "PENDENTE";
 }
 
+function uiRecurrenceToApi(recurrenceType: HouseBill["recurrenceType"]) {
+  if (recurrenceType === "monthly") return "MENSAL";
+  if (recurrenceType === "installment") return "PARCELADA";
+  if (recurrenceType === "fixed") return "FIXA";
+  return "UNICA";
+}
+
 function uiStatusLabel(status: HouseBill["status"]) {
   if (status === "paid") {
     return "Paga";
   }
 
   if (status === "warning") {
-    return "Atrasada";
+    return "Urgente";
   }
 
   return "Pendente";
@@ -36,14 +45,14 @@ function uiStatusLabel(status: HouseBill["status"]) {
 
 export function HouseActions({ contributions, bills }: HouseActionsProps) {
   const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
   const [error, setError] = useState<string | null>(null);
   const [loadingAction, setLoadingAction] = useState<string | null>(null);
   const currentContribution = contributions.find((item) => item.isCurrentUser);
 
   function refresh() {
-    startTransition(() => {
-      router.refresh();
-    });
+    refreshCurrentView(router, pathname, searchParams);
   }
 
   async function submit(url: string, method: string, payload?: Record<string, unknown>) {
@@ -69,7 +78,7 @@ export function HouseActions({ contributions, bills }: HouseActionsProps) {
 
   return (
     <div className="grid gap-6">
-      <Card className="bg-neo-bg">
+      <Card id="house-contribution" className="bg-neo-bg">
         <div className="space-y-4">
           <div className="flex items-center justify-between gap-4">
             <h3 className="text-2xl font-semibold text-neo-dark">Declarar contribuicao</h3>
@@ -123,7 +132,7 @@ export function HouseActions({ contributions, bills }: HouseActionsProps) {
         </div>
       </Card>
 
-      <Card className="bg-neo-bg border-4 border-neo-dark ">
+      <Card id="house-create-bill" className="bg-neo-bg border-4 border-neo-dark ">
         <div className="space-y-4">
           <h3 className="text-2xl font-semibold text-neo-dark">Adicionar conta da casa</h3>
           <form
@@ -139,7 +148,9 @@ export function HouseActions({ contributions, bills }: HouseActionsProps) {
                     categoria: formData.get("categoria"),
                     valor: formData.get("valor"),
                     vencimento: formData.get("vencimento"),
-                    observacao: formData.get("observacao")
+                    observacao: formData.get("observacao"),
+                    frequencia: formData.get("frequencia"),
+                    parcelasTotais: formData.get("parcelasTotais")
                   }),
                 "Nao foi possivel criar a conta."
               );
@@ -150,6 +161,7 @@ export function HouseActions({ contributions, bills }: HouseActionsProps) {
             <Input id="valorContaCasa" name="valor" label="Valor" placeholder="1800" type="number" step="0.01" />
             <Input id="vencimento" name="vencimento" label="Vencimento" type="date" />
             <Input id="observacao" name="observacao" label="Observacao" placeholder="Opcional" />
+            <RecurrenceFields installmentsLabel="Parcelas da conta" />
             <Button fullWidth disabled={loadingAction === "bill"}>
               {loadingAction === "bill" ? "Criando..." : "Criar conta"}
             </Button>
@@ -157,7 +169,7 @@ export function HouseActions({ contributions, bills }: HouseActionsProps) {
         </div>
       </Card>
 
-      <Card className="bg-neo-bg">
+      <Card id="house-manage-bills" className="bg-neo-bg">
         <div className="space-y-4">
           <h3 className="text-2xl font-semibold text-neo-dark">Gerenciar contas</h3>
           {bills.length === 0 ? <p className="text-sm text-neo-dark/60">Nenhuma conta da casa neste mes.</p> : null}
@@ -169,6 +181,10 @@ export function HouseActions({ contributions, bills }: HouseActionsProps) {
                     <div>
                       <p className="text-lg font-semibold text-neo-dark">{bill.title}</p>
                       <p className="text-sm text-neo-dark/60">{bill.dueLabel}</p>
+                      <p className="text-xs font-semibold uppercase tracking-[0.18em] text-neo-pink">
+                        {bill.recurrenceLabel}
+                        {bill.installmentLabel ? ` - ${bill.installmentLabel}` : ""}
+                      </p>
                     </div>
                     <div className="text-right">
                       <p className="text-lg font-semibold text-neo-dark">{formatCurrency(bill.amount)}</p>
@@ -190,7 +206,9 @@ export function HouseActions({ contributions, bills }: HouseActionsProps) {
                           valor: formData.get("valor"),
                           vencimento: formData.get("vencimento"),
                           observacao: formData.get("observacao"),
-                          status: formData.get("status")
+                          status: formData.get("status"),
+                          frequencia: formData.get("frequencia"),
+                          parcelasTotais: formData.get("parcelasTotais")
                         }),
                       "Nao foi possivel atualizar a conta."
                     );
@@ -223,6 +241,11 @@ export function HouseActions({ contributions, bills }: HouseActionsProps) {
                     id={`bill-note-${bill.id}`}
                     label="Observacao"
                     defaultValue={bill.note ?? ""}
+                  />
+                  <RecurrenceFields
+                    defaultFrequency={uiRecurrenceToApi(bill.recurrenceType)}
+                    defaultInstallments={bill.installmentTotal}
+                    installmentsLabel="Parcelas da conta"
                   />
                   <label className="grid gap-2 text-sm font-medium text-neo-dark/75" htmlFor={`bill-status-${bill.id}`}>
                     <span>Status</span>

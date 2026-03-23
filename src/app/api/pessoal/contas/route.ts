@@ -1,4 +1,5 @@
 import { created, ok } from "@/server/http/response";
+import { revalidateAppViews } from "@/server/cache/revalidate-app";
 import { personalBillSchema } from "@/server/validation/personal";
 import { createPersonalBill, getPersonalSnapshot } from "@/server/services/personal.service";
 import { apiHandler } from "@/server/http/handler";
@@ -17,8 +18,11 @@ export const POST = apiHandler({
       categoria: data.categoria,
       valorCentavos: data.valorCentavos,
       vencimento: data.vencimentoDate,
-      observacao: data.observacao || undefined
+      observacao: data.observacao || undefined,
+      frequencia: data.frequencia,
+      parcelasTotais: data.parcelasTotais
     });
+    revalidateAppViews();
 
     return created({ message: "Conta pessoal salva com sucesso." });
   }
