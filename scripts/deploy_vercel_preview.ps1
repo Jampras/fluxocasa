@@ -42,11 +42,8 @@ foreach ($key in $requiredKeys) {
 
 foreach ($key in $requiredKeys) {
   foreach ($target in $targets) {
-    $tmp = [System.IO.Path]::GetTempFileName()
-    [System.IO.File]::WriteAllText($tmp, $envMap[$key])
     & vercel env remove $key $target -y --scope $Scope *> $null
-    Get-Content -Raw $tmp | & vercel env add $key $target --scope $Scope *> $null
-    Remove-Item $tmp -Force
+    & vercel env add $key $target --value $envMap[$key] --yes --scope $Scope *> $null
   }
 }
 
