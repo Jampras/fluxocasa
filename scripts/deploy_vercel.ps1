@@ -13,7 +13,8 @@ $requiredKeys = @(
   "DIRECT_URL",
   "APP_SECRET",
   "NEXT_PUBLIC_SUPABASE_URL",
-  "NEXT_PUBLIC_SUPABASE_ANON_KEY"
+  "NEXT_PUBLIC_SUPABASE_ANON_KEY",
+  "NEXT_PUBLIC_APP_URL"
 )
 
 $syncTargets = if ($Target -eq "production") {

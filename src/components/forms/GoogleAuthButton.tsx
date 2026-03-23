@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { getSupabaseBrowserClient } from "@/lib/supabase/browser";
 import { NeoButton } from "@/components/ui/NeoButton";
+import { getPublicEnv } from "@/config/env";
 
 interface GoogleAuthButtonProps {
   mode: "login" | "register";
@@ -11,6 +12,7 @@ interface GoogleAuthButtonProps {
 export function GoogleAuthButton({ mode }: GoogleAuthButtonProps) {
   const [error, setError] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
+  const { NEXT_PUBLIC_APP_URL: appUrl } = getPublicEnv();
 
   async function handleGoogleAuth() {
     const supabase = getSupabaseBrowserClient();
@@ -18,12 +20,15 @@ export function GoogleAuthButton({ mode }: GoogleAuthButtonProps) {
       setError("Supabase nao configurado. Revise as variaveis de ambiente.");
       return;
     }
+
+    const redirectBaseUrl = appUrl?.replace(/\/$/, "") || window.location.origin;
+
     setPending(true);
     setError(null);
     const { error: authError } = await supabase.auth.signInWithOAuth({
       provider: "google",
       options: {
-        redirectTo: `${window.location.origin}/auth/callback`
+        redirectTo: `${redirectBaseUrl}/auth/callback`
       }
     });
     if (authError) {
