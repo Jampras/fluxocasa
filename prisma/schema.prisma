@@ -1,0 +1,156 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model Casa {
+  id                    String          @id @default(cuid())
+  nome                  String
+  codigoConvite         String          @unique
+  saldoAcumuladoCentavos Int            @default(0)
+  criadaEm              DateTime        @default(now())
+  atualizadaEm          DateTime        @updatedAt
+  
+  moradores             Morador[]
+  contribuicoes         Contribuicao[]
+  transacoes            Transacao[]
+  ciclosMensais         CicloMensal[]
+  auditorias            AuditoriaCasa[]
+}
+
+model Morador {
+  id                 String           @id @default(cuid())
+  authUserId         String?          @unique
+  nome               String
+  email              String           @unique
+  senhaHash          String
+  avatarUrl          String?
+  role               String           @default("MEMBRO")
+  criadoEm           DateTime         @default(now())
+  atualizadoEm       DateTime         @updatedAt
+  
+  casaId             String?
+  casa               Casa?            @relation(fields: [casaId], references: [id], onDelete: SetNull)
+  
+  contribuicoes      Contribuicao[]
+  transacoes         Transacao[]
+  metas              MetaOrcamento[]
+  auditoriasComoAtor AuditoriaCasa[]  @relation("AuditoriaCasaAtor")
+  auditoriasComoAlvo AuditoriaCasa[]  @relation("AuditoriaCasaAlvo")
+
+  @@index([casaId])
+}
+
+enum EscopoTransacao {
+  PESSOAL
+  CASA
+}
+
+enum TipoTransacao {
+  DESPESA
+  RECEITA
+}
+
+enum FrequenciaTransacao {
+  UNICA
+  MENSAL
+  PARCELADA
+}
+
+enum StatusTransacao {
+  PENDENTE
+  CONCLUIDA
+}
+
+model Transacao {
+  id              String             @id @default(cuid())
+  titulo          String
+  valorCentavos   Int
+  categoria       String
+  dataVencimento  DateTime
+  dataPagamento   DateTime?
+  
+  escopo          EscopoTransacao
+  tipo            TipoTransacao
+  frequencia      FrequenciaTransacao
+  status          StatusTransacao    @default(PENDENTE)
+  
+  parcelaAtual    Int?
+  parcelasTotais  Int?
+  observacao      String?
+
+  moradorId       String
+  casaId          String?
+  
+  criadaEm        DateTime           @default(now())
+  atualizadaEm    DateTime           @updatedAt
+
+  morador         Morador            @relation(fields: [moradorId], references: [id], onDelete: Cascade)
+  casa            Casa?              @relation(fields: [casaId], references: [id], onDelete: SetNull)
+
+  @@index([moradorId, escopo, dataVencimento])
+  @@index([casaId, dataVencimento])
+}
+
+model Contribuicao {
+  id            String         @id @default(cuid())
+  valorCentavos Int
+  mes           Int
+  ano           Int
+  status        String         @default("CONFIRMADO")
+  criadaEm      DateTime       @default(now())
+  editadaEm     DateTime       @updatedAt
+  moradorId     String
+  casaId        String
+  morador       Morador        @relation(fields: [moradorId], references: [id], onDelete: Cascade)
+  casa          Casa           @relation(fields: [casaId], references: [id], onDelete: Cascade)
+
+  @@unique([moradorId, casaId, mes, ano])
+  @@index([casaId, mes, ano])
+}
+
+model MetaOrcamento {
+  id                String   @id @default(cuid())
+  categoria         String
+  valorMetaCentavos Int
+  mes               Int
+  ano               Int
+  moradorId         String
+  morador           Morador  @relation(fields: [moradorId], references: [id], onDelete: Cascade)
+
+  @@unique([moradorId, categoria, mes, ano])
+}
+
+model CicloMensal {
+  id                   String   @id @default(cuid())
+  mes                  Int
+  ano                  Int
+  saldoInicialCentavos Int
+  saldoFinalCentavos   Int
+  casaId               String
+  casa                 Casa     @relation(fields: [casaId], references: [id], onDelete: Cascade)
+
+  @@unique([casaId, mes, ano])
+}
+
+model AuditoriaCasa {
+  id            String    @id @default(cuid())
+  tipo          String
+  descricao     String
+  casaId        String
+  atorMoradorId String?
+  alvoMoradorId String?
+  criadoEm      DateTime  @default(now())
+  casa          Casa      @relation(fields: [casaId], references: [id], onDelete: Cascade)
+  ator          Morador?  @relation("AuditoriaCasaAtor", fields: [atorMoradorId], references: [id], onDelete: SetNull)
+  alvo          Morador?  @relation("AuditoriaCasaAlvo", fields: [alvoMoradorId], references: [id], onDelete: SetNull)
+
+  @@index([casaId, criadoEm])
+  @@index([atorMoradorId])
+  @@index([alvoMoradorId])
+}

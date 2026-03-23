@@ -1,0 +1,32 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: light;
+}
+
+html, body {
+  overflow-x: hidden;
+}
+
+/* Halftone texture background (subtle dotted pattern) */
+body::before {
+  content: "";
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  pointer-events: none;
+  background-image: radial-gradient(circle, #0F172A 1.5px, transparent 1.5px);
+  background-size: 24px 24px;
+  opacity: 0.05;
+  z-index: -1;
+}
+
+/* Utilities mapped from font-family */
+.font-heading {
+  font-family: var(--font-heading), sans-serif;
+  letter-spacing: 0.05em;
+}
