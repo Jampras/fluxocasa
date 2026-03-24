@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import {
   Building2,
@@ -97,6 +97,14 @@ export function FabWizard() {
   const [showToast, setShowToast] = useState(false);
 
   const currentScope = selectedScope ?? inferredScope ?? EscopoTransacao.PESSOAL;
+
+  useEffect(() => {
+    document.body.classList.toggle("wizard-open", isOpen);
+
+    return () => {
+      document.body.classList.remove("wizard-open");
+    };
+  }, [isOpen]);
 
   const despesaCategories = useMemo<CategoryOption[]>(
     () =>

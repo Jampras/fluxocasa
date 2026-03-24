@@ -23,7 +23,7 @@ export function Navbar() {
 
   return (
     <>
-      <div className="fixed inset-x-0 bottom-0 z-40 w-full border-t-[3px] border-neo-dark bg-neo-lime/95 pb-safe backdrop-blur-sm md:hidden">
+      <div className="mobile-app-navbar fixed inset-x-0 bottom-0 z-40 w-full border-t-[3px] border-neo-dark bg-neo-lime/95 pb-safe backdrop-blur-sm transition-all duration-200 md:hidden">
         <nav className="w-full px-2 py-2">
           <ul className="flex items-center justify-around w-full">
             {APP_NAVIGATION.map((item) => {

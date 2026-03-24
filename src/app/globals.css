@@ -23,6 +23,16 @@ body {
   -webkit-tap-highlight-color: transparent;
 }
 
+body.wizard-open {
+  overflow: hidden;
+}
+
+body.wizard-open .mobile-app-navbar {
+  transform: translateY(120%);
+  opacity: 0;
+  pointer-events: none;
+}
+
 /* Halftone texture background (subtle dotted pattern) */
 body::before {
   content: "";
