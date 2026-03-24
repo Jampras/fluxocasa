@@ -4,6 +4,7 @@ import { HouseOverview } from "@/components/casa/HouseOverview";
 import { HouseActions } from "@/components/forms/HouseActions";
 import { PersonalActions } from "@/components/forms/PersonalActions";
 import { HouseHistorySection } from "@/components/gerenciar/HouseHistorySection";
+import { ManageSectionNav } from "@/components/gerenciar/ManageSectionNav";
 import { ManageTabs } from "@/components/gerenciar/ManageTabs";
 import { PersonalHistorySection } from "@/components/gerenciar/PersonalHistorySection";
 import { AppHeader } from "@/components/layout/AppHeader";
@@ -46,7 +47,19 @@ export default async function GerenciarPage({
           </p>
         </div>
 
-        <div className="grid gap-4 sm:gap-6 xl:grid-cols-[0.9fr_1.1fr]">
+        <ManageSectionNav
+          title="Atalhos do fluxo pessoal"
+          items={[
+            { id: "personal-overview", label: "Resumo" },
+            { id: "personal-create-income", label: "Renda" },
+            { id: "personal-create-bill", label: "Contas" },
+            { id: "personal-create-expense", label: "Gastos" },
+            { id: "personal-create-goal", label: "Metas" },
+            { id: "personal-history", label: "Historico" }
+          ]}
+        />
+
+        <div id="personal-overview" className="grid gap-4 sm:gap-6 xl:grid-cols-[0.9fr_1.1fr]">
           <PersonalOverview snapshot={snapshot} />
           <BudgetGoals bills={snapshot.weeklyBills} goals={snapshot.goals} />
         </div>
@@ -58,7 +71,9 @@ export default async function GerenciarPage({
           goals={snapshot.goals}
         />
 
-        <PersonalHistorySection incomes={snapshot.incomes} expenses={snapshot.expenses} />
+        <div id="personal-history">
+          <PersonalHistorySection incomes={snapshot.incomes} expenses={snapshot.expenses} />
+        </div>
       </div>
     );
   }
@@ -79,11 +94,28 @@ export default async function GerenciarPage({
         </p>
       </div>
 
-      <HouseOverview snapshot={snapshot} />
+      <ManageSectionNav
+        title="Atalhos do fluxo da casa"
+        items={[
+          { id: "house-overview", label: "Resumo" },
+          { id: "house-contribution", label: "Contribuicao" },
+          { id: "house-create-bill", label: "Nova conta" },
+          { id: "house-manage-bills", label: "Pendencias" },
+          { id: "house-history", label: "Historico" }
+        ]}
+      />
+
+      <div id="house-overview">
+        <HouseOverview snapshot={snapshot} />
+      </div>
       <HouseActions contributions={snapshot.contributions} bills={[...snapshot.pendingBills, ...snapshot.paidBills]} />
-      <ContributionsList items={snapshot.contributions} />
+      <div id="house-contributions">
+        <ContributionsList items={snapshot.contributions} />
+      </div>
       <HouseBillsSection title="Contas Pendentes" items={snapshot.pendingBills} elevated allowMarkAsPaid />
-      <HouseHistorySection paidBills={snapshot.paidBills} auditLog={residents.auditLog} />
+      <div id="house-history">
+        <HouseHistorySection paidBills={snapshot.paidBills} auditLog={residents.auditLog} />
+      </div>
     </div>
   );
 }

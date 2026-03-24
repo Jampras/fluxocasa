@@ -15,13 +15,13 @@ test.describe("Authenticated App", () => {
   test("authenticated user can access the house management view", async ({ page }) => {
     await createE2ESession(page);
     await page.goto("/gerenciar?tab=casa", { waitUntil: "domcontentloaded" });
-    await expect(page.getByText("Fluxo da casa")).toBeVisible();
+    await expect(page.getByText("Fluxo da casa", { exact: true })).toBeVisible();
   });
 
   test("authenticated user can access the personal management view", async ({ page }) => {
     await createE2ESession(page);
     await page.goto("/gerenciar?tab=pessoal", { waitUntil: "domcontentloaded" });
-    await expect(page.getByText("Fluxo pessoal")).toBeVisible();
+    await expect(page.getByText("Fluxo pessoal", { exact: true })).toBeVisible();
   });
 
   test("authenticated user is redirected from the old calendar route to the dashboard", async ({ page }) => {
