@@ -593,6 +593,8 @@ export function FabWizard() {
           type="button"
           onClick={openWizard}
           whileHover={{ scale: 1.05 }}
+          aria-label="Novo lancamento"
+          title="Novo lancamento"
           className="fixed bottom-24 right-5 z-40 flex h-16 w-16 items-center justify-center border-4 border-neo-dark bg-neo-lime shadow-[5px_5px_0px_#0F172A] transition-colors hover:bg-neo-yellow sm:right-6 sm:h-18 sm:w-18 md:bottom-8 md:right-8 md:h-20 md:w-20 md:shadow-[6px_6px_0px_#0F172A]"
         >
           <Plus size={40} className="stroke-[4px] text-neo-dark sm:h-11 sm:w-11 md:h-12 md:w-12" />

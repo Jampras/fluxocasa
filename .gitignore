@@ -9,5 +9,6 @@ coverage
 .agent
 test-results
 playwright-report
+.playwright-cli
 *.tsbuildinfo
 prisma/dev.db
