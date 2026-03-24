@@ -572,39 +572,16 @@ export function FabWizard() {
                     Revise os campos acima e toque em salvar lancamento.
                   </p>
                 ) : null}
-                <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between sm:gap-3">
-                  <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:gap-3">
-                    <NeoButton
-                      type="button"
-                      variant="secondary"
-                      onClick={goBack}
-                      className="w-full text-base sm:w-auto sm:text-lg"
-                    >
-                      {step === "scope" ? "Fechar" : "Voltar"}
-                    </NeoButton>
-                    {step === "details" ? (
-                      <NeoButton
-                        type="button"
-                        variant="secondary"
-                        onClick={closeWizard}
-                        className="w-full text-base sm:w-auto sm:text-lg"
-                      >
-                        Cancelar
-                      </NeoButton>
-                    ) : null}
-                  </div>
-
-                  {step === "details" ? (
-                    <NeoButton
-                      type="button"
-                      className="w-full text-base sm:w-auto sm:text-lg"
-                      onClick={() => void handleSubmit()}
-                      disabled={loading}
-                    >
-                      {loading ? "Salvando..." : "Salvar lancamento"}
-                    </NeoButton>
-                  ) : null}
-                </div>
+                {step === "details" ? (
+                  <NeoButton
+                    type="button"
+                    className="w-full text-base sm:text-lg"
+                    onClick={() => void handleSubmit()}
+                    disabled={loading}
+                  >
+                    {loading ? "Salvando..." : "Salvar lancamento"}
+                  </NeoButton>
+                ) : null}
               </div>
             </motion.div>
           </motion.div>
