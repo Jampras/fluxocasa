@@ -1,5 +1,11 @@
 import Link from "next/link";
 
+import {
+  CalendarGridModal,
+  type CalendarCell,
+  type CalendarItem,
+  type CalendarScope
+} from "@/components/calendario/CalendarGridModal";
 import { AppHeader } from "@/components/layout/AppHeader";
 import { Card } from "@/components/ui/Card";
 import { ScopeTabs } from "@/components/ui/ScopeTabs";
@@ -7,40 +13,6 @@ import { formatCurrency } from "@/lib/utils";
 import { requireCurrentResident } from "@/server/auth/user";
 import { getHouseSnapshot } from "@/server/services/house.service";
 import { getPersonalSnapshot } from "@/server/services/personal.service";
-
-type CalendarScope = "geral" | "casa" | "pessoal";
-
-interface CalendarItem {
-  id: string;
-  title: string;
-  amount: number;
-  scope: "Casa" | "Pessoal";
-  type: "Conta" | "Recebimento" | "Gasto";
-  date: string;
-  dateLabel: string;
-  status: string;
-  recurrenceLabel?: string;
-  href: {
-    pathname: "/dashboard";
-    query: {
-      tab: "casa" | "pessoal";
-      focus: string;
-    };
-    hash: string;
-  };
-  actionLabel: string;
-}
-
-interface CalendarCell {
-  key: string;
-  dayNumber: number;
-  isoDate: string;
-  inCurrentMonth: boolean;
-  isToday: boolean;
-  items: CalendarItem[];
-}
-
-const weekdayLabels = ["DOM", "SEG", "TER", "QUA", "QUI", "SEX", "SAB"];
 
 function formatDateLabel(value: string) {
   return new Intl.DateTimeFormat("pt-BR", {
@@ -105,22 +77,6 @@ function buildCalendarCells(referenceDate: Date, grouped: Map<string, CalendarIt
   });
 }
 
-function getCellTone(cell: CalendarCell) {
-  if (cell.isToday) {
-    return "bg-neo-yellow";
-  }
-
-  if (cell.items.some((item) => item.type === "Recebimento")) {
-    return "bg-neo-cyan/40";
-  }
-
-  if (cell.items.some((item) => item.type !== "Recebimento")) {
-    return "bg-neo-pink/20";
-  }
-
-  return "bg-white";
-}
-
 function getStatusClass(item: CalendarItem) {
   if (item.status === "Urgente") {
     return "bg-neo-pink text-white";
@@ -135,22 +91,6 @@ function getStatusClass(item: CalendarItem) {
   }
 
   return "bg-neo-yellow text-neo-dark";
-}
-
-function getMarkerClass(item: CalendarItem) {
-  if (item.type === "Recebimento") {
-    return "bg-neo-cyan";
-  }
-
-  if (item.status === "Urgente") {
-    return "bg-neo-pink";
-  }
-
-  if (item.status === "Paga" || item.status === "Recebido" || item.status === "Registrado") {
-    return "bg-neo-lime";
-  }
-
-  return "bg-neo-yellow";
 }
 
 export default async function CalendarioPage({
@@ -181,11 +121,7 @@ export default async function CalendarioPage({
       dateLabel: bill.dueLabel,
       status: bill.status === "warning" ? "Urgente" : "Pendente",
       recurrenceLabel: bill.recurrenceLabel,
-      href: {
-        pathname: "/dashboard" as const,
-        query: { tab: "casa" as const, focus: `house-bill-${bill.id}` },
-        hash: `house-bill-${bill.id}`
-      },
+      href: `/dashboard?tab=casa&focus=house-bill-${bill.id}#house-bill-${bill.id}`,
       actionLabel: "Editar conta"
     })) ?? []),
     ...(houseSnapshot?.paidBills.map((bill) => ({
@@ -198,11 +134,7 @@ export default async function CalendarioPage({
       dateLabel: bill.dueLabel,
       status: "Paga",
       recurrenceLabel: bill.recurrenceLabel,
-      href: {
-        pathname: "/dashboard" as const,
-        query: { tab: "casa" as const, focus: `house-bill-${bill.id}` },
-        hash: `house-bill-${bill.id}`
-      },
+      href: `/dashboard?tab=casa&focus=house-bill-${bill.id}#house-bill-${bill.id}`,
       actionLabel: "Ver conta"
     })) ?? []),
     ...(personalSnapshot?.personalBills.map((bill) => ({
@@ -215,11 +147,7 @@ export default async function CalendarioPage({
       dateLabel: bill.dueLabel,
       status: bill.status === "paid" ? "Paga" : bill.status === "warning" ? "Urgente" : "Pendente",
       recurrenceLabel: bill.recurrenceLabel,
-      href: {
-        pathname: "/dashboard" as const,
-        query: { tab: "pessoal" as const, focus: `personal-bill-${bill.id}` },
-        hash: `personal-bill-${bill.id}`
-      },
+      href: `/dashboard?tab=pessoal&focus=personal-bill-${bill.id}#personal-bill-${bill.id}`,
       actionLabel: "Editar conta"
     })) ?? []),
     ...(personalSnapshot?.incomes.map((income) => ({
@@ -232,11 +160,7 @@ export default async function CalendarioPage({
       dateLabel: income.dateLabel,
       status: income.status === "received" ? "Recebido" : "Previsto",
       recurrenceLabel: income.recurrenceLabel,
-      href: {
-        pathname: "/dashboard" as const,
-        query: { tab: "pessoal" as const, focus: `income-${income.id}` },
-        hash: `income-${income.id}`
-      },
+      href: `/dashboard?tab=pessoal&focus=income-${income.id}#income-${income.id}`,
       actionLabel: "Editar recebimento"
     })) ?? []),
     ...(personalSnapshot?.expenses.map((expense) => ({
@@ -248,11 +172,7 @@ export default async function CalendarioPage({
       date: expense.expenseDate,
       dateLabel: `Lancado em ${formatDateLabel(expense.expenseDate)}`,
       status: "Registrado",
-      href: {
-        pathname: "/dashboard" as const,
-        query: { tab: "pessoal" as const, focus: `expense-${expense.id}` },
-        hash: `expense-${expense.id}`
-      },
+      href: `/dashboard?tab=pessoal&focus=expense-${expense.id}#expense-${expense.id}`,
       actionLabel: "Ver gasto"
     })) ?? [])
   ].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
@@ -365,52 +285,7 @@ export default async function CalendarioPage({
           </div>
         </div>
 
-        <div className="grid grid-cols-7 border-[3px] border-neo-dark sm:border-4">
-          {weekdayLabels.map((label) => (
-            <div
-              key={label}
-              className="border-b-[3px] border-r-[3px] border-neo-dark bg-white px-1 py-2 text-center font-heading text-[10px] uppercase text-neo-dark last:border-r-0 sm:border-b-4 sm:border-r-4 sm:px-2 sm:py-3 sm:text-sm"
-            >
-              {label}
-            </div>
-          ))}
-
-          {calendarCells.map((cell, index) => (
-            <div
-              key={cell.key}
-              className={`relative min-h-[78px] border-r-[3px] border-b-[3px] border-neo-dark px-1.5 py-1.5 sm:min-h-[96px] sm:border-r-4 sm:border-b-4 sm:px-2 sm:py-2 xl:min-h-[132px] xl:px-3 xl:py-3 ${
-                index % 7 === 6 ? "border-r-0" : ""
-              } ${index >= calendarCells.length - 7 ? "border-b-0" : ""} ${cell.inCurrentMonth ? getCellTone(cell) : "bg-neo-dark/5 text-neo-dark/35"}`}
-            >
-              <div className="flex items-start justify-between gap-1">
-                <span className={`font-heading text-lg leading-none sm:text-2xl xl:text-[2rem] ${cell.isToday ? "italic" : ""}`}>
-                  {cell.dayNumber}
-                </span>
-                {cell.items.length > 0 ? (
-                  <span className="hidden rounded-full bg-white/80 px-1.5 py-0.5 text-[9px] font-black uppercase tracking-[0.08em] text-neo-dark sm:inline">
-                    {cell.items.length}
-                  </span>
-                ) : null}
-              </div>
-
-              {cell.items.length > 0 ? (
-                <div className="mt-3 flex flex-wrap gap-1 sm:mt-4 xl:mt-6 xl:gap-1.5">
-                  {cell.items.slice(0, 3).map((item) => (
-                    <span
-                      key={item.id}
-                      className={`h-2.5 w-2.5 border border-neo-dark sm:h-3 sm:w-3 xl:h-3.5 xl:w-3.5 ${getMarkerClass(item)}`}
-                    />
-                  ))}
-                  {cell.items.length > 3 ? (
-                    <span className="text-[9px] font-black uppercase tracking-[0.08em] text-neo-dark">
-                      +{cell.items.length - 3}
-                    </span>
-                  ) : null}
-                </div>
-              ) : null}
-            </div>
-          ))}
-        </div>
+        <CalendarGridModal activeScope={activeScope} calendarCells={calendarCells} />
       </Card>
 
       <Card className="bg-white p-4 sm:p-5 md:p-6 xl:p-8">
@@ -467,12 +342,12 @@ export default async function CalendarioPage({
                   <p className="font-heading text-3xl uppercase text-neo-dark sm:text-4xl">
                     {formatCurrency(item.amount)}
                   </p>
-                  <Link
+                  <a
                     href={item.href}
                     className="inline-flex items-center justify-center border-[3px] border-neo-dark bg-neo-yellow px-4 py-3 font-heading text-base uppercase text-neo-dark shadow-[4px_4px_0_#0F172A] transition-all hover:-translate-y-1 sm:border-4 sm:text-lg"
                   >
                     {item.actionLabel}
-                  </Link>
+                  </a>
                 </div>
               </div>
             ))

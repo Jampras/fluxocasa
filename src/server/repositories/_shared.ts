@@ -22,8 +22,16 @@ export function getCurrentReferenceDate() { return new Date(); }
 export function getMonthYear(date = getCurrentReferenceDate()) { return { month: date.getMonth() + 1, year: date.getFullYear() }; }
 export function getMonthRange(month: number, year: number) { const start = new Date(year, month - 1, 1); const end = new Date(year, month, 1); return { start, end }; }
 export function getMonthLabel(date = getCurrentReferenceDate()) { return new Intl.DateTimeFormat("pt-BR", { month: "long", year: "numeric" }).format(date); }
-export function formatDueLabel(date: Date, prefix: string) { return `${prefix} ${new Intl.DateTimeFormat("pt-BR", { day: "2-digit", month: "short" }).format(date)}`; }
-export function dateInputValue(date: Date) { return date.toISOString().slice(0, 10); }
+function toUtcDisplayDate(date: Date) {
+  return new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate(), 12));
+}
+export function formatDueLabel(date: Date, prefix: string) { return `${prefix} ${new Intl.DateTimeFormat("pt-BR", { day: "2-digit", month: "short" }).format(toUtcDisplayDate(date))}`; }
+export function dateInputValue(date: Date) {
+  const year = date.getUTCFullYear();
+  const month = `${date.getUTCMonth() + 1}`.padStart(2, "0");
+  const day = `${date.getUTCDate()}`.padStart(2, "0");
+  return `${year}-${month}-${day}`;
+}
 export function formatAuditDate(date: Date) { return new Intl.DateTimeFormat("pt-BR", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" }).format(date); }
 function startOfDay(date: Date) { return new Date(date.getFullYear(), date.getMonth(), date.getDate()); }
 function daysBetween(start: Date, end: Date) {

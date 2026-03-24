@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { toCents } from "@/lib/utils";
+import { parseDateInput, toCents } from "@/lib/utils";
 
 const recurrenceFields = {
   frequencia: z.enum(["UNICA", "MENSAL", "PARCELADA", "FIXA"]).default("UNICA"),
@@ -49,7 +49,7 @@ export const houseBillSchema = z.object({
 }).superRefine(validateRecurrence).transform(data => ({
   ...data,
   valorCentavos: toCents(data.valor),
-  vencimentoDate: new Date(data.vencimento),
+  vencimentoDate: parseDateInput(data.vencimento),
   parcelasTotais: data.frequencia === "PARCELADA" ? data.parcelasTotais ?? undefined : undefined
 }));
 
@@ -64,6 +64,6 @@ export const updateHouseBillSchema = z.object({
 }).superRefine(validateRecurrence).transform(data => ({
   ...data,
   valorCentavos: toCents(data.valor),
-  vencimentoDate: new Date(data.vencimento),
+  vencimentoDate: parseDateInput(data.vencimento),
   parcelasTotais: data.frequencia === "PARCELADA" ? data.parcelasTotais ?? undefined : undefined
 }));

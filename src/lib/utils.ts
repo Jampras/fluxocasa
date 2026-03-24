@@ -26,3 +26,8 @@ export function progressValue(spent: number, limit: number) {
 
   return Math.min((spent / limit) * 100, 100);
 }
+
+export function parseDateInput(value: string) {
+  const [year, month, day] = value.split("-").map(Number);
+  return new Date(Date.UTC(year, month - 1, day, 12));
+}
