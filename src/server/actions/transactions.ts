@@ -5,6 +5,7 @@ import { EscopoTransacao, StatusTransacao, TipoTransacao } from "@prisma/client"
 import { prisma } from "@/lib/prisma";
 import { requireCurrentResident } from "@/server/auth/user";
 import { revalidateAppViews } from "@/server/cache/revalidate-app";
+import { ensureHouseRecurringTransactions, ensurePersonalRecurringTransactions } from "@/server/repositories/_recurrence";
 import { createExpense, createIncome } from "@/server/services/personal.service";
 import { createHouseBill } from "@/server/services/house.service";
 
@@ -172,6 +173,8 @@ export async function getDashboardVisualization(
   const { month, year, start, end } = getCurrentMonthRange();
 
   if (escopo === EscopoTransacao.CASA) {
+    await ensureHouseRecurringTransactions(user.casaId!);
+
     const [bills, contributions] = await Promise.all([
       prisma.transacao.findMany({
         where: {
@@ -230,6 +233,8 @@ export async function getDashboardVisualization(
       ])
     };
   }
+
+  await ensurePersonalRecurringTransactions(user.id);
 
   const [transactions, currentContribution] = await Promise.all([
     prisma.transacao.findMany({

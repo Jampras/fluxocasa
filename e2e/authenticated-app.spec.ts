@@ -1,6 +1,6 @@
 import { expect, test } from "@playwright/test";
 
-import { createE2ESession, todayInputValue } from "./support/session";
+import { createE2EOnboardingSession, createE2ESession, todayInputValue } from "./support/session";
 
 test.describe("Authenticated App", () => {
   test("authenticated user can access the general dashboard", async ({ page }) => {
@@ -42,6 +42,31 @@ test.describe("Authenticated App", () => {
     await createE2ESession(page);
     await page.goto("/configuracoes", { waitUntil: "domcontentloaded" });
     await expect(page.getByText("Configuracoes gerais")).toBeVisible();
+  });
+
+  test("authenticated user without house is redirected to onboarding", async ({ page }) => {
+    await createE2EOnboardingSession(page);
+    await page.goto("/", { waitUntil: "domcontentloaded" });
+
+    await expect(page).toHaveURL(/\/onboarding/);
+    await expect(page.getByText("Primeiros passos", { exact: true })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Sua casa" })).toBeVisible();
+  });
+
+  test("onboarding redirects to dashboard after creating a house", async ({ page }) => {
+    await createE2EOnboardingSession(page);
+    await page.goto("/onboarding", { waitUntil: "domcontentloaded" });
+
+    const createResponse = await page.request.post("/api/onboarding/create-house", {
+      data: {
+        nome: `Casa onboarding ${Date.now()}`
+      }
+    });
+
+    expect(createResponse.ok()).toBeTruthy();
+
+    await page.goto("/onboarding", { waitUntil: "domcontentloaded" });
+    await expect(page).toHaveURL(/\/dashboard/);
   });
 
   test("personal income can move from previsto to recebido", async ({ page }) => {

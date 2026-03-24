@@ -18,9 +18,11 @@ export function MarkPersonalBillPaidButton({
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const [pending, setPending] = useState(false);
+  const [status, setStatus] = useState<"idle" | "success" | "error">("idle");
 
   async function handleClick() {
     setPending(true);
+    setStatus("idle");
 
     try {
       await requestJson(`/api/pessoal/contas/${billId}`, {
@@ -28,7 +30,10 @@ export function MarkPersonalBillPaidButton({
         body: JSON.stringify({})
       });
 
-      refreshCurrentView(router, pathname, searchParams);
+      setStatus("success");
+      refreshCurrentView(router, pathname, searchParams, { delayMs: 220 });
+    } catch {
+      setStatus("error");
     } finally {
       setPending(false);
     }
@@ -40,10 +45,24 @@ export function MarkPersonalBillPaidButton({
       onClick={() => {
         void handleClick();
       }}
-      className={cx("mt-2 text-xs font-semibold uppercase tracking-[0.18em] text-neo-dark", className)}
+      className={cx(
+        "mt-2 text-xs font-semibold uppercase tracking-[0.18em]",
+        status === "success"
+          ? "text-emerald-700"
+          : status === "error"
+            ? "text-rose-700"
+            : "text-neo-dark",
+        className
+      )}
       disabled={pending}
     >
-      {pending ? "Processando..." : "Marcar como paga"}
+      {pending
+        ? "Processando..."
+        : status === "success"
+          ? "Conta paga"
+          : status === "error"
+            ? "Tentar de novo"
+            : "Marcar como paga"}
     </button>
   );
 }

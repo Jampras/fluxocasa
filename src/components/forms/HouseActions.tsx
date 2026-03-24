@@ -2,10 +2,12 @@
 
 import type { FormEvent } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import { refreshCurrentView } from "@/lib/app-refresh";
 import { requestJson } from "@/lib/client-api";
+import { ManageListFilters } from "@/components/gerenciar/ManageListFilters";
+import { ActionFeedback } from "@/components/ui/ActionFeedback";
 import type { HouseBill, HouseContribution } from "@/types";
 import { RecurrenceFields } from "@/components/forms/RecurrenceFields";
 import { Button } from "@/components/ui/Button";
@@ -43,18 +45,73 @@ function uiStatusLabel(status: HouseBill["status"]) {
   return "Pendente";
 }
 
+function normalizeSearch(value: string) {
+  return value.trim().toLowerCase();
+}
+
+function compareText(a: string, b: string) {
+  return a.localeCompare(b, "pt-BR");
+}
+
 export function HouseActions({ contributions, bills }: HouseActionsProps) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const [error, setError] = useState<string | null>(null);
+  const [feedback, setFeedback] = useState<string | null>(null);
   const [loadingAction, setLoadingAction] = useState<string | null>(null);
+  const [billQuery, setBillQuery] = useState("");
+  const [billStatusFilter, setBillStatusFilter] = useState("all");
+  const [billSort, setBillSort] = useState("due-asc");
   const currentContribution = contributions.find((item) => item.isCurrentUser);
   const focusedItemId = searchParams.get("focus");
+  const normalizedBillQuery = normalizeSearch(billQuery);
+
+  const filteredBills = bills
+    .filter((bill) => {
+      const matchesQuery =
+        normalizedBillQuery.length === 0 ||
+        bill.title.toLowerCase().includes(normalizedBillQuery) ||
+        bill.category.toLowerCase().includes(normalizedBillQuery);
+      const matchesStatus =
+        billStatusFilter === "all" ||
+        (billStatusFilter === "warning" && bill.status === "warning") ||
+        (billStatusFilter === "pending" && bill.status === "pending") ||
+        (billStatusFilter === "paid" && bill.status === "paid");
+
+      return matchesQuery && matchesStatus;
+    })
+    .sort((left, right) => {
+      if (billSort === "status") {
+        return compareText(left.status, right.status) || compareText(left.title, right.title);
+      }
+
+      if (billSort === "category") {
+        return compareText(left.category, right.category) || compareText(left.title, right.title);
+      }
+
+      const leftDate = new Date(`${left.dueDate}T12:00:00`).getTime();
+      const rightDate = new Date(`${right.dueDate}T12:00:00`).getTime();
+
+      return billSort === "due-desc" ? rightDate - leftDate : leftDate - rightDate;
+    });
 
   function isFocused(targetId: string) {
     return focusedItemId === targetId;
   }
+
+  useEffect(() => {
+    if (!error && !feedback) {
+      return;
+    }
+
+    const handle = window.setTimeout(() => {
+      setError(null);
+      setFeedback(null);
+    }, 3200);
+
+    return () => window.clearTimeout(handle);
+  }, [error, feedback]);
 
   async function submit(url: string, method: string, payload?: Record<string, unknown>) {
     await requestJson(url, {
@@ -63,12 +120,19 @@ export function HouseActions({ contributions, bills }: HouseActionsProps) {
     });
   }
 
-  async function runAction(action: string, callback: () => Promise<void>, fallback: string) {
+  async function runAction(
+    action: string,
+    callback: () => Promise<void>,
+    fallback: string,
+    successMessage = "Operacao concluida."
+  ) {
     setLoadingAction(action);
     setError(null);
+    setFeedback(null);
 
     try {
       await callback();
+      setFeedback(successMessage);
       refreshCurrentView(router, pathname, searchParams, {
         clearFocus: action.includes("delete")
       });
@@ -81,6 +145,9 @@ export function HouseActions({ contributions, bills }: HouseActionsProps) {
 
   return (
     <div className="grid gap-6">
+      {feedback ? <ActionFeedback tone="success" message={feedback} /> : null}
+      {error ? <ActionFeedback tone="error" message={error} /> : null}
+
       <Card id="house-contribution" className="bg-neo-bg">
         <div className="space-y-4">
           <div className="flex items-center justify-between gap-4">
@@ -92,7 +159,8 @@ export function HouseActions({ contributions, bills }: HouseActionsProps) {
                   void runAction(
                     "delete-contribution",
                     () => submit(`/api/casa/contribuicoes/${currentContribution.contributionId}`, "DELETE"),
-                    "Nao foi possivel remover a contribuicao."
+                    "Nao foi possivel remover a contribuicao.",
+                    "Contribuicao removida com sucesso."
                   );
                 }}
                 className="text-xs font-semibold uppercase tracking-[0.18em] text-rose-600"
@@ -115,7 +183,8 @@ export function HouseActions({ contributions, bills }: HouseActionsProps) {
                     mes: currentContribution?.month ?? now.getMonth() + 1,
                     ano: currentContribution?.year ?? now.getFullYear()
                   }),
-                "Nao foi possivel registrar a contribuicao."
+                "Nao foi possivel registrar a contribuicao.",
+                "Contribuicao salva com sucesso."
               );
             }}
           >
@@ -155,7 +224,8 @@ export function HouseActions({ contributions, bills }: HouseActionsProps) {
                     frequencia: formData.get("frequencia"),
                     parcelasTotais: formData.get("parcelasTotais")
                   }),
-                "Nao foi possivel criar a conta."
+                "Nao foi possivel criar a conta.",
+                "Conta da casa criada com sucesso."
               );
             }}
           >
@@ -175,9 +245,42 @@ export function HouseActions({ contributions, bills }: HouseActionsProps) {
       <Card id="house-manage-bills" className="bg-neo-bg">
         <div className="space-y-4">
           <h3 className="text-2xl font-semibold text-neo-dark">Gerenciar contas</h3>
+          {bills.length > 0 ? (
+            <ManageListFilters
+              searchId="house-bill-search"
+              searchLabel="Buscar conta da casa"
+              searchValue={billQuery}
+              searchPlaceholder="Titulo ou categoria"
+              onSearchChange={setBillQuery}
+              filterId="house-bill-status-filter"
+              filterLabel="Status"
+              filterValue={billStatusFilter}
+              filterOptions={[
+                { value: "all", label: "Todos" },
+                { value: "warning", label: "Urgentes" },
+                { value: "pending", label: "Pendentes" },
+                { value: "paid", label: "Pagas" }
+              ]}
+              onFilterChange={setBillStatusFilter}
+              sortId="house-bill-sort"
+              sortLabel="Ordenar"
+              sortValue={billSort}
+              sortOptions={[
+                { value: "due-asc", label: "Vencimento proximo" },
+                { value: "due-desc", label: "Vencimento distante" },
+                { value: "status", label: "Status" },
+                { value: "category", label: "Categoria" }
+              ]}
+              onSortChange={setBillSort}
+              resultLabel={`${filteredBills.length} de ${bills.length} contas visiveis`}
+            />
+          ) : null}
           {bills.length === 0 ? <p className="text-sm text-neo-dark/60">Nenhuma conta da casa neste mes.</p> : null}
+          {bills.length > 0 && filteredBills.length === 0 ? (
+            <p className="text-sm text-neo-dark/60">Nenhuma conta da casa encontrada com esse filtro.</p>
+          ) : null}
           <div className="space-y-4">
-            {bills.map((bill) => (
+            {filteredBills.map((bill) => (
               <details
                 key={bill.id}
                 id={`house-bill-${bill.id}`}
@@ -207,8 +310,8 @@ export function HouseActions({ contributions, bills }: HouseActionsProps) {
                     const formData = new FormData(event.currentTarget);
                     void runAction(
                       `bill-update-${bill.id}`,
-                      () =>
-                        submit(`/api/casa/contas/${bill.id}`, "PUT", {
+                    () =>
+                      submit(`/api/casa/contas/${bill.id}`, "PUT", {
                           titulo: formData.get("titulo"),
                           categoria: formData.get("categoria"),
                           valor: formData.get("valor"),
@@ -218,7 +321,8 @@ export function HouseActions({ contributions, bills }: HouseActionsProps) {
                           frequencia: formData.get("frequencia"),
                           parcelasTotais: formData.get("parcelasTotais")
                         }),
-                      "Nao foi possivel atualizar a conta."
+                      "Nao foi possivel atualizar a conta.",
+                      "Conta da casa atualizada com sucesso."
                     );
                   }}
                 >
@@ -275,11 +379,12 @@ export function HouseActions({ contributions, bills }: HouseActionsProps) {
                       disabled={loadingAction === `bill-delete-${bill.id}`}
                       onClick={() => {
                         void runAction(
-                          `bill-delete-${bill.id}`,
-                          () => submit(`/api/casa/contas/${bill.id}`, "DELETE"),
-                          "Nao foi possivel remover a conta."
-                        );
-                      }}
+                        `bill-delete-${bill.id}`,
+                        () => submit(`/api/casa/contas/${bill.id}`, "DELETE"),
+                        "Nao foi possivel remover a conta.",
+                        "Conta da casa removida com sucesso."
+                      );
+                    }}
                     >
                       Excluir
                     </Button>
@@ -290,8 +395,6 @@ export function HouseActions({ contributions, bills }: HouseActionsProps) {
           </div>
         </div>
       </Card>
-
-      {error ? <p className="text-sm font-medium text-rose-600">{error}</p> : null}
     </div>
   );
 }

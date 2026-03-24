@@ -10,6 +10,7 @@ import { formatCurrency } from "@/lib/utils";
 import { getDashboardVisualization } from "@/server/actions/transactions";
 import { requireCurrentResident } from "@/server/auth/user";
 import { getHouseSnapshot } from "@/server/services/house.service";
+import { getGoalsOverviewSummary } from "@/server/services/metas.service";
 import { getPersonalSnapshot } from "@/server/services/personal.service";
 
 type GoalsScope = "geral" | "casa" | "pessoal";
@@ -31,33 +32,47 @@ export default async function MetasPage({
   const resolvedParams = await searchParams;
   const activeScope = resolveScope(resolvedParams.scope);
   const resident = { id: user.id, casaId: user.casaId };
+  const defaultMonthLabel = new Intl.DateTimeFormat("pt-BR", {
+    month: "long",
+    year: "numeric"
+  }).format(new Date());
 
-  const personalScopeData = activeScope !== "casa"
-    ? await Promise.all([
-        getPersonalSnapshot(user.id),
-        getDashboardVisualization(EscopoTransacao.PESSOAL, resident)
-      ])
-    : null;
-  const houseScopeData = activeScope !== "pessoal"
-    ? await Promise.all([
-        getHouseSnapshot(user.id),
-        getDashboardVisualization(EscopoTransacao.CASA, resident)
-      ])
-    : null;
-
-  const personalSnapshot = personalScopeData?.[0] ?? null;
-  const personalVisualization = personalScopeData?.[1] ?? null;
-  const houseSnapshot = houseScopeData?.[0] ?? null;
-  const houseVisualization = houseScopeData?.[1] ?? null;
+  const [generalOverview, personalSnapshot, personalVisualization, houseSnapshot, houseVisualization] = await Promise.all([
+    activeScope === "geral" ? getGoalsOverviewSummary(user.id) : Promise.resolve(null),
+    activeScope === "pessoal"
+      ? getPersonalSnapshot(user.id)
+      : Promise.resolve(null),
+    activeScope !== "casa"
+      ? getDashboardVisualization(EscopoTransacao.PESSOAL, resident)
+      : Promise.resolve(null)
+    ,
+    activeScope === "casa"
+      ? getHouseSnapshot(user.id)
+      : Promise.resolve(null),
+    activeScope !== "pessoal"
+      ? getDashboardVisualization(EscopoTransacao.CASA, resident)
+      : Promise.resolve(null)
+  ]);
   const monthLabel =
+    generalOverview?.monthLabel ??
     personalSnapshot?.monthLabel ??
     houseSnapshot?.monthLabel ??
-    new Intl.DateTimeFormat("pt-BR", { month: "long", year: "numeric" }).format(new Date());
+    defaultMonthLabel;
+  const totalGoals = generalOverview?.totalGoals ?? personalSnapshot?.goals.length ?? 0;
 
-  const goalsWithinLimit = personalSnapshot?.goals.filter((goal) => goal.spent <= goal.limit).length ?? 0;
+  const goalsWithinLimit =
+    activeScope === "geral"
+      ? (generalOverview?.goalsWithinLimit ?? 0)
+      : (personalSnapshot?.goals.filter((goal) => goal.spent <= goal.limit).length ?? 0);
   const goalsExceeded = personalSnapshot?.goals.filter((goal) => goal.spent > goal.limit).length ?? 0;
-  const urgentPersonalBills = personalSnapshot?.weeklyBills.filter((bill) => bill.status === "warning").length ?? 0;
-  const urgentHouseBills = houseSnapshot?.pendingBills.filter((bill) => bill.status === "warning").length ?? 0;
+  const urgentPersonalBills =
+    activeScope === "geral"
+      ? (generalOverview?.urgentPersonalBills ?? 0)
+      : (personalSnapshot?.weeklyBills.filter((bill) => bill.status === "warning").length ?? 0);
+  const urgentHouseBills =
+    activeScope === "geral"
+      ? (generalOverview?.urgentHouseBills ?? 0)
+      : (houseSnapshot?.pendingBills.filter((bill) => bill.status === "warning").length ?? 0);
 
   return (
     <div className="space-y-6 pb-16 sm:space-y-8 sm:pb-20 xl:space-y-10">
@@ -99,7 +114,7 @@ export default async function MetasPage({
                 },
                 {
                   label: "Metas no limite",
-                  value: `${goalsWithinLimit}/${personalSnapshot!.goals.length || 0}`,
+                  value: `${goalsWithinLimit}/${totalGoals}`,
                   description: "Categorias ainda dentro do teto mensal.",
                   accentClass: "bg-white"
                 },

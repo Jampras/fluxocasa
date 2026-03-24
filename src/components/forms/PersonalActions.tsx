@@ -2,11 +2,13 @@
 
 import type { FormEvent } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import { refreshCurrentView } from "@/lib/app-refresh";
 import { requestJson } from "@/lib/client-api";
+import { ManageListFilters } from "@/components/gerenciar/ManageListFilters";
 import type { BudgetGoal, ExpenseRecord, IncomeRecord, PersonalBillRecord } from "@/types";
+import { ActionFeedback } from "@/components/ui/ActionFeedback";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { Input } from "@/components/ui/Input";
@@ -37,6 +39,14 @@ function formatDisplayDate(value: string) {
   }).format(new Date(`${value}T12:00:00`));
 }
 
+function normalizeSearch(value: string) {
+  return value.trim().toLowerCase();
+}
+
+function compareText(a: string, b: string) {
+  return a.localeCompare(b, "pt-BR");
+}
+
 interface PersonalActionsProps {
   incomes: IncomeRecord[];
   personalBills: PersonalBillRecord[];
@@ -54,12 +64,124 @@ export function PersonalActions({
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const [error, setError] = useState<string | null>(null);
+  const [feedback, setFeedback] = useState<string | null>(null);
   const [loadingAction, setLoadingAction] = useState<string | null>(null);
+  const [incomeQuery, setIncomeQuery] = useState("");
+  const [incomeStatusFilter, setIncomeStatusFilter] = useState("all");
+  const [incomeSort, setIncomeSort] = useState("date-desc");
+  const [billQuery, setBillQuery] = useState("");
+  const [billStatusFilter, setBillStatusFilter] = useState("all");
+  const [billSort, setBillSort] = useState("due-asc");
+  const [expenseQuery, setExpenseQuery] = useState("");
+  const [expenseCategoryFilter, setExpenseCategoryFilter] = useState("all");
+  const [expenseSort, setExpenseSort] = useState("date-desc");
   const focusedItemId = searchParams.get("focus");
+  const normalizedIncomeQuery = normalizeSearch(incomeQuery);
+  const normalizedBillQuery = normalizeSearch(billQuery);
+  const normalizedExpenseQuery = normalizeSearch(expenseQuery);
+  const expenseCategories = Array.from(new Set(expenses.map((expense) => expense.category))).sort((a, b) =>
+    a.localeCompare(b, "pt-BR")
+  );
+
+  const filteredIncomes = incomes
+    .filter((income) => {
+      const matchesQuery =
+        normalizedIncomeQuery.length === 0 ||
+        income.title.toLowerCase().includes(normalizedIncomeQuery) ||
+        income.categoryLabel.toLowerCase().includes(normalizedIncomeQuery);
+      const matchesStatus =
+        incomeStatusFilter === "all" ||
+        (incomeStatusFilter === "received" && income.status === "received") ||
+        (incomeStatusFilter === "scheduled" && income.status === "scheduled");
+
+      return matchesQuery && matchesStatus;
+    })
+    .sort((left, right) => {
+      if (incomeSort === "status") {
+        return compareText(left.statusLabel, right.statusLabel) || compareText(left.title, right.title);
+      }
+
+      if (incomeSort === "category") {
+        return compareText(left.categoryLabel, right.categoryLabel) || compareText(left.title, right.title);
+      }
+
+      const leftDate = new Date(`${left.referenceDate}T12:00:00`).getTime();
+      const rightDate = new Date(`${right.referenceDate}T12:00:00`).getTime();
+
+      return incomeSort === "date-asc" ? leftDate - rightDate : rightDate - leftDate;
+    });
+
+  const filteredPersonalBills = personalBills
+    .filter((bill) => {
+      const matchesQuery =
+        normalizedBillQuery.length === 0 ||
+        bill.title.toLowerCase().includes(normalizedBillQuery) ||
+        bill.category.toLowerCase().includes(normalizedBillQuery);
+      const matchesStatus =
+        billStatusFilter === "all" ||
+        (billStatusFilter === "warning" && bill.status === "warning") ||
+        (billStatusFilter === "pending" && bill.status === "pending") ||
+        (billStatusFilter === "paid" && bill.status === "paid");
+
+      return matchesQuery && matchesStatus;
+    })
+    .sort((left, right) => {
+      if (billSort === "status") {
+        return compareText(left.status, right.status) || compareText(left.title, right.title);
+      }
+
+      if (billSort === "category") {
+        return compareText(left.category, right.category) || compareText(left.title, right.title);
+      }
+
+      const leftDate = new Date(`${left.dueDate}T12:00:00`).getTime();
+      const rightDate = new Date(`${right.dueDate}T12:00:00`).getTime();
+
+      return billSort === "due-desc" ? rightDate - leftDate : leftDate - rightDate;
+    });
+
+  const filteredExpenses = expenses
+    .filter((expense) => {
+      const matchesQuery =
+        normalizedExpenseQuery.length === 0 ||
+        expense.title.toLowerCase().includes(normalizedExpenseQuery) ||
+        expense.category.toLowerCase().includes(normalizedExpenseQuery);
+      const matchesCategory =
+        expenseCategoryFilter === "all" || expense.category === expenseCategoryFilter;
+
+      return matchesQuery && matchesCategory;
+    })
+    .sort((left, right) => {
+      if (expenseSort === "category") {
+        return compareText(left.category, right.category) || compareText(left.title, right.title);
+      }
+
+      if (expenseSort === "amount-desc") {
+        return right.amount - left.amount;
+      }
+
+      const leftDate = new Date(`${left.expenseDate}T12:00:00`).getTime();
+      const rightDate = new Date(`${right.expenseDate}T12:00:00`).getTime();
+
+      return expenseSort === "date-asc" ? leftDate - rightDate : rightDate - leftDate;
+    });
 
   function isFocused(targetId: string) {
     return focusedItemId === targetId;
   }
+
+  useEffect(() => {
+    if (!error && !feedback) {
+      return;
+    }
+
+    const handle = window.setTimeout(() => {
+      setError(null);
+      setFeedback(null);
+    }, 3200);
+
+    return () => window.clearTimeout(handle);
+  }, [error, feedback]);
 
   async function submit(url: string, method: string, payload?: Record<string, unknown>) {
     await requestJson(url, {
@@ -68,12 +190,19 @@ export function PersonalActions({
     });
   }
 
-  async function runAction(action: string, callback: () => Promise<void>, fallback: string) {
+  async function runAction(
+    action: string,
+    callback: () => Promise<void>,
+    fallback: string,
+    successMessage = "Operacao concluida."
+  ) {
     setLoadingAction(action);
     setError(null);
+    setFeedback(null);
 
     try {
       await callback();
+      setFeedback(successMessage);
       refreshCurrentView(router, pathname, searchParams, {
         clearFocus: action.includes("delete")
       });
@@ -86,6 +215,9 @@ export function PersonalActions({
 
   return (
     <div className="grid gap-6">
+      {feedback ? <ActionFeedback tone="success" message={feedback} /> : null}
+      {error ? <ActionFeedback tone="error" message={error} /> : null}
+
       <Card id="personal-create-income" className="bg-neo-bg">
         <div className="space-y-4">
           <h3 className="text-2xl font-semibold text-neo-dark">Registrar renda</h3>
@@ -106,7 +238,8 @@ export function PersonalActions({
                     frequencia: formData.get("frequencia"),
                     parcelasTotais: formData.get("parcelasTotais")
                   }),
-                "Nao foi possivel salvar a renda."
+                "Nao foi possivel salvar a renda.",
+                "Renda salva com sucesso."
               );
             }}
           >
@@ -165,7 +298,8 @@ export function PersonalActions({
                     frequencia: formData.get("frequencia"),
                     parcelasTotais: formData.get("parcelasTotais")
                   }),
-                "Nao foi possivel salvar a conta."
+                "Nao foi possivel salvar a conta.",
+                "Conta pessoal salva com sucesso."
               );
             }}
           >
@@ -199,7 +333,8 @@ export function PersonalActions({
                     valor: formData.get("valorGasto"),
                     gastoEm: formData.get("gastoEm")
                   }),
-                "Nao foi possivel salvar o gasto."
+                "Nao foi possivel salvar o gasto.",
+                "Gasto salvo com sucesso."
               );
             }}
           >
@@ -231,7 +366,8 @@ export function PersonalActions({
                     mes: now.getMonth() + 1,
                     ano: now.getFullYear()
                   }),
-                "Nao foi possivel salvar a meta."
+                "Nao foi possivel salvar a meta.",
+                "Meta salva com sucesso."
               );
             }}
           >
@@ -247,8 +383,40 @@ export function PersonalActions({
       <Card id="personal-manage-income" className="bg-neo-bg">
         <div className="space-y-4">
           <h3 className="text-2xl font-semibold text-neo-dark">Gerenciar renda</h3>
+          {incomes.length > 0 ? (
+            <ManageListFilters
+              searchId="income-search"
+              searchLabel="Buscar renda"
+              searchValue={incomeQuery}
+              searchPlaceholder="Titulo ou tipo"
+              onSearchChange={setIncomeQuery}
+              filterId="income-status-filter"
+              filterLabel="Status"
+              filterValue={incomeStatusFilter}
+              filterOptions={[
+                { value: "all", label: "Todos" },
+                { value: "scheduled", label: "Previstos" },
+                { value: "received", label: "Recebidos" }
+              ]}
+              onFilterChange={setIncomeStatusFilter}
+              sortId="income-sort"
+              sortLabel="Ordenar"
+              sortValue={incomeSort}
+              sortOptions={[
+                { value: "date-desc", label: "Data mais recente" },
+                { value: "date-asc", label: "Data mais antiga" },
+                { value: "status", label: "Status" },
+                { value: "category", label: "Tipo" }
+              ]}
+              onSortChange={setIncomeSort}
+              resultLabel={`${filteredIncomes.length} de ${incomes.length} rendas visiveis`}
+            />
+          ) : null}
           {incomes.length === 0 ? <p className="text-sm text-neo-dark/60">Nenhuma renda registrada neste mes.</p> : null}
-          {incomes.map((income) => (
+          {incomes.length > 0 && filteredIncomes.length === 0 ? (
+            <p className="text-sm text-neo-dark/60">Nenhuma renda encontrada com esse filtro.</p>
+          ) : null}
+          {filteredIncomes.map((income) => (
             <details
               key={income.id}
               id={`income-${income.id}`}
@@ -290,7 +458,8 @@ export function PersonalActions({
                         frequencia: formData.get("frequencia"),
                         parcelasTotais: formData.get("parcelasTotais")
                       }),
-                    "Nao foi possivel atualizar a renda."
+                    "Nao foi possivel atualizar a renda.",
+                    "Renda atualizada com sucesso."
                   );
                 }}
               >
@@ -350,7 +519,8 @@ export function PersonalActions({
                       void runAction(
                         `income-delete-${income.id}`,
                         () => submit(`/api/pessoal/renda/${income.id}`, "DELETE"),
-                        "Nao foi possivel remover a renda."
+                        "Nao foi possivel remover a renda.",
+                        "Renda removida com sucesso."
                       );
                     }}
                   >
@@ -366,8 +536,41 @@ export function PersonalActions({
       <Card id="personal-manage-bills" className="bg-neo-bg border-4 border-neo-dark ">
         <div className="space-y-4">
           <h3 className="text-2xl font-semibold text-neo-dark">Gerenciar contas pessoais</h3>
+          {personalBills.length > 0 ? (
+            <ManageListFilters
+              searchId="personal-bill-search"
+              searchLabel="Buscar conta"
+              searchValue={billQuery}
+              searchPlaceholder="Titulo ou categoria"
+              onSearchChange={setBillQuery}
+              filterId="personal-bill-status-filter"
+              filterLabel="Status"
+              filterValue={billStatusFilter}
+              filterOptions={[
+                { value: "all", label: "Todos" },
+                { value: "warning", label: "Urgentes" },
+                { value: "pending", label: "Pendentes" },
+                { value: "paid", label: "Pagas" }
+              ]}
+              onFilterChange={setBillStatusFilter}
+              sortId="personal-bill-sort"
+              sortLabel="Ordenar"
+              sortValue={billSort}
+              sortOptions={[
+                { value: "due-asc", label: "Vencimento proximo" },
+                { value: "due-desc", label: "Vencimento distante" },
+                { value: "status", label: "Status" },
+                { value: "category", label: "Categoria" }
+              ]}
+              onSortChange={setBillSort}
+              resultLabel={`${filteredPersonalBills.length} de ${personalBills.length} contas visiveis`}
+            />
+          ) : null}
           {personalBills.length === 0 ? <p className="text-sm text-neo-dark/60">Nenhuma conta pessoal registrada.</p> : null}
-          {personalBills.map((bill) => (
+          {personalBills.length > 0 && filteredPersonalBills.length === 0 ? (
+            <p className="text-sm text-neo-dark/60">Nenhuma conta encontrada com esse filtro.</p>
+          ) : null}
+          {filteredPersonalBills.map((bill) => (
             <details
               key={bill.id}
               id={`personal-bill-${bill.id}`}
@@ -405,7 +608,8 @@ export function PersonalActions({
                         frequencia: formData.get("frequencia"),
                         parcelasTotais: formData.get("parcelasTotais")
                       }),
-                    "Nao foi possivel atualizar a conta."
+                    "Nao foi possivel atualizar a conta.",
+                    "Conta pessoal atualizada com sucesso."
                   );
                 }}
               >
@@ -455,7 +659,8 @@ export function PersonalActions({
                       void runAction(
                         `personal-bill-delete-${bill.id}`,
                         () => submit(`/api/pessoal/contas/${bill.id}`, "DELETE"),
-                        "Nao foi possivel remover a conta."
+                        "Nao foi possivel remover a conta.",
+                        "Conta pessoal removida com sucesso."
                       );
                     }}
                   >
@@ -471,9 +676,40 @@ export function PersonalActions({
       <Card id="personal-expense-history" className="bg-transparent  border-none p-0 mt-8">
         <div className="space-y-4">
           <h3 className="text-2xl font-bold text-neo-dark pl-2">Historico de gastos</h3>
+          {expenses.length > 0 ? (
+            <ManageListFilters
+              searchId="personal-expense-search"
+              searchLabel="Buscar gasto"
+              searchValue={expenseQuery}
+              searchPlaceholder="Titulo ou categoria"
+              onSearchChange={setExpenseQuery}
+              filterId="personal-expense-category-filter"
+              filterLabel="Categoria"
+              filterValue={expenseCategoryFilter}
+              filterOptions={[
+                { value: "all", label: "Todas" },
+                ...expenseCategories.map((category) => ({ value: category, label: category }))
+              ]}
+              onFilterChange={setExpenseCategoryFilter}
+              sortId="personal-expense-sort"
+              sortLabel="Ordenar"
+              sortValue={expenseSort}
+              sortOptions={[
+                { value: "date-desc", label: "Data mais recente" },
+                { value: "date-asc", label: "Data mais antiga" },
+                { value: "category", label: "Categoria" },
+                { value: "amount-desc", label: "Maior valor" }
+              ]}
+              onSortChange={setExpenseSort}
+              resultLabel={`${filteredExpenses.length} de ${expenses.length} gastos visiveis`}
+            />
+          ) : null}
           {expenses.length === 0 ? <p className="text-sm text-neo-pink pl-2">Nenhum gasto registrado neste mes.</p> : null}
+          {expenses.length > 0 && filteredExpenses.length === 0 ? (
+            <p className="text-sm text-neo-dark/60 pl-2">Nenhum gasto encontrado com esse filtro.</p>
+          ) : null}
           <div className="grid gap-3">
-          {expenses.map((expense) => (
+          {filteredExpenses.map((expense) => (
             <details
               key={expense.id}
               id={`expense-${expense.id}`}
@@ -507,7 +743,8 @@ export function PersonalActions({
                         valor: formData.get("valor"),
                         gastoEm: formData.get("gastoEm")
                       }),
-                    "Nao foi possivel atualizar o gasto."
+                    "Nao foi possivel atualizar o gasto.",
+                    "Gasto atualizado com sucesso."
                   );
                 }}
               >
@@ -543,7 +780,8 @@ export function PersonalActions({
                       void runAction(
                         `expense-delete-${expense.id}`,
                         () => submit(`/api/pessoal/gastos/${expense.id}`, "DELETE"),
-                        "Nao foi possivel remover o gasto."
+                        "Nao foi possivel remover o gasto.",
+                        "Gasto removido com sucesso."
                       );
                     }}
                   >
@@ -587,7 +825,8 @@ export function PersonalActions({
                         categoria: formData.get("categoria"),
                         valorMeta: formData.get("valorMeta")
                       }),
-                    "Nao foi possivel atualizar a meta."
+                    "Nao foi possivel atualizar a meta.",
+                    "Meta atualizada com sucesso."
                   );
                 }}
               >
@@ -610,7 +849,8 @@ export function PersonalActions({
                       void runAction(
                         `goal-delete-${goal.id}`,
                         () => submit(`/api/pessoal/metas/${goal.id}`, "DELETE"),
-                        "Nao foi possivel remover a meta."
+                        "Nao foi possivel remover a meta.",
+                        "Meta removida com sucesso."
                       );
                     }}
                   >
@@ -622,8 +862,6 @@ export function PersonalActions({
           ))}
         </div>
       </Card>
-
-      {error ? <p className="text-sm font-medium text-rose-600">{error}</p> : null}
     </div>
   );
 }
