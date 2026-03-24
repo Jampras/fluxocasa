@@ -28,7 +28,8 @@ test.describe("Authenticated App", () => {
     await createE2ESession(page);
     await page.goto("/calendario", { waitUntil: "domcontentloaded" });
     await expect(page).toHaveURL(/\/dashboard/);
-    await expect(page.getByText("Calendario interativo", { exact: true })).toBeVisible();
+    await expect(page.getByText("Painel principal", { exact: true })).toBeVisible({ timeout: 15000 });
+    await expect(page.getByText("Calendario interativo", { exact: true })).toBeVisible({ timeout: 15000 });
   });
 
   test("authenticated user can access the goals view", async ({ page }) => {

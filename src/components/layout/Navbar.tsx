@@ -1,12 +1,25 @@
 "use client";
 
+import { useEffect } from "react";
+import type { Route } from "next";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { APP_NAVIGATION } from "@/config/navigation";
 import { twMerge } from "tailwind-merge";
 
 export function Navbar() {
   const pathname = usePathname();
+  const router = useRouter();
+
+  useEffect(() => {
+    APP_NAVIGATION.forEach((item) => {
+      void router.prefetch(item.href);
+    });
+  }, [router]);
+
+  function prefetchRoute(href: Route) {
+    void router.prefetch(href);
+  }
 
   return (
     <>
@@ -21,6 +34,9 @@ export function Navbar() {
                 <li key={item.href} className="flex flex-1 justify-center px-1">
                   <Link
                     href={item.href}
+                    prefetch
+                    onMouseEnter={() => prefetchRoute(item.href)}
+                    onTouchStart={() => prefetchRoute(item.href)}
                     className={twMerge(
                       "flex min-h-[60px] w-full flex-col items-center justify-center gap-1 border-[3px] border-neo-dark bg-white px-2 py-2 transition-transform",
                       active
@@ -53,6 +69,9 @@ export function Navbar() {
               <li key={item.href}>
                 <Link
                   href={item.href}
+                  prefetch
+                  onMouseEnter={() => prefetchRoute(item.href)}
+                  onTouchStart={() => prefetchRoute(item.href)}
                   className={twMerge(
                     "flex items-center gap-3 border-4 border-neo-dark px-5 py-3 font-heading text-xl uppercase transition-all xl:gap-4 xl:px-6 xl:py-4 xl:text-2xl",
                     active 

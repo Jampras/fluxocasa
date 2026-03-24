@@ -1,7 +1,9 @@
 "use client";
 
+import { useCallback, useEffect } from "react";
+import type { Route } from "next";
 import Link from "next/link";
-import { usePathname, useSearchParams } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { twMerge } from "tailwind-merge";
 
 type ScopeTabValue = "geral" | "casa" | "pessoal";
@@ -18,21 +20,40 @@ export function ScopeTabs({
   }>;
 }) {
   const pathname = usePathname();
+  const router = useRouter();
   const searchParams = useSearchParams();
+
+  const buildHref = useCallback((scopeId: ScopeTabValue) => {
+    const nextParams = new URLSearchParams(searchParams.toString());
+    nextParams.set("scope", scopeId);
+    const query = nextParams.toString();
+
+    return (query ? `${pathname}?${query}` : pathname) as Route;
+  }, [pathname, searchParams]);
+
+  useEffect(() => {
+    tabs.forEach((tab) => {
+      void router.prefetch(buildHref(tab.id));
+    });
+  }, [buildHref, router, tabs]);
 
   return (
     <div className="grid grid-cols-3 gap-2 sm:gap-3">
       {tabs.map((tab) => {
-        const nextParams = new URLSearchParams(searchParams.toString());
-        nextParams.set("scope", tab.id);
         const active = currentScope === tab.id;
+        const href = buildHref(tab.id);
 
         return (
           <Link
             key={tab.id}
-            href={{
-              pathname,
-              query: Object.fromEntries(nextParams.entries())
+            href={href}
+            prefetch
+            scroll={false}
+            onMouseEnter={() => {
+              void router.prefetch(href);
+            }}
+            onTouchStart={() => {
+              void router.prefetch(href);
             }}
             className={twMerge(
               "flex min-h-[78px] flex-col justify-center border-[3px] border-neo-dark bg-white px-2 py-2.5 text-center shadow-[4px_4px_0_#0F172A] transition-all sm:min-h-[96px] sm:border-4 sm:px-4 sm:py-3.5 sm:shadow-[5px_5px_0_#0F172A]",
