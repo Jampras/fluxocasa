@@ -302,6 +302,7 @@ export function CalendarGridModal({
             { id: "personal-bill" as const, label: "Conta pessoal", color: "bg-neo-yellow" },
             { id: "income" as const, label: "Recebimento", color: "bg-neo-lime" }
           ];
+  const hasItems = selectedItems.length > 0;
 
   return (
     <>
@@ -361,19 +362,19 @@ export function CalendarGridModal({
 
       {selectedCell ? (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-neo-dark/45 px-3 py-5 backdrop-blur-[2px]"
+          className="fixed inset-0 z-[70] flex items-center justify-center bg-neo-dark/45 px-3 py-5 backdrop-blur-[2px] md:px-6 xl:px-10"
           onClick={closeModal}
         >
           <div
-            className="max-h-[92vh] w-full max-w-5xl overflow-hidden border-4 border-neo-dark bg-neo-bg shadow-[10px_10px_0_#0F172A]"
+            className="max-h-[92vh] w-full max-w-[1120px] overflow-hidden border-4 border-neo-dark bg-neo-bg shadow-[10px_10px_0_#0F172A] xl:max-w-[1080px] 2xl:max-w-[1160px]"
             onClick={(event) => event.stopPropagation()}
           >
-            <div className="flex items-start justify-between gap-4 border-b-4 border-neo-dark bg-white px-4 py-4 sm:px-5">
-              <div>
+            <div className="flex items-start justify-between gap-4 border-b-4 border-neo-dark bg-white px-4 py-4 sm:px-5 xl:px-7 xl:py-5">
+              <div className="max-w-[30rem] xl:max-w-[36rem]">
                 <p className="font-heading text-[10px] uppercase tracking-[0.18em] text-neo-pink sm:text-sm sm:tracking-[0.28em]">
                   Agenda do dia
                 </p>
-                <h2 className="mt-1 font-heading text-2xl uppercase text-neo-dark sm:text-3xl">
+                <h2 className="mt-1 font-heading text-2xl uppercase leading-tight text-neo-dark sm:text-3xl xl:text-[2.15rem]">
                   {formatLongDate(selectedCell.isoDate)}
                 </h2>
                 <p className="mt-1 text-xs font-bold uppercase tracking-[0.12em] text-neo-dark/65 sm:text-sm">
@@ -392,7 +393,13 @@ export function CalendarGridModal({
               </button>
             </div>
 
-            <div className="grid max-h-[calc(92vh-92px)] gap-0 overflow-y-auto xl:grid-cols-[minmax(0,1fr)_380px]">
+            <div
+              className={`grid max-h-[calc(92vh-92px)] gap-0 overflow-y-auto ${
+                hasItems
+                  ? "xl:grid-cols-[minmax(0,1fr)_380px]"
+                  : "xl:grid-cols-[minmax(320px,0.72fr)_420px] xl:items-start"
+              }`}
+            >
               <div className="space-y-4 border-b-4 border-neo-dark p-4 xl:border-b-0 xl:border-r-4 xl:p-6">
                 <div className="space-y-2">
                   <p className="font-heading text-[10px] uppercase tracking-[0.18em] text-neo-pink sm:text-sm sm:tracking-[0.24em]">
@@ -404,8 +411,15 @@ export function CalendarGridModal({
                 </div>
 
                 {selectedItems.length === 0 ? (
-                  <div className="border-4 border-neo-dark bg-white px-4 py-5 text-sm font-bold text-neo-dark/65">
-                    Nenhum item neste dia. Use os botoes ao lado para adicionar conta ou recebimento.
+                  <div className="grid min-h-[220px] place-items-center border-4 border-neo-dark bg-white px-4 py-6 text-center xl:min-h-[340px] xl:px-8">
+                    <div className="max-w-md space-y-3">
+                      <p className="font-heading text-2xl uppercase text-neo-dark xl:text-3xl">
+                        Dia livre
+                      </p>
+                      <p className="text-sm font-bold uppercase tracking-[0.08em] text-neo-dark/65 xl:text-base">
+                        Nenhum item neste dia. Use os botoes ao lado para adicionar conta ou recebimento.
+                      </p>
+                    </div>
                   </div>
                 ) : (
                   <div className="grid gap-3">
@@ -462,13 +476,13 @@ export function CalendarGridModal({
                     </p>
                   </div>
 
-                  <div className="grid gap-2">
+                  <div className="grid gap-2 xl:gap-3">
                     {addOptions.map((option) => (
                       <button
                         key={option.id}
                         type="button"
                         onClick={() => setAddMode(option.id)}
-                        className={`border-[3px] border-neo-dark px-4 py-3 text-left font-heading text-lg uppercase shadow-[4px_4px_0_#0F172A] transition-all hover:-translate-y-1 sm:border-4 ${
+                        className={`border-[3px] border-neo-dark px-4 py-3 text-left font-heading text-lg uppercase shadow-[4px_4px_0_#0F172A] transition-all hover:-translate-y-1 sm:border-4 xl:px-5 xl:py-4 xl:text-xl ${
                           addMode === option.id ? option.color : "bg-white"
                         }`}
                       >
@@ -481,7 +495,7 @@ export function CalendarGridModal({
                 {addMode ? (
                   <form
                     key={`${addMode}-${selectedCell.isoDate}-${formVersion}`}
-                    className="grid gap-4 border-4 border-neo-dark bg-white p-4"
+                    className="grid gap-4 border-4 border-neo-dark bg-white p-4 xl:gap-5 xl:p-5"
                     onSubmit={(event) => void handleSubmit(event)}
                   >
                     <label className="grid gap-2 text-sm font-medium text-neo-dark/75">
