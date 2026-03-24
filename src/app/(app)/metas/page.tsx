@@ -1,11 +1,11 @@
 import { EscopoTransacao } from "@prisma/client";
 
+import { DashboardMetricCarousel } from "@/components/dashboard/DashboardMetricCarousel";
 import { AppHeader } from "@/components/layout/AppHeader";
 import { LazyDonutChartPreview } from "@/components/metas/LazyDonutChartPreview";
 import { LazyWaterfallChartPreview } from "@/components/metas/LazyWaterfallChartPreview";
 import { BudgetGoals } from "@/components/pessoal/BudgetGoals";
 import { ScopeTabs } from "@/components/ui/ScopeTabs";
-import { Card } from "@/components/ui/Card";
 import { formatCurrency } from "@/lib/utils";
 import { getDashboardVisualization } from "@/server/actions/transactions";
 import { requireCurrentResident } from "@/server/auth/user";
@@ -20,38 +20,6 @@ function resolveScope(scope?: string): GoalsScope {
   }
 
   return "geral";
-}
-
-function SummaryCard({
-  label,
-  value,
-  description,
-  accentClass = "bg-white"
-}: {
-  label: string;
-  value: string;
-  description?: string;
-  accentClass?: string;
-}) {
-  return (
-    <Card className="overflow-hidden bg-white p-0 xl:min-h-[214px]">
-      <div className={`border-b-[3px] border-neo-dark px-3 py-2 sm:border-b-4 sm:px-4 sm:py-3 ${accentClass}`}>
-        <p className="font-heading text-[10px] uppercase tracking-[0.16em] text-neo-dark sm:text-sm sm:tracking-[0.24em]">
-          {label}
-        </p>
-      </div>
-      <div className="space-y-2 p-3 sm:p-4 md:p-5 xl:p-6">
-        <h2 className="font-heading text-3xl uppercase leading-none text-neo-dark sm:text-4xl md:text-5xl xl:text-[3.1rem]">
-          {value}
-        </h2>
-        {description ? (
-          <p className="font-body text-[11px] font-bold uppercase tracking-[0.08em] text-neo-dark/65 sm:text-sm sm:tracking-[0.12em]">
-            {description}
-          </p>
-        ) : null}
-      </div>
-    </Card>
-  );
 }
 
 export default async function MetasPage({
@@ -115,28 +83,34 @@ export default async function MetasPage({
                 Metas pessoais, saude da casa e distribuicao dos fluxos no mesmo quadro.
               </p>
             </div>
-            <div className="grid grid-cols-2 gap-3 sm:gap-4 xl:grid-cols-4">
-              <SummaryCard
-                label="Saldo pessoal"
-                value={formatCurrency(personalVisualization!.safeToSpendCents / 100)}
-                accentClass="bg-neo-yellow"
-              />
-              <SummaryCard
-                label="Caixa da casa"
-                value={formatCurrency(houseVisualization!.safeToSpendCents / 100)}
-                accentClass="bg-neo-cyan"
-              />
-              <SummaryCard
-                label="Metas no limite"
-                value={`${goalsWithinLimit}/${personalSnapshot!.goals.length || 0}`}
-                accentClass="bg-white"
-              />
-              <SummaryCard
-                label="Contas urgentes"
-                value={String(urgentPersonalBills + urgentHouseBills)}
-                accentClass="bg-neo-lime"
-              />
-            </div>
+            <DashboardMetricCarousel
+              items={[
+                {
+                  label: "Saldo pessoal",
+                  value: formatCurrency(personalVisualization!.safeToSpendCents / 100),
+                  description: "Margem privada disponivel para o mes.",
+                  accentClass: "bg-neo-yellow"
+                },
+                {
+                  label: "Caixa da casa",
+                  value: formatCurrency(houseVisualization!.safeToSpendCents / 100),
+                  description: "Saldo compartilhado projetado agora.",
+                  accentClass: "bg-neo-cyan"
+                },
+                {
+                  label: "Metas no limite",
+                  value: `${goalsWithinLimit}/${personalSnapshot!.goals.length || 0}`,
+                  description: "Categorias ainda dentro do teto mensal.",
+                  accentClass: "bg-white"
+                },
+                {
+                  label: "Contas urgentes",
+                  value: String(urgentPersonalBills + urgentHouseBills),
+                  description: "Alertas que pedem acao nesta semana.",
+                  accentClass: "bg-neo-lime"
+                }
+              ]}
+            />
           </div>
 
           <div className="grid gap-4 sm:gap-6 xl:grid-cols-2 2xl:grid-cols-[1fr_1fr]">
@@ -179,23 +153,28 @@ export default async function MetasPage({
                 Limites por categoria, urgencias do mes e leitura do fluxo privado.
               </p>
             </div>
-            <div className="grid gap-3 md:grid-cols-3 xl:grid-cols-3">
-              <SummaryCard
-                label="Saldo livre"
-                value={formatCurrency(personalVisualization!.safeToSpendCents / 100)}
-                accentClass="bg-neo-yellow"
-              />
-              <SummaryCard
-                label="Categorias estouradas"
-                value={String(goalsExceeded)}
-                accentClass="bg-neo-pink"
-              />
-              <SummaryCard
-                label="Contas urgentes"
-                value={String(urgentPersonalBills)}
-                accentClass="bg-neo-lime"
-              />
-            </div>
+            <DashboardMetricCarousel
+              items={[
+                {
+                  label: "Saldo livre",
+                  value: formatCurrency(personalVisualization!.safeToSpendCents / 100),
+                  description: "Quanto ainda cabe no seu fluxo pessoal.",
+                  accentClass: "bg-neo-yellow"
+                },
+                {
+                  label: "Categorias estouradas",
+                  value: String(goalsExceeded),
+                  description: "Metas que ja passaram do limite definido.",
+                  accentClass: "bg-neo-pink"
+                },
+                {
+                  label: "Contas urgentes",
+                  value: String(urgentPersonalBills),
+                  description: "Pendencias com vencimento mais proximo.",
+                  accentClass: "bg-neo-lime"
+                }
+              ]}
+            />
           </div>
 
           <BudgetGoals bills={personalSnapshot!.weeklyBills} goals={personalSnapshot!.goals} />
@@ -228,24 +207,28 @@ export default async function MetasPage({
                 Caixa livre, urgencias e distribuicao das contas compartilhadas.
               </p>
             </div>
-            <div className="grid gap-3 md:grid-cols-3 xl:grid-cols-3">
-              <SummaryCard
-                label="Saude financeira"
-                value={houseSnapshot!.healthStatus}
-                description={houseSnapshot!.healthDescription}
-                accentClass="bg-white"
-              />
-              <SummaryCard
-                label="Caixa livre"
-                value={formatCurrency(houseVisualization!.safeToSpendCents / 100)}
-                accentClass="bg-neo-cyan"
-              />
-              <SummaryCard
-                label="Contas urgentes"
-                value={String(urgentHouseBills)}
-                accentClass="bg-neo-lime"
-              />
-            </div>
+            <DashboardMetricCarousel
+              items={[
+                {
+                  label: "Saude financeira",
+                  value: houseSnapshot!.healthStatus,
+                  description: houseSnapshot!.healthDescription,
+                  accentClass: "bg-white"
+                },
+                {
+                  label: "Caixa livre",
+                  value: formatCurrency(houseVisualization!.safeToSpendCents / 100),
+                  description: "Saldo compartilhado depois das contas do mes.",
+                  accentClass: "bg-neo-cyan"
+                },
+                {
+                  label: "Contas urgentes",
+                  value: String(urgentHouseBills),
+                  description: "Pendencias que pedem acao rapida da casa.",
+                  accentClass: "bg-neo-lime"
+                }
+              ]}
+            />
           </div>
 
           <div className="grid gap-4 sm:gap-6 xl:grid-cols-2">

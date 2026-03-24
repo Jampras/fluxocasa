@@ -347,7 +347,7 @@ export function FabWizard() {
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.96, y: 20 }}
               onClick={(event) => event.stopPropagation()}
-              className="w-full max-w-4xl overflow-hidden border-4 border-neo-dark bg-neo-bg shadow-[10px_10px_0_#0F172A]"
+              className="flex max-h-[calc(100vh-1.5rem)] w-full max-w-4xl flex-col overflow-hidden border-4 border-neo-dark bg-neo-bg shadow-[10px_10px_0_#0F172A] md:max-h-[calc(100vh-3rem)]"
             >
               <div className="flex items-center justify-between border-b-4 border-neo-dark bg-white px-4 py-4 sm:px-5">
                 <div>
@@ -368,7 +368,7 @@ export function FabWizard() {
                 </button>
               </div>
 
-              <div className="max-h-[calc(100vh-10rem)] overflow-y-auto p-4 sm:p-5 md:p-8">
+              <div className="min-h-0 flex-1 overflow-y-auto p-4 pb-24 sm:p-5 sm:pb-28 md:p-8 md:pb-8">
                 <div className="mb-6 flex flex-wrap items-center gap-3">
                   <span className="border-4 border-neo-dark bg-white px-4 py-2 font-heading text-lg uppercase text-neo-dark">
                     {currentScope === EscopoTransacao.CASA ? "Casa" : "Pessoal"}
@@ -564,13 +564,19 @@ export function FabWizard() {
                 ) : null}
               </div>
 
-              <div className="sticky bottom-0 flex flex-wrap justify-between gap-3 border-t-4 border-neo-dark bg-white px-4 py-4 sm:px-5">
-                <div className="flex flex-wrap gap-3">
+              <div className="shrink-0 border-t-4 border-neo-dark bg-white px-4 py-4 pb-[calc(env(safe-area-inset-bottom)+1rem)] sm:px-5">
+                {step === "details" ? (
+                  <p className="mb-3 font-body text-xs font-black uppercase tracking-[0.14em] text-neo-dark/60 sm:text-sm sm:tracking-[0.18em]">
+                    Revise os campos acima e toque em salvar lancamento.
+                  </p>
+                ) : null}
+                <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
+                  <div className="flex flex-wrap gap-3">
                   <NeoButton
                     type="button"
                     variant="secondary"
                     onClick={goBack}
-                    className="text-lg"
+                    className="w-full text-lg sm:w-auto"
                   >
                     {step === "scope" ? "Fechar" : "Voltar"}
                   </NeoButton>
@@ -578,22 +584,23 @@ export function FabWizard() {
                     type="button"
                     variant="secondary"
                     onClick={closeWizard}
-                    className="text-lg"
+                    className="w-full text-lg sm:w-auto"
                   >
                     Cancelar
                   </NeoButton>
-                </div>
+                  </div>
 
-                {step === "details" ? (
-                  <NeoButton
-                    type="button"
-                    className="text-lg"
-                    onClick={() => void handleSubmit()}
-                    disabled={loading}
-                  >
-                    {loading ? "Salvando..." : "Salvar"}
-                  </NeoButton>
-                ) : null}
+                  {step === "details" ? (
+                    <NeoButton
+                      type="button"
+                      className="w-full text-lg sm:w-auto"
+                      onClick={() => void handleSubmit()}
+                      disabled={loading}
+                    >
+                      {loading ? "Salvando..." : "Salvar lancamento"}
+                    </NeoButton>
+                  ) : null}
+                </div>
               </div>
             </motion.div>
           </motion.div>
