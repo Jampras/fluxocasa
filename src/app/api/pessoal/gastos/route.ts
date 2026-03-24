@@ -25,7 +25,7 @@ export const POST = apiHandler({
       valorCentavos: data.valorCentavos,
       gastoEm: data.gastoEmDate
     });
-    revalidateAppViews();
+    revalidateAppViews(["personal"]);
 
     return created({ message: "Gasto salvo com sucesso." });
   }

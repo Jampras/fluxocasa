@@ -19,7 +19,7 @@ export const POST = apiHandler({
       mes: data.mes,
       ano: data.ano
     });
-    revalidateAppViews();
+    revalidateAppViews(["personal"]);
 
     return created({ message: "Meta salva com sucesso." });
   }

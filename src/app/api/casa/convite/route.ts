@@ -6,7 +6,7 @@ import { apiHandler } from "@/server/http/handler";
 export const PATCH = apiHandler({
   handler: async ({ user }) => {
     const result = await rotateInviteCode(user.id);
-    revalidateAppViews();
+    revalidateAppViews(["settings"]);
     return ok({
       message: "Codigo de convite atualizado com sucesso.",
       inviteCode: result.codigoConvite

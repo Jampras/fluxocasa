@@ -8,7 +8,7 @@ export const DELETE = apiHandler({
   handler: async ({ user, params }) => {
     const residentId = readStringParam(params.id, "id");
     await removeHouseResident(user.id, residentId);
-    revalidateAppViews();
+    revalidateAppViews(["settings"]);
     return ok({ message: "Morador removido com sucesso." });
   }
 });

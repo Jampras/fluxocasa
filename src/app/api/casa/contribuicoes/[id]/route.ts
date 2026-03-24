@@ -8,7 +8,7 @@ export const DELETE = apiHandler({
   handler: async ({ user, params }) => {
     const contributionId = readStringParam(params.id, "id");
     await deleteContribution(user.id, contributionId);
-    revalidateAppViews();
+    revalidateAppViews(["house"]);
     return ok({ message: "Contribuicao removida com sucesso." });
   }
 });

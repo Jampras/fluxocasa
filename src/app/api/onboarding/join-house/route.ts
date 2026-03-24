@@ -1,3 +1,4 @@
+import { revalidateAppViews } from "@/server/cache/revalidate-app";
 import { created } from "@/server/http/response";
 import { joinHouseByInviteCode } from "@/server/services/house.service";
 import { joinHouseSchema } from "@/server/validation/house";
@@ -7,6 +8,7 @@ export const POST = apiHandler({
   schema: joinHouseSchema,
   handler: async ({ user, data }) => {
     const result = await joinHouseByInviteCode(user.id, data.codigoConvite);
+    revalidateAppViews(["membership"]);
     return created({ message: "Entrada na casa concluida.", casaId: result.casaId });
   }
 });

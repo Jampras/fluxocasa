@@ -12,7 +12,7 @@ export const GET = apiHandler({
 export const DELETE = apiHandler({
   handler: async ({ user }) => {
     const result = await leaveCurrentHouse(user.id);
-    revalidateAppViews();
+    revalidateAppViews(["membership"]);
 
     return ok({
       message:

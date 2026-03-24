@@ -13,7 +13,7 @@ export const PUT = apiHandler({
       categoria: data.categoria,
       valorMetaCentavos: data.valorMetaCentavos
     });
-    revalidateAppViews();
+    revalidateAppViews(["personal"]);
 
     return ok({ message: "Meta atualizada com sucesso." });
   }
@@ -23,7 +23,7 @@ export const DELETE = apiHandler({
   handler: async ({ user, params }) => {
     const goalId = readStringParam(params.id, "id");
     await deleteBudgetGoal(user.id, goalId);
-    revalidateAppViews();
+    revalidateAppViews(["personal"]);
     return ok({ message: "Meta removida com sucesso." });
   }
 });

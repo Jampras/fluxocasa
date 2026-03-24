@@ -22,7 +22,7 @@ export const POST = apiHandler({
       frequencia: data.frequencia,
       parcelasTotais: data.parcelasTotais
     });
-    revalidateAppViews();
+    revalidateAppViews(["house"]);
 
     return created({ message: "Conta da casa criada com sucesso." });
   }

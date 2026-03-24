@@ -22,7 +22,7 @@ export const POST = apiHandler({
       frequencia: data.frequencia,
       parcelasTotais: data.parcelasTotais
     });
-    revalidateAppViews();
+    revalidateAppViews(["personal"]);
 
     return created({ message: "Conta pessoal salva com sucesso." });
   }

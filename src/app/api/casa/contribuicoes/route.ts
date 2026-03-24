@@ -18,7 +18,7 @@ export const POST = apiHandler({
       mes: data.mes,
       ano: data.ano
     });
-    revalidateAppViews();
+    revalidateAppViews(["house"]);
 
     return created({ message: "Contribuicao salva com sucesso." });
   }

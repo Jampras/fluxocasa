@@ -159,7 +159,7 @@ export async function createTransacao(data: {
     });
   }
 
-  revalidateAppViews();
+  revalidateAppViews([data.escopo === EscopoTransacao.CASA ? "house" : "personal"]);
 
   return { success: true };
 }

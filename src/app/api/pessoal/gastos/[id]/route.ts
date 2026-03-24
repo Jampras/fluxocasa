@@ -15,7 +15,7 @@ export const PUT = apiHandler({
       valorCentavos: data.valorCentavos,
       gastoEm: data.gastoEmDate
     });
-    revalidateAppViews();
+    revalidateAppViews(["personal"]);
 
     return ok({ message: "Gasto atualizado com sucesso." });
   }
@@ -25,7 +25,7 @@ export const DELETE = apiHandler({
   handler: async ({ user, params }) => {
     const expenseId = readStringParam(params.id, "id");
     await deleteExpense(user.id, expenseId);
-    revalidateAppViews();
+    revalidateAppViews(["personal"]);
     return ok({ message: "Gasto removido com sucesso." });
   }
 });

@@ -52,10 +52,6 @@ export function HouseActions({ contributions, bills }: HouseActionsProps) {
   const currentContribution = contributions.find((item) => item.isCurrentUser);
   const focusedItemId = searchParams.get("focus");
 
-  function refresh() {
-    refreshCurrentView(router, pathname, searchParams);
-  }
-
   function isFocused(targetId: string) {
     return focusedItemId === targetId;
   }
@@ -73,7 +69,9 @@ export function HouseActions({ contributions, bills }: HouseActionsProps) {
 
     try {
       await callback();
-      refresh();
+      refreshCurrentView(router, pathname, searchParams, {
+        clearFocus: action.includes("delete")
+      });
     } catch (submissionError) {
       setError(submissionError instanceof Error ? submissionError.message : fallback);
     } finally {

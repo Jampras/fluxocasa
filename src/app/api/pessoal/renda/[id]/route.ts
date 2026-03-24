@@ -9,7 +9,7 @@ export const PATCH = apiHandler({
   handler: async ({ user, params }) => {
     const incomeId = readStringParam(params.id, "id");
     await markIncomeAsReceived(user.id, incomeId);
-    revalidateAppViews();
+    revalidateAppViews(["personal"]);
 
     return ok({ message: "Renda marcada como recebida." });
   }
@@ -28,7 +28,7 @@ export const PUT = apiHandler({
       frequencia: data.frequencia,
       parcelasTotais: data.parcelasTotais
     });
-    revalidateAppViews();
+    revalidateAppViews(["personal"]);
 
     return ok({ message: "Renda atualizada com sucesso." });
   }
@@ -38,7 +38,7 @@ export const DELETE = apiHandler({
   handler: async ({ user, params }) => {
     const incomeId = readStringParam(params.id, "id");
     await deleteIncome(user.id, incomeId);
-    revalidateAppViews();
+    revalidateAppViews(["personal"]);
     return ok({ message: "Renda removida com sucesso." });
   }
 });

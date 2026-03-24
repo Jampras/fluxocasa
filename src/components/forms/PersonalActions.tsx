@@ -57,10 +57,6 @@ export function PersonalActions({
   const [loadingAction, setLoadingAction] = useState<string | null>(null);
   const focusedItemId = searchParams.get("focus");
 
-  function refresh() {
-    refreshCurrentView(router, pathname, searchParams);
-  }
-
   function isFocused(targetId: string) {
     return focusedItemId === targetId;
   }
@@ -78,7 +74,9 @@ export function PersonalActions({
 
     try {
       await callback();
-      refresh();
+      refreshCurrentView(router, pathname, searchParams, {
+        clearFocus: action.includes("delete")
+      });
     } catch (submissionError) {
       setError(submissionError instanceof Error ? submissionError.message : fallback);
     } finally {

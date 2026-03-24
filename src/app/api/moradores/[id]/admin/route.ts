@@ -8,7 +8,7 @@ export const PATCH = apiHandler({
   handler: async ({ user, params }) => {
     const residentId = readStringParam(params.id, "id");
     await transferHouseAdmin(user.id, residentId);
-    revalidateAppViews();
+    revalidateAppViews(["settings"]);
     return ok({ message: "Administracao transferida com sucesso." });
   }
 });

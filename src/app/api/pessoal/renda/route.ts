@@ -28,7 +28,7 @@ export const POST = apiHandler({
       frequencia: data.frequencia,
       parcelasTotais: data.parcelasTotais
     });
-    revalidateAppViews();
+    revalidateAppViews(["personal"]);
 
     return created({ message: "Renda salva com sucesso." });
   }

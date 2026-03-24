@@ -1,11 +1,11 @@
 import { EscopoTransacao } from "@prisma/client";
 
 import { AppHeader } from "@/components/layout/AppHeader";
+import { LazyDonutChartPreview } from "@/components/metas/LazyDonutChartPreview";
+import { LazyWaterfallChartPreview } from "@/components/metas/LazyWaterfallChartPreview";
 import { BudgetGoals } from "@/components/pessoal/BudgetGoals";
 import { ScopeTabs } from "@/components/ui/ScopeTabs";
 import { Card } from "@/components/ui/Card";
-import { DonutChartPreview } from "@/components/ui/DonutChartPreview";
-import { WaterfallChartPreview } from "@/components/ui/WaterfallChartPreview";
 import { formatCurrency } from "@/lib/utils";
 import { getDashboardVisualization } from "@/server/actions/transactions";
 import { requireCurrentResident } from "@/server/auth/user";
@@ -140,26 +140,26 @@ export default async function MetasPage({
           </div>
 
           <div className="grid gap-4 sm:gap-6 xl:grid-cols-2 2xl:grid-cols-[1fr_1fr]">
-            <DonutChartPreview
+            <LazyDonutChartPreview
               title="Distribuicao dos gastos pessoais"
               totalLabel={`Total monitorado: ${formatCurrency(
                 personalVisualization!.donutData.reduce((sum, item) => sum + item.valueCents, 0) / 100
               )}`}
               segments={personalVisualization!.donutData}
             />
-            <DonutChartPreview
+            <LazyDonutChartPreview
               title="Distribuicao das contas da casa"
               totalLabel={`Total monitorado: ${formatCurrency(
                 houseVisualization!.donutData.reduce((sum, item) => sum + item.valueCents, 0) / 100
               )}`}
               segments={houseVisualization!.donutData}
             />
-            <WaterfallChartPreview
+            <LazyWaterfallChartPreview
               title="Fluxo pessoal"
               subtitle="Evolucao de entradas e saidas mais recentes."
               steps={personalVisualization!.waterfallData}
             />
-            <WaterfallChartPreview
+            <LazyWaterfallChartPreview
               title="Fluxo da casa"
               subtitle="Evolucao do caixa compartilhado em ordem cronologica."
               steps={houseVisualization!.waterfallData}
@@ -201,14 +201,14 @@ export default async function MetasPage({
           <BudgetGoals bills={personalSnapshot!.weeklyBills} goals={personalSnapshot!.goals} />
 
           <div className="grid gap-4 sm:gap-6 xl:grid-cols-2">
-            <DonutChartPreview
+            <LazyDonutChartPreview
               title="Distribuicao dos gastos pessoais"
               totalLabel={`Total monitorado: ${formatCurrency(
                 personalVisualization!.donutData.reduce((sum, item) => sum + item.valueCents, 0) / 100
               )}`}
               segments={personalVisualization!.donutData}
             />
-            <WaterfallChartPreview
+            <LazyWaterfallChartPreview
               title="Fluxo pessoal"
               subtitle="Evolucao de entradas, contas e gastos."
               steps={personalVisualization!.waterfallData}
@@ -249,14 +249,14 @@ export default async function MetasPage({
           </div>
 
           <div className="grid gap-4 sm:gap-6 xl:grid-cols-2">
-            <DonutChartPreview
+            <LazyDonutChartPreview
               title="Distribuicao das contas da casa"
               totalLabel={`Total monitorado: ${formatCurrency(
                 houseVisualization!.donutData.reduce((sum, item) => sum + item.valueCents, 0) / 100
               )}`}
               segments={houseVisualization!.donutData}
             />
-            <WaterfallChartPreview
+            <LazyWaterfallChartPreview
               title="Fluxo da casa"
               subtitle="Contribuicoes e contas compartilhadas em ordem cronologica."
               steps={houseVisualization!.waterfallData}

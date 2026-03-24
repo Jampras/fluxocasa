@@ -13,7 +13,7 @@ export const PATCH = apiHandler({
   handler: async ({ user, params }) => {
     const billId = readStringParam(params.id, "id");
     await markHouseBillAsPaid(user.id, billId);
-    revalidateAppViews();
+    revalidateAppViews(["house"]);
     return ok({ message: "Conta marcada como paga." });
   }
 });
@@ -32,7 +32,7 @@ export const PUT = apiHandler({
       frequencia: data.frequencia,
       parcelasTotais: data.parcelasTotais
     });
-    revalidateAppViews();
+    revalidateAppViews(["house"]);
 
     return ok({ message: "Conta da casa atualizada com sucesso." });
   }
@@ -42,7 +42,7 @@ export const DELETE = apiHandler({
   handler: async ({ user, params }) => {
     const billId = readStringParam(params.id, "id");
     await deleteHouseBill(user.id, billId);
-    revalidateAppViews();
+    revalidateAppViews(["house"]);
     return ok({ message: "Conta da casa removida com sucesso." });
   }
 });
