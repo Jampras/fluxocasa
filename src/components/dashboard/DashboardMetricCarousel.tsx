@@ -70,7 +70,7 @@ export function DashboardMetricCarousel({ items }: { items: DashboardMetricItem[
         <p className="font-body text-[11px] font-bold uppercase tracking-[0.12em] text-neo-dark/60 sm:text-sm sm:tracking-[0.16em]">
           Deslize no touch ou use as setas no desktop.
         </p>
-        <div className="hidden items-center gap-2 xl:flex">
+        <div className="hidden items-center gap-2 lg:flex">
           <button
             type="button"
             onClick={() => scrollByDirection("left")}
@@ -99,7 +99,7 @@ export function DashboardMetricCarousel({ items }: { items: DashboardMetricItem[
         {items.map((item) => (
           <NeoCard
             key={item.label}
-            className="min-h-[248px] min-w-[88%] snap-start overflow-hidden bg-white p-0 sm:min-h-[272px] sm:min-w-[68%] xl:min-h-[300px] xl:min-w-[calc(50%-10px)] 2xl:min-h-[320px]"
+            className="min-h-[248px] min-w-[88%] snap-start overflow-hidden bg-white p-0 sm:min-h-[272px] sm:min-w-[68%] lg:min-w-[calc(50%-10px)] xl:min-h-[300px] xl:min-w-[calc(50%-10px)] 2xl:min-h-[320px]"
           >
             <div className={`border-b-[3px] border-neo-dark px-3 py-2 sm:border-b-4 sm:px-4 sm:py-3 xl:px-5 xl:py-4 ${item.accentClass}`}>
               <p className="font-heading text-[10px] uppercase tracking-[0.14em] text-neo-dark sm:text-sm sm:tracking-[0.22em] xl:text-base">
