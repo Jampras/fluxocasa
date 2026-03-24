@@ -2,6 +2,7 @@ import Link from "next/link";
 import { EscopoTransacao } from "@prisma/client";
 
 import { ContributionsList } from "@/components/casa/ContributionsList";
+import { DashboardMetricCarousel } from "@/components/dashboard/DashboardMetricCarousel";
 import { HouseBillsSection } from "@/components/casa/HouseBillsSection";
 import { HouseOverview } from "@/components/casa/HouseOverview";
 import { PanelTabs } from "@/components/dashboard/PanelTabs";
@@ -29,36 +30,6 @@ function resolvePanelTab(tab?: string): PanelTab {
   }
 
   return "geral";
-}
-
-function SummaryMetricCard({
-  label,
-  value,
-  description,
-  accentClass
-}: {
-  label: string;
-  value: string;
-  description: string;
-  accentClass: string;
-}) {
-  return (
-    <NeoCard className="overflow-hidden bg-white p-0 lg:min-h-[214px]">
-      <div className={`border-b-[3px] border-neo-dark px-3 py-2 sm:border-b-4 sm:px-4 sm:py-3 ${accentClass}`}>
-        <p className="font-heading text-[10px] uppercase tracking-[0.14em] text-neo-dark sm:text-sm sm:tracking-[0.22em]">
-          {label}
-        </p>
-      </div>
-      <div className="space-y-2 p-3 sm:p-4 md:p-5 lg:p-6">
-        <h2 className="font-heading text-3xl uppercase leading-none text-neo-dark sm:text-4xl md:text-5xl xl:text-[3.25rem]">
-          {value}
-        </h2>
-        <p className="font-body text-[11px] font-bold uppercase tracking-[0.08em] text-neo-dark/65 sm:text-sm sm:tracking-[0.12em]">
-          {description}
-        </p>
-      </div>
-    </NeoCard>
-  );
 }
 
 function FlowMetric({
@@ -219,32 +190,34 @@ export default async function DashboardPage({
             A pagina inicial mostra o que mudou na casa e no pessoal sem obrigar troca de menu.
           </p>
         </div>
-        <div className="grid grid-cols-2 gap-3 sm:gap-4 xl:grid-cols-4">
-          <SummaryMetricCard
-            label="Caixa da casa"
-            value={formatCurrency(snapshot.houseCash)}
-            description="Saldo compartilhado projetado."
-            accentClass="bg-neo-cyan"
-          />
-          <SummaryMetricCard
-            label="Carteira pessoal"
-            value={formatCurrency(snapshot.privateWallet)}
-            description="Margem disponivel no seu fluxo privado."
-            accentClass="bg-neo-yellow"
-          />
-          <SummaryMetricCard
-            label="Pendencias"
-            value={String(snapshot.pendingBills)}
-            description="Contas da casa aguardando acao."
-            accentClass="bg-white"
-          />
-          <SummaryMetricCard
-            label="Metas ativas"
-            value={String(snapshot.goalsHit)}
-            description="Categorias dentro do limite mensal."
-            accentClass="bg-neo-lime"
-          />
-        </div>
+        <DashboardMetricCarousel
+          items={[
+            {
+              label: "Caixa da casa",
+              value: formatCurrency(snapshot.houseCash),
+              description: "Saldo compartilhado projetado.",
+              accentClass: "bg-neo-cyan"
+            },
+            {
+              label: "Carteira pessoal",
+              value: formatCurrency(snapshot.privateWallet),
+              description: "Margem disponivel no seu fluxo privado.",
+              accentClass: "bg-neo-yellow"
+            },
+            {
+              label: "Pendencias",
+              value: String(snapshot.pendingBills),
+              description: "Contas da casa aguardando acao.",
+              accentClass: "bg-white"
+            },
+            {
+              label: "Metas ativas",
+              value: String(snapshot.goalsHit),
+              description: "Categorias dentro do limite mensal.",
+              accentClass: "bg-neo-lime"
+            }
+          ]}
+        />
       </div>
 
       <div className="grid gap-4 sm:gap-6 xl:grid-cols-2">
