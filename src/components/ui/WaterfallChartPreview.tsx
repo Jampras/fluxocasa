@@ -24,22 +24,22 @@ export function WaterfallChartPreview({
   const finalBalance = visibleSteps[visibleSteps.length - 1]?.runningTotalCents ?? 0;
 
   return (
-    <NeoCard className="relative flex h-full flex-col gap-8 bg-white p-6 lg:p-10">
+    <NeoCard className="relative flex h-full flex-col gap-5 bg-white p-4 sm:gap-6 sm:p-5 lg:gap-8 lg:p-8">
       <div className="flex flex-col gap-2">
-        <h3 className="font-heading text-3xl uppercase text-neo-dark">{title}</h3>
-        <p className="font-body text-sm font-bold uppercase tracking-[0.18em] text-neo-dark/65">
+        <h3 className="font-heading text-2xl uppercase text-neo-dark sm:text-3xl">{title}</h3>
+        <p className="font-body text-[10px] font-bold uppercase tracking-[0.12em] text-neo-dark/65 sm:text-sm sm:tracking-[0.18em]">
           {subtitle}
         </p>
       </div>
 
-      <div className="rounded-none border-3 border-neo-dark bg-neo-bg p-4 shadow-[4px_4px_0_#0F172A]">
-        <p className="text-xs font-bold uppercase tracking-[0.22em] text-neo-pink">Saldo projetado</p>
-        <p className="mt-2 font-heading text-4xl uppercase text-neo-dark">
+      <div className="rounded-none border-[3px] border-neo-dark bg-neo-bg p-3 shadow-[4px_4px_0_#0F172A] sm:border-4 sm:p-4">
+        <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-neo-pink sm:text-xs sm:tracking-[0.22em]">Saldo projetado</p>
+        <p className="mt-1.5 font-heading text-3xl uppercase text-neo-dark sm:mt-2 sm:text-4xl">
           {formatCurrency(finalBalance / 100)}
         </p>
       </div>
 
-      <div className="relative h-[320px] border-b-4 border-neo-dark">
+      <div className="relative h-[260px] border-b-[3px] border-neo-dark sm:h-[300px] sm:border-b-4 lg:h-[320px]">
         <div className="absolute left-0 right-0 top-1/2 border-b-4 border-dashed border-neo-dark/20" />
 
         {visibleSteps.length === 0 ? (
@@ -49,7 +49,7 @@ export function WaterfallChartPreview({
             </p>
           </div>
         ) : (
-          <div className="grid h-full grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-6">
+          <div className="grid h-full grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3 lg:grid-cols-6">
             {visibleSteps.map((step) => {
               const height = `${Math.max((Math.abs(step.amountCents) / maxMagnitude) * 44, 16)}%`;
               const positive = step.amountCents >= 0;
@@ -57,17 +57,17 @@ export function WaterfallChartPreview({
               return (
                 <div key={step.id} className="relative flex h-full items-center justify-center">
                   <div
-                    className={`absolute w-full max-w-[88px] border-4 border-neo-dark shadow-[4px_4px_0_#0F172A] ${
+                    className={`absolute w-full max-w-[72px] border-[3px] border-neo-dark shadow-[3px_3px_0_#0F172A] sm:max-w-[80px] sm:border-4 sm:shadow-[4px_4px_0_#0F172A] md:max-w-[88px] ${
                       positive ? "bottom-1/2 bg-neo-lime text-neo-dark" : "top-1/2 bg-neo-pink text-white"
                     }`}
                     style={{ height }}
                   />
                   <div className="absolute bottom-3 left-0 right-0 text-center">
-                    <p className="truncate px-1 font-heading text-lg uppercase text-neo-dark">{step.label}</p>
-                    <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-neo-dark/65">
+                    <p className="truncate px-1 font-heading text-sm uppercase text-neo-dark sm:text-base md:text-lg">{step.label}</p>
+                    <p className="text-[9px] font-bold uppercase tracking-[0.12em] text-neo-dark/65 sm:text-[10px] md:text-[11px] md:tracking-[0.16em]">
                       {step.dateLabel}
                     </p>
-                    <p className="mt-1 text-sm font-black text-neo-dark">
+                    <p className="mt-1 text-xs font-black text-neo-dark sm:text-sm">
                       {positive ? "+" : "-"}
                       {formatCurrency(Math.abs(step.amountCents) / 100)}
                     </p>

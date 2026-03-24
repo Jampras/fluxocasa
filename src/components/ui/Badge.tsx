@@ -21,7 +21,7 @@ export function Badge({ className, tone = "primary", ...props }: BadgeProps) {
   return (
     <span
       className={cx(
-        "inline-flex items-center px-4 py-1 text-sm font-heading font-bold uppercase tracking-widest border-4 border-neo-dark shadow-[2px_2px_0_#0F172A]",
+        "inline-flex items-center border-[3px] border-neo-dark px-2.5 py-1 text-[10px] font-heading font-bold uppercase tracking-[0.16em] shadow-[2px_2px_0_#0F172A] sm:border-4 sm:px-3 sm:text-xs sm:tracking-[0.18em]",
         toneMap[tone],
         className
       )}

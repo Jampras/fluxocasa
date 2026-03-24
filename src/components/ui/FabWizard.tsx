@@ -327,34 +327,36 @@ export function FabWizard() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
+            onClick={closeWizard}
             className="fixed inset-0 z-50 flex items-center justify-center bg-neo-dark/45 px-4 py-6 backdrop-blur-[2px]"
           >
             <motion.div
               initial={{ opacity: 0, scale: 0.92, y: 24 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.96, y: 20 }}
+              onClick={(event) => event.stopPropagation()}
               className="w-full max-w-4xl overflow-hidden border-4 border-neo-dark bg-neo-bg shadow-[10px_10px_0_#0F172A]"
             >
-              <div className="flex items-center justify-between border-b-4 border-neo-dark bg-white px-5 py-4">
+              <div className="flex items-center justify-between border-b-4 border-neo-dark bg-white px-4 py-4 sm:px-5">
                 <div>
-                  <p className="font-heading text-sm uppercase tracking-[0.28em] text-neo-pink">
+                  <p className="font-heading text-[10px] uppercase tracking-[0.18em] text-neo-pink sm:text-sm sm:tracking-[0.28em]">
                     Novo lancamento
                   </p>
-                  <p className="font-body text-sm font-bold uppercase tracking-wide text-neo-dark/70">
+                  <p className="font-body text-xs font-bold uppercase tracking-[0.12em] text-neo-dark/70 sm:text-sm sm:tracking-wide">
                     Modal rapido com fechar, voltar e salvar.
                   </p>
                 </div>
                 <button
                   type="button"
                   onClick={closeWizard}
-                  className="flex h-12 w-12 items-center justify-center border-4 border-neo-dark bg-neo-yellow text-neo-dark shadow-[4px_4px_0_#0F172A]"
+                  className="flex h-11 w-11 items-center justify-center border-4 border-neo-dark bg-neo-yellow text-neo-dark shadow-[4px_4px_0_#0F172A] sm:h-12 sm:w-12"
                   aria-label="Fechar"
                 >
                   <X className="h-5 w-5 stroke-[3px]" />
                 </button>
               </div>
 
-              <div className="max-h-[calc(100vh-10rem)] overflow-y-auto p-5 md:p-8">
+              <div className="max-h-[calc(100vh-10rem)] overflow-y-auto p-4 sm:p-5 md:p-8">
                 <div className="mb-6 flex flex-wrap items-center gap-3">
                   <span className="border-4 border-neo-dark bg-white px-4 py-2 font-heading text-lg uppercase text-neo-dark">
                     {currentScope === EscopoTransacao.CASA ? "Casa" : "Pessoal"}
@@ -550,7 +552,7 @@ export function FabWizard() {
                 ) : null}
               </div>
 
-              <div className="flex flex-wrap justify-between gap-3 border-t-4 border-neo-dark bg-white px-5 py-4">
+              <div className="sticky bottom-0 flex flex-wrap justify-between gap-3 border-t-4 border-neo-dark bg-white px-4 py-4 sm:px-5">
                 <div className="flex flex-wrap gap-3">
                   <NeoButton
                     type="button"
@@ -591,9 +593,9 @@ export function FabWizard() {
           type="button"
           onClick={openWizard}
           whileHover={{ scale: 1.05 }}
-          className="fixed bottom-24 right-8 z-40 flex h-20 w-20 items-center justify-center border-4 border-neo-dark bg-neo-lime shadow-[6px_6px_0px_#0F172A] transition-colors hover:bg-neo-yellow md:bottom-8"
+          className="fixed bottom-24 right-5 z-40 flex h-16 w-16 items-center justify-center border-4 border-neo-dark bg-neo-lime shadow-[5px_5px_0px_#0F172A] transition-colors hover:bg-neo-yellow sm:right-6 sm:h-18 sm:w-18 md:bottom-8 md:right-8 md:h-20 md:w-20 md:shadow-[6px_6px_0px_#0F172A]"
         >
-          <Plus size={48} className="stroke-[4px] text-neo-dark" />
+          <Plus size={40} className="stroke-[4px] text-neo-dark sm:h-11 sm:w-11 md:h-12 md:w-12" />
         </motion.button>
       ) : null}
     </>

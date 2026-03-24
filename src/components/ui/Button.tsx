@@ -25,7 +25,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button
     <button
       ref={ref}
       className={cx(
-        "inline-flex h-[56px] items-center justify-center rounded-3xl px-8 text-base font-black tracking-wide transition-all duration-150 transform-gpu mb-2",
+        "mb-2 inline-flex h-12 items-center justify-center rounded-2xl px-5 text-sm font-black uppercase tracking-[0.12em] transition-all duration-150 transform-gpu sm:h-[52px] sm:px-6 sm:text-base md:h-[56px] md:rounded-3xl md:px-8 md:tracking-wide",
         variantStyles[variant],
         fullWidth && "w-full",
         className

@@ -21,7 +21,7 @@ export function ScopeTabs({
   const searchParams = useSearchParams();
 
   return (
-    <div className="grid gap-3 md:grid-cols-3">
+    <div className="grid grid-cols-3 gap-2 sm:gap-3">
       {tabs.map((tab) => {
         const nextParams = new URLSearchParams(searchParams.toString());
         nextParams.set("scope", tab.id);
@@ -35,14 +35,14 @@ export function ScopeTabs({
               query: Object.fromEntries(nextParams.entries())
             }}
             className={twMerge(
-              "border-4 border-neo-dark bg-white px-5 py-4 shadow-[6px_6px_0_#0F172A] transition-all",
+              "flex min-h-[78px] flex-col justify-center border-[3px] border-neo-dark bg-white px-2 py-2.5 text-center shadow-[4px_4px_0_#0F172A] transition-all sm:min-h-[96px] sm:border-4 sm:px-4 sm:py-3.5 sm:shadow-[5px_5px_0_#0F172A]",
               active
                 ? "bg-neo-yellow -translate-y-1"
                 : "hover:bg-neo-cyan hover:-translate-y-1"
             )}
           >
-            <p className="font-heading text-2xl uppercase text-neo-dark">{tab.label}</p>
-            <p className="mt-1 font-body text-sm font-bold uppercase tracking-[0.18em] text-neo-dark/65">
+            <p className="font-heading text-lg uppercase leading-none text-neo-dark sm:text-2xl">{tab.label}</p>
+            <p className="mt-1 font-body text-[9px] font-bold uppercase tracking-[0.08em] text-neo-dark/65 sm:text-xs sm:tracking-[0.16em]">
               {tab.description}
             </p>
           </Link>

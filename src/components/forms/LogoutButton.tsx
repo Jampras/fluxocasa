@@ -38,14 +38,14 @@ export function LogoutButton() {
       onClick={() => {
         void handleLogout();
       }}
-      className="flex items-center justify-center gap-2 border-4 border-neo-dark bg-neo-pink px-4 py-2 font-heading text-xl uppercase tracking-wider text-white shadow-[4px_4px_0_#0F172A] transition-all hover:-translate-y-1 hover:shadow-[6px_6px_0_#0F172A] active:translate-y-1 md:px-6 md:py-3 md:text-2xl"
+      className="flex h-12 w-12 items-center justify-center gap-2 border-[3px] border-neo-dark bg-neo-pink px-0 py-0 font-heading text-base uppercase tracking-[0.18em] text-white shadow-[3px_3px_0_#0F172A] transition-all hover:-translate-y-1 hover:shadow-[5px_5px_0_#0F172A] active:translate-y-1 active:shadow-none sm:h-14 sm:w-14 sm:border-4 sm:text-lg sm:shadow-[4px_4px_0_#0F172A] md:h-auto md:w-auto md:px-5 md:py-3 md:text-2xl"
       disabled={pending}
     >
       {pending ? (
-        "SAINDO..."
+        <span className="text-[10px] sm:text-xs md:text-base">...</span>
       ) : (
         <>
-          <LogOut size={24} className="stroke-[3px]" />
+          <LogOut size={20} className="stroke-[3px] sm:h-6 sm:w-6" />
           <span className="hidden md:inline">SAIR</span>
         </>
       )}

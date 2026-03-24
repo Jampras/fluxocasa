@@ -10,26 +10,26 @@ export function Navbar() {
 
   return (
     <>
-      <div className="fixed inset-x-0 bottom-0 z-40 w-full md:hidden bg-neo-lime border-t-4 border-neo-dark pb-safe">
-        <nav className="w-full px-2 py-3">
+      <div className="fixed inset-x-0 bottom-0 z-40 w-full border-t-[3px] border-neo-dark bg-neo-lime/95 pb-safe backdrop-blur-sm md:hidden">
+        <nav className="w-full px-2 py-2">
           <ul className="flex items-center justify-around w-full">
             {APP_NAVIGATION.map((item) => {
               const Icon = item.icon;
               const active = pathname === item.href;
 
               return (
-                <li key={item.href} className="flex-1 flex justify-center px-1">
+                <li key={item.href} className="flex flex-1 justify-center px-1">
                   <Link
                     href={item.href}
                     className={twMerge(
-                      "flex flex-col items-center justify-center gap-1 p-3 border-4 border-neo-dark rounded-none transition-transform bg-white w-full",
+                      "flex min-h-[60px] w-full flex-col items-center justify-center gap-1 border-[3px] border-neo-dark bg-white px-2 py-2 transition-transform",
                       active
-                        ? "shadow-[4px_4px_0_#0F172A] -translate-y-1 bg-neo-yellow"
+                        ? "-translate-y-1 bg-neo-yellow shadow-[4px_4px_0_#0F172A]"
                         : "hover:bg-neo-cyan active:translate-y-1 active:shadow-none"
                     )}
                   >
-                    <Icon className="h-6 w-6 stroke-[3px] text-neo-dark" />
-                    <span className="font-body text-[10px] font-black uppercase tracking-[0.18em] text-neo-dark">
+                    <Icon className="h-5 w-5 stroke-[2.8px] text-neo-dark" />
+                    <span className="font-body text-[9px] font-black uppercase tracking-[0.12em] text-neo-dark">
                       {item.label}
                     </span>
                   </Link>
@@ -40,9 +40,9 @@ export function Navbar() {
         </nav>
       </div>
 
-      <aside className="hidden md:flex flex-col w-72 shrink-0 border-r-4 border-neo-dark bg-neo-pink p-8 min-h-screen sticky top-0 shadow-[8px_0_0_#0F172A] z-20">
+      <aside className="sticky top-0 z-20 hidden min-h-screen w-72 shrink-0 flex-col border-r-4 border-neo-dark bg-neo-pink p-8 shadow-[8px_0_0_#0F172A] md:flex">
         <div className="mb-16 flex items-center justify-center gap-4 bg-white p-4 border-4 border-neo-dark shadow-[4px_4px_0_#0F172A] rotate-[-2deg]">
-          <h1 className="font-heading text-4xl text-neo-dark uppercase m-0 leading-none">FLUXO</h1>
+          <h1 className="m-0 font-heading text-4xl leading-none text-neo-dark uppercase">FLUXO.CASA</h1>
         </div>
         <ul className="flex flex-col gap-6">
           {APP_NAVIGATION.map((item) => {

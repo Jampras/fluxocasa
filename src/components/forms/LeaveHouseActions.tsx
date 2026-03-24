@@ -53,9 +53,9 @@ export function LeaveHouseActions({ isAdmin, residentCount }: LeaveHouseActionsP
   }
 
   return (
-    <div className="space-y-3 rounded-none border-4 border-neo-dark bg-neo-bg p-4">
+    <div className="space-y-3 rounded-none border-4 border-neo-dark bg-neo-bg p-4 sm:p-5">
       <div className="space-y-1">
-        <h3 className="text-lg font-bold text-neo-dark">
+        <h3 className="text-xl font-bold text-neo-dark sm:text-2xl">
           {isAdmin && residentCount === 1 ? "Encerrar casa" : "Sair da casa"}
         </h3>
         <p className="text-sm text-neo-dark/65">
@@ -67,7 +67,7 @@ export function LeaveHouseActions({ isAdmin, residentCount }: LeaveHouseActionsP
       <Button
         type="button"
         variant={canLeave ? "ghost" : "secondary"}
-        className={canLeave ? "text-rose-700" : ""}
+        className={canLeave ? "border-[3px] border-neo-dark bg-white text-rose-700 sm:border-4" : ""}
         disabled={pending || !canLeave}
         onClick={() => void handleLeaveHouse()}
       >

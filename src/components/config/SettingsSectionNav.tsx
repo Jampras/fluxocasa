@@ -11,12 +11,18 @@ const sections = [
 
 export function SettingsSectionNav() {
   return (
-    <div className="grid gap-3 md:grid-cols-3 xl:grid-cols-6">
-      {sections.map((section) => (
+    <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 sm:gap-3 xl:grid-cols-6">
+      {sections.map((section, index) => (
         <a
           key={section.id}
           href={`#${section.id}`}
-          className="border-4 border-neo-dark bg-white px-4 py-3 text-center font-heading text-xl uppercase text-neo-dark shadow-[4px_4px_0_#0F172A] transition-all hover:-translate-y-1 hover:bg-neo-cyan"
+          className={`border-[3px] border-neo-dark px-3 py-3 text-center font-heading text-lg uppercase text-neo-dark shadow-[4px_4px_0_#0F172A] transition-all hover:-translate-y-1 sm:border-4 sm:px-4 sm:text-xl ${
+            index % 3 === 0
+              ? "bg-white hover:bg-neo-yellow"
+              : index % 3 === 1
+                ? "bg-white hover:bg-neo-cyan"
+                : "bg-white hover:bg-neo-lime"
+          }`}
         >
           {section.label}
         </a>

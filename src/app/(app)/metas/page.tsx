@@ -22,6 +22,38 @@ function resolveScope(scope?: string): GoalsScope {
   return "geral";
 }
 
+function SummaryCard({
+  label,
+  value,
+  description,
+  accentClass = "bg-white"
+}: {
+  label: string;
+  value: string;
+  description?: string;
+  accentClass?: string;
+}) {
+  return (
+    <Card className="overflow-hidden bg-white p-0">
+      <div className={`border-b-[3px] border-neo-dark px-3 py-2 sm:border-b-4 sm:px-4 sm:py-3 ${accentClass}`}>
+        <p className="font-heading text-[10px] uppercase tracking-[0.16em] text-neo-dark sm:text-sm sm:tracking-[0.24em]">
+          {label}
+        </p>
+      </div>
+      <div className="space-y-2 p-3 sm:p-4 md:p-5">
+        <h2 className="font-heading text-3xl uppercase leading-none text-neo-dark sm:text-4xl md:text-5xl">
+          {value}
+        </h2>
+        {description ? (
+          <p className="font-body text-[11px] font-bold uppercase tracking-[0.08em] text-neo-dark/65 sm:text-sm sm:tracking-[0.12em]">
+            {description}
+          </p>
+        ) : null}
+      </div>
+    </Card>
+  );
+}
+
 export default async function MetasPage({
   searchParams
 }: {
@@ -60,7 +92,7 @@ export default async function MetasPage({
   const urgentHouseBills = houseSnapshot?.pendingBills.filter((bill) => bill.status === "warning").length ?? 0;
 
   return (
-    <div className="space-y-8 pb-20">
+    <div className="space-y-6 pb-16 sm:space-y-8 sm:pb-20">
       <AppHeader monthLabel={monthLabel} title="Metas" />
 
       <ScopeTabs
@@ -74,34 +106,40 @@ export default async function MetasPage({
 
       {activeScope === "geral" ? (
         <>
-          <div className="grid gap-6 md:grid-cols-4">
-            <Card className="bg-white p-6">
-              <p className="font-heading text-sm uppercase tracking-[0.28em] text-neo-pink">Saldo pessoal</p>
-              <h2 className="mt-3 font-heading text-5xl uppercase text-neo-dark">
-                {formatCurrency(personalVisualization!.safeToSpendCents / 100)}
-              </h2>
-            </Card>
-            <Card className="bg-white p-6">
-              <p className="font-heading text-sm uppercase tracking-[0.28em] text-neo-pink">Caixa da casa</p>
-              <h2 className="mt-3 font-heading text-5xl uppercase text-neo-dark">
-                {formatCurrency(houseVisualization!.safeToSpendCents / 100)}
-              </h2>
-            </Card>
-            <Card className="bg-white p-6">
-              <p className="font-heading text-sm uppercase tracking-[0.28em] text-neo-pink">Metas no limite</p>
-              <h2 className="mt-3 font-heading text-5xl uppercase text-neo-dark">
-                {goalsWithinLimit}/{personalSnapshot!.goals.length || 0}
-              </h2>
-            </Card>
-            <Card className="bg-white p-6">
-              <p className="font-heading text-sm uppercase tracking-[0.28em] text-neo-pink">Contas urgentes</p>
-              <h2 className="mt-3 font-heading text-5xl uppercase text-neo-dark">
-                {urgentPersonalBills + urgentHouseBills}
-              </h2>
-            </Card>
+          <div className="grid gap-3 lg:grid-cols-[1.1fr_0.9fr] lg:items-start">
+            <div className="space-y-1.5 sm:space-y-2">
+              <p className="font-heading text-[10px] uppercase tracking-[0.2em] text-neo-pink sm:text-sm sm:tracking-[0.3em]">
+                Panorama geral
+              </p>
+              <p className="font-body text-sm font-bold uppercase tracking-[0.12em] text-neo-dark/75 sm:text-base sm:tracking-wide">
+                Metas pessoais, saude da casa e distribuicao dos fluxos no mesmo quadro.
+              </p>
+            </div>
+            <div className="grid grid-cols-2 gap-3 sm:gap-4">
+              <SummaryCard
+                label="Saldo pessoal"
+                value={formatCurrency(personalVisualization!.safeToSpendCents / 100)}
+                accentClass="bg-neo-yellow"
+              />
+              <SummaryCard
+                label="Caixa da casa"
+                value={formatCurrency(houseVisualization!.safeToSpendCents / 100)}
+                accentClass="bg-neo-cyan"
+              />
+              <SummaryCard
+                label="Metas no limite"
+                value={`${goalsWithinLimit}/${personalSnapshot!.goals.length || 0}`}
+                accentClass="bg-white"
+              />
+              <SummaryCard
+                label="Contas urgentes"
+                value={String(urgentPersonalBills + urgentHouseBills)}
+                accentClass="bg-neo-lime"
+              />
+            </div>
           </div>
 
-          <div className="grid gap-6 xl:grid-cols-2">
+          <div className="grid gap-4 sm:gap-6 xl:grid-cols-2">
             <DonutChartPreview
               title="Distribuicao dos gastos pessoais"
               totalLabel={`Total monitorado: ${formatCurrency(
@@ -132,26 +170,37 @@ export default async function MetasPage({
 
       {activeScope === "pessoal" ? (
         <>
-          <div className="grid gap-6 md:grid-cols-3">
-            <Card className="bg-white p-6">
-              <p className="font-heading text-sm uppercase tracking-[0.28em] text-neo-pink">Saldo livre</p>
-              <h2 className="mt-3 font-heading text-5xl uppercase text-neo-dark">
-                {formatCurrency(personalVisualization!.safeToSpendCents / 100)}
-              </h2>
-            </Card>
-            <Card className="bg-white p-6">
-              <p className="font-heading text-sm uppercase tracking-[0.28em] text-neo-pink">Categorias estouradas</p>
-              <h2 className="mt-3 font-heading text-5xl uppercase text-neo-dark">{goalsExceeded}</h2>
-            </Card>
-            <Card className="bg-white p-6">
-              <p className="font-heading text-sm uppercase tracking-[0.28em] text-neo-pink">Contas urgentes</p>
-              <h2 className="mt-3 font-heading text-5xl uppercase text-neo-dark">{urgentPersonalBills}</h2>
-            </Card>
+          <div className="grid gap-3 lg:grid-cols-[1.1fr_0.9fr] lg:items-start">
+            <div className="space-y-1.5 sm:space-y-2">
+              <p className="font-heading text-[10px] uppercase tracking-[0.2em] text-neo-pink sm:text-sm sm:tracking-[0.3em]">
+                Metas pessoais
+              </p>
+              <p className="font-body text-sm font-bold uppercase tracking-[0.12em] text-neo-dark/75 sm:text-base sm:tracking-wide">
+                Limites por categoria, urgencias do mes e leitura do fluxo privado.
+              </p>
+            </div>
+            <div className="grid gap-3 md:grid-cols-3">
+              <SummaryCard
+                label="Saldo livre"
+                value={formatCurrency(personalVisualization!.safeToSpendCents / 100)}
+                accentClass="bg-neo-yellow"
+              />
+              <SummaryCard
+                label="Categorias estouradas"
+                value={String(goalsExceeded)}
+                accentClass="bg-neo-pink"
+              />
+              <SummaryCard
+                label="Contas urgentes"
+                value={String(urgentPersonalBills)}
+                accentClass="bg-neo-lime"
+              />
+            </div>
           </div>
 
           <BudgetGoals bills={personalSnapshot!.weeklyBills} goals={personalSnapshot!.goals} />
 
-          <div className="grid gap-6 xl:grid-cols-2">
+          <div className="grid gap-4 sm:gap-6 xl:grid-cols-2">
             <DonutChartPreview
               title="Distribuicao dos gastos pessoais"
               totalLabel={`Total monitorado: ${formatCurrency(
@@ -170,29 +219,36 @@ export default async function MetasPage({
 
       {activeScope === "casa" ? (
         <>
-          <div className="grid gap-6 md:grid-cols-3">
-            <Card className="bg-white p-6">
-              <p className="font-heading text-sm uppercase tracking-[0.28em] text-neo-pink">Saude financeira</p>
-              <h2 className="mt-3 font-heading text-5xl uppercase text-neo-dark">
-                {houseSnapshot!.healthStatus}
-              </h2>
-              <p className="mt-2 font-body text-sm font-bold uppercase tracking-wide text-neo-dark/65">
-                {houseSnapshot!.healthDescription}
+          <div className="grid gap-3 lg:grid-cols-[1.1fr_0.9fr] lg:items-start">
+            <div className="space-y-1.5 sm:space-y-2">
+              <p className="font-heading text-[10px] uppercase tracking-[0.2em] text-neo-pink sm:text-sm sm:tracking-[0.3em]">
+                Saude da casa
               </p>
-            </Card>
-            <Card className="bg-white p-6">
-              <p className="font-heading text-sm uppercase tracking-[0.28em] text-neo-pink">Caixa livre</p>
-              <h2 className="mt-3 font-heading text-5xl uppercase text-neo-dark">
-                {formatCurrency(houseVisualization!.safeToSpendCents / 100)}
-              </h2>
-            </Card>
-            <Card className="bg-white p-6">
-              <p className="font-heading text-sm uppercase tracking-[0.28em] text-neo-pink">Contas urgentes</p>
-              <h2 className="mt-3 font-heading text-5xl uppercase text-neo-dark">{urgentHouseBills}</h2>
-            </Card>
+              <p className="font-body text-sm font-bold uppercase tracking-[0.12em] text-neo-dark/75 sm:text-base sm:tracking-wide">
+                Caixa livre, urgencias e distribuicao das contas compartilhadas.
+              </p>
+            </div>
+            <div className="grid gap-3 md:grid-cols-3">
+              <SummaryCard
+                label="Saude financeira"
+                value={houseSnapshot!.healthStatus}
+                description={houseSnapshot!.healthDescription}
+                accentClass="bg-white"
+              />
+              <SummaryCard
+                label="Caixa livre"
+                value={formatCurrency(houseVisualization!.safeToSpendCents / 100)}
+                accentClass="bg-neo-cyan"
+              />
+              <SummaryCard
+                label="Contas urgentes"
+                value={String(urgentHouseBills)}
+                accentClass="bg-neo-lime"
+              />
+            </div>
           </div>
 
-          <div className="grid gap-6 xl:grid-cols-2">
+          <div className="grid gap-4 sm:gap-6 xl:grid-cols-2">
             <DonutChartPreview
               title="Distribuicao das contas da casa"
               totalLabel={`Total monitorado: ${formatCurrency(

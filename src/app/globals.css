@@ -6,8 +6,21 @@
   color-scheme: light;
 }
 
+html {
+  scroll-behavior: smooth;
+}
+
 html, body {
   overflow-x: hidden;
+}
+
+body {
+  background: #fff7f8;
+  color: #0F172A;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  -webkit-tap-highlight-color: transparent;
 }
 
 /* Halftone texture background (subtle dotted pattern) */
@@ -23,6 +36,39 @@ body::before {
   background-size: 24px 24px;
   opacity: 0.05;
   z-index: -1;
+}
+
+::selection {
+  background: #ffde59;
+  color: #0F172A;
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #0F172A #ffffff;
+}
+
+*::-webkit-scrollbar {
+  width: 12px;
+  height: 12px;
+}
+
+*::-webkit-scrollbar-track {
+  background: #ffffff;
+}
+
+*::-webkit-scrollbar-thumb {
+  background: #0F172A;
+  border: 3px solid #ffffff;
+}
+
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline: 3px solid #22d3ee;
+  outline-offset: 3px;
 }
 
 /* Utilities mapped from font-family */

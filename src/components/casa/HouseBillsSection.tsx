@@ -24,28 +24,28 @@ export function HouseBillsSection({
   allowMarkAsPaid = false
 }: HouseBillsSectionProps) {
   return (
-    <Card className="bg-transparent  border-none p-0 mt-8">
-      <h3 className="mb-4 text-2xl font-bold text-neo-dark pl-2">{title}</h3>
+    <Card className="mt-6 border-none bg-transparent p-0 sm:mt-8">
+      <h3 className="mb-3 pl-1 text-xl font-bold text-neo-dark sm:mb-4 sm:pl-2 sm:text-2xl">{title}</h3>
       {items.length === 0 ? (
-        <p className="text-sm text-neo-pink pl-2">Nenhum registro encontrado para este periodo.</p>
+        <p className="pl-1 text-sm text-neo-pink sm:pl-2">Nenhum registro encontrado para este periodo.</p>
       ) : null}
       <div className="grid gap-3">
         {items.map((item) => (
           <div
             key={item.id}
-            className="flex flex-col gap-1 rounded-none bg-neo-bg p-4 shadow-[4px_4px_0_#0F172A] border border-white/80 transition-all hover:-translate-y-0.5"
+            className="flex flex-col gap-2 rounded-none border border-white/80 bg-neo-bg p-3 shadow-[4px_4px_0_#0F172A] transition-all hover:-translate-y-0.5 sm:p-4"
           >
-            <div className="flex items-start justify-between">
-              <div>
-                <p className="text-lg font-bold text-neo-dark ">{item.title}</p>
-                <p className="text-xs font-semibold text-neo-pink tracking-wide mt-0.5">{item.dueLabel}</p>
-                <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-neo-dark/55">
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+              <div className="min-w-0">
+                <p className="truncate text-base font-bold text-neo-dark sm:text-lg">{item.title}</p>
+                <p className="mt-0.5 text-[11px] font-semibold tracking-wide text-neo-pink sm:text-xs">{item.dueLabel}</p>
+                <p className="text-[9px] font-bold uppercase tracking-[0.14em] text-neo-dark/55 sm:text-[10px] sm:tracking-[0.18em]">
                   {item.recurrenceLabel}
                   {item.installmentLabel ? ` - ${item.installmentLabel}` : ""}
                 </p>
               </div>
               <Badge
-                className={`text-[10px] uppercase font-bold tracking-wider border-none px-2.5 py-1 ${
+                className={`w-fit border-none px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider ${
                   item.status === "paid"
                     ? "bg-green-500/10 text-green-700"
                     : item.status === "warning"
@@ -57,10 +57,10 @@ export function HouseBillsSection({
               </Badge>
             </div>
             
-            <div className="flex items-center justify-between border-t border-black/5 mt-3 pt-3">
+            <div className="mt-2 flex items-end justify-between gap-3 border-t border-black/5 pt-3">
               <div>
-                <p className="text-[10px] font-bold uppercase tracking-[0.1em] text-neo-pink">Valor total</p>
-                <p className="text-xl font-bold text-neo-dark tracking-tight">{formatCurrency(item.amount)}</p>
+                <p className="text-[9px] font-bold uppercase tracking-[0.08em] text-neo-pink sm:text-[10px] sm:tracking-[0.1em]">Valor total</p>
+                <p className="text-lg font-bold tracking-tight text-neo-dark sm:text-xl">{formatCurrency(item.amount)}</p>
               </div>
               <div className="flex flex-col items-end justify-between h-full">
                 {allowMarkAsPaid && item.status !== "paid" ? (

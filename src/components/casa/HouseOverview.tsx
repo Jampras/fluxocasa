@@ -9,35 +9,35 @@ interface HouseOverviewProps {
 
 export function HouseOverview({ snapshot }: HouseOverviewProps) {
   return (
-    <section className="grid gap-4 animate-fade-in-up pb-2">
-      <Card className="relative flex flex-col justify-between rounded-none border-4 border-neo-dark bg-neo-bg p-6 text-neo-dark">
-        <div className="relative z-10 space-y-6">
+    <section className="grid animate-fade-in-up gap-3 pb-2 sm:gap-4">
+      <Card className="relative flex flex-col justify-between rounded-none border-4 border-neo-dark bg-neo-bg p-4 text-neo-dark sm:p-5 md:p-6">
+        <div className="relative z-10 space-y-4 sm:space-y-6">
           <div className="flex items-start justify-between">
-            <p className="text-lg font-medium tracking-wide text-neo-dark md:text-xl">Caixa da Casa</p>
-            <div className="rounded-full bg-neo-bg/20 px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-neo-dark/90 backdrop-blur-md">
+            <p className="text-base font-medium tracking-wide text-neo-dark sm:text-lg md:text-xl">Caixa da Casa</p>
+            <div className="rounded-full bg-neo-bg/20 px-2.5 py-1 text-[9px] font-bold uppercase tracking-[0.14em] text-neo-dark/90 backdrop-blur-md sm:px-3 sm:text-[10px] sm:tracking-wider">
               Casa
             </div>
           </div>
 
           <div className="space-y-1">
-            <p className="text-5xl font-bold tracking-tight md:text-6xl">
+            <p className="text-4xl font-bold tracking-tight sm:text-5xl md:text-6xl">
               {formatCurrency(snapshot.freeBalance)}
             </p>
-            <p className="max-w-xs text-sm text-neo-dark/80">Saldo livre.</p>
+            <p className="max-w-xs text-xs text-neo-dark/80 sm:text-sm">Saldo livre.</p>
           </div>
 
-          <div className="grid gap-6 border-t border-white/20 pt-6 sm:grid-cols-2">
+          <div className="grid gap-4 border-t border-white/20 pt-4 sm:grid-cols-2 sm:gap-6 sm:pt-6">
             <div>
-              <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-neo-dark/80">
+              <p className="text-[9px] font-bold uppercase tracking-[0.16em] text-neo-dark/80 sm:text-[10px] sm:tracking-[0.2em]">
                 Total declarado
               </p>
-              <p className="mt-2 text-2xl font-semibold">{formatCurrency(snapshot.totalDeclared)}</p>
+              <p className="mt-1.5 text-xl font-semibold sm:mt-2 sm:text-2xl">{formatCurrency(snapshot.totalDeclared)}</p>
             </div>
             <div>
-              <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-neo-dark/80">
+              <p className="text-[9px] font-bold uppercase tracking-[0.16em] text-neo-dark/80 sm:text-[10px] sm:tracking-[0.2em]">
                 Comprometido
               </p>
-              <p className="mt-2 text-2xl font-semibold text-neo-dark">
+              <p className="mt-1.5 text-xl font-semibold text-neo-dark sm:mt-2 sm:text-2xl">
                 {formatCurrency(snapshot.totalCommitted)}
               </p>
             </div>
@@ -45,41 +45,41 @@ export function HouseOverview({ snapshot }: HouseOverviewProps) {
         </div>
       </Card>
 
-      <Card className="rounded-none border-4 border-neo-dark bg-neo-bg p-5 text-neo-dark transition-all hover:-translate-y-1 hover:shadow-[4px_4px_0_#0F172A] active:scale-95">
-        <div className="space-y-4">
+      <Card className="rounded-none border-4 border-neo-dark bg-neo-bg p-4 text-neo-dark transition-all hover:-translate-y-1 hover:shadow-[4px_4px_0_#0F172A] active:scale-95 sm:p-5">
+        <div className="space-y-3 sm:space-y-4">
           <div className="flex items-center justify-between">
-            <h3 className="text-xl font-bold tracking-tight text-neo-dark">Saude Financeira</h3>
+            <h3 className="text-lg font-bold tracking-tight text-neo-dark sm:text-xl">Saude Financeira</h3>
             <Badge className="border-4 border-neo-dark bg-neo-bg px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-neo-dark hover:translate-x-1 hover:translate-y-1 hover:bg-neo-bg">
               {snapshot.healthStatus}
             </Badge>
           </div>
 
-          <p className="max-w-sm text-sm font-medium text-neo-dark/70">
+          <p className="max-w-sm text-xs font-medium text-neo-dark/70 sm:text-sm">
             {snapshot.healthDescription} Proxima revisao em {snapshot.reviewDate}.
           </p>
 
-          <div className="grid gap-4 rounded-none border-4 border-neo-dark bg-neo-bg p-4 sm:grid-cols-3">
+          <div className="grid gap-3 rounded-none border-4 border-neo-dark bg-neo-bg p-3 sm:grid-cols-3 sm:gap-4 sm:p-4">
             <div>
-              <p className="text-[10px] font-bold uppercase tracking-[0.15em] text-neo-pink">
+              <p className="text-[9px] font-bold uppercase tracking-[0.12em] text-neo-pink sm:text-[10px] sm:tracking-[0.15em]">
                 Saldo inicial
               </p>
-              <p className="mt-1 text-lg font-bold text-neo-dark">
+              <p className="mt-1 text-base font-bold text-neo-dark sm:text-lg">
                 {formatCurrency(snapshot.cycle.startingBalance)}
               </p>
             </div>
             <div>
-              <p className="text-[10px] font-bold uppercase tracking-[0.15em] text-neo-pink">
+              <p className="text-[9px] font-bold uppercase tracking-[0.12em] text-neo-pink sm:text-[10px] sm:tracking-[0.15em]">
                 Variacao do mes
               </p>
-              <p className="mt-1 text-lg font-bold text-neo-dark">
+              <p className="mt-1 text-base font-bold text-neo-dark sm:text-lg">
                 {formatCurrency(snapshot.cycle.netChange)}
               </p>
             </div>
             <div>
-              <p className="text-[10px] font-bold uppercase tracking-[0.15em] text-neo-pink">
+              <p className="text-[9px] font-bold uppercase tracking-[0.12em] text-neo-pink sm:text-[10px] sm:tracking-[0.15em]">
                 Saldo final
               </p>
-              <p className="mt-1 text-lg font-bold text-neo-dark">
+              <p className="mt-1 text-base font-bold text-neo-dark sm:text-lg">
                 {formatCurrency(snapshot.cycle.endingBalance)}
               </p>
             </div>
