@@ -10,18 +10,18 @@ export default async function ConfiguracoesPage() {
   const snapshot = await getResidentsSnapshot(user.id);
 
   return (
-    <div className="space-y-6 pb-16 sm:space-y-8 sm:pb-20">
+    <div className="space-y-6 pb-16 sm:space-y-8 sm:pb-20 xl:space-y-10">
       <AppHeader monthLabel={snapshot.monthLabel} title="Configuracoes" />
 
       <SettingsSectionNav />
 
-      <div className="grid gap-4 lg:grid-cols-[0.9fr_1.1fr] lg:gap-6">
-        <Card id="config-perfil" className="bg-white p-4 sm:p-5 md:p-6">
+      <div className="grid gap-4 xl:grid-cols-[0.78fr_1.22fr] xl:gap-6">
+        <Card id="config-perfil" className="bg-white p-4 sm:p-5 md:p-6 xl:p-7">
           <p className="font-heading text-[10px] uppercase tracking-[0.18em] text-neo-pink sm:text-sm sm:tracking-[0.28em]">
             Perfil
           </p>
           <h2 className="mt-2 font-heading text-3xl uppercase text-neo-dark sm:mt-3 sm:text-4xl">{user.nome}</h2>
-          <div className="mt-4 grid gap-3 sm:mt-6 sm:gap-4">
+          <div className="mt-4 grid gap-3 sm:mt-6 sm:gap-4 xl:mt-8">
             <div className="border-[3px] border-neo-dark bg-neo-bg px-4 py-3 sm:border-4">
               <p className="font-body text-[10px] font-black uppercase tracking-[0.14em] text-neo-dark/60 sm:text-xs sm:tracking-[0.18em]">
                 E-mail
@@ -47,14 +47,14 @@ export default async function ConfiguracoesPage() {
           </div>
         </Card>
 
-        <Card id="config-geral" className="bg-white p-4 sm:p-5 md:p-6">
+        <Card id="config-geral" className="bg-white p-4 sm:p-5 md:p-6 xl:p-7">
           <p className="font-heading text-[10px] uppercase tracking-[0.18em] text-neo-pink sm:text-sm sm:tracking-[0.28em]">
             Configuracoes gerais
           </p>
           <h2 className="mt-2 font-heading text-3xl uppercase text-neo-dark sm:mt-3 sm:text-4xl">
             Gerencie sua casa e seus acessos
           </h2>
-          <div className="mt-4 grid gap-3 md:grid-cols-3 sm:mt-6 sm:gap-4">
+          <div className="mt-4 grid gap-3 md:grid-cols-3 sm:mt-6 sm:gap-4 xl:mt-8">
             <div className="border-[3px] border-neo-dark bg-neo-yellow px-4 py-3 sm:border-4">
               <p className="font-body text-[10px] font-black uppercase tracking-[0.14em] text-neo-dark/60 sm:text-xs sm:tracking-[0.18em]">
                 Convite ativo
@@ -78,7 +78,7 @@ export default async function ConfiguracoesPage() {
               </p>
             </div>
           </div>
-          <div className="mt-4 grid gap-2 sm:mt-6 sm:gap-3 md:grid-cols-2 xl:grid-cols-4">
+          <div className="mt-4 grid gap-2 sm:mt-6 sm:gap-3 md:grid-cols-2 xl:mt-8 xl:grid-cols-4">
             <a
               href="#config-convite"
               className="border-[3px] border-neo-dark bg-white px-4 py-3 font-heading text-base uppercase text-neo-dark shadow-[4px_4px_0_#0F172A] transition-all hover:-translate-y-1 hover:bg-neo-yellow sm:border-4 sm:text-xl"

@@ -288,7 +288,7 @@ export default async function CalendarioPage({
         : "/dashboard";
 
   return (
-    <div className="space-y-6 pb-16 sm:space-y-8 sm:pb-20">
+    <div className="space-y-6 pb-16 sm:space-y-8 sm:pb-20 xl:space-y-10">
       <AppHeader monthLabel={monthLabel} title="Calendario" />
 
       <ScopeTabs
@@ -300,9 +300,9 @@ export default async function CalendarioPage({
         ]}
       />
 
-      <Card className="bg-white p-4 sm:p-5 md:p-6">
-        <div className="grid gap-4 lg:grid-cols-[1.15fr_0.85fr] lg:items-center">
-          <div className="space-y-3">
+      <Card className="bg-white p-4 sm:p-5 md:p-6 xl:p-8">
+        <div className="grid gap-4 xl:grid-cols-[minmax(0,1.3fr)_minmax(420px,0.7fr)] xl:items-stretch xl:gap-6">
+          <div className="space-y-3 xl:flex xl:flex-col xl:justify-between">
             <div className="flex items-center justify-between gap-3">
               <div>
                 <p className="font-heading text-[10px] uppercase tracking-[0.18em] text-neo-pink sm:text-sm sm:tracking-[0.26em]">
@@ -324,20 +324,20 @@ export default async function CalendarioPage({
             </p>
           </div>
 
-          <div className="grid grid-cols-3 gap-3">
-            <div className="border-[3px] border-neo-dark bg-white px-3 py-3 shadow-[4px_4px_0_#0F172A] sm:border-4 sm:px-4 sm:py-4">
+          <div className="grid grid-cols-3 gap-3 xl:h-full">
+            <div className="border-[3px] border-neo-dark bg-white px-3 py-3 shadow-[4px_4px_0_#0F172A] sm:border-4 sm:px-4 sm:py-4 xl:flex xl:flex-col xl:justify-between xl:px-5 xl:py-5">
               <p className="font-heading text-[9px] uppercase tracking-[0.14em] text-neo-pink sm:text-[10px]">
                 Agenda ativa
               </p>
               <p className="mt-2 font-heading text-3xl uppercase text-neo-dark sm:text-4xl">{events.length}</p>
             </div>
-            <div className="border-[3px] border-neo-dark bg-white px-3 py-3 shadow-[4px_4px_0_#0F172A] sm:border-4 sm:px-4 sm:py-4">
+            <div className="border-[3px] border-neo-dark bg-white px-3 py-3 shadow-[4px_4px_0_#0F172A] sm:border-4 sm:px-4 sm:py-4 xl:flex xl:flex-col xl:justify-between xl:px-5 xl:py-5">
               <p className="font-heading text-[9px] uppercase tracking-[0.14em] text-neo-pink sm:text-[10px]">
                 Pendencias
               </p>
               <p className="mt-2 font-heading text-3xl uppercase text-neo-dark sm:text-4xl">{pendingCount}</p>
             </div>
-            <div className="border-[3px] border-neo-dark bg-white px-3 py-3 shadow-[4px_4px_0_#0F172A] sm:border-4 sm:px-4 sm:py-4">
+            <div className="border-[3px] border-neo-dark bg-white px-3 py-3 shadow-[4px_4px_0_#0F172A] sm:border-4 sm:px-4 sm:py-4 xl:flex xl:flex-col xl:justify-between xl:px-5 xl:py-5">
               <p className="font-heading text-[9px] uppercase tracking-[0.14em] text-neo-pink sm:text-[10px]">
                 Sinais
               </p>
@@ -349,7 +349,7 @@ export default async function CalendarioPage({
         </div>
       </Card>
 
-      <Card className="bg-white p-3 sm:p-4 md:p-5">
+      <Card className="bg-white p-3 sm:p-4 md:p-5 xl:p-7">
         <div className="mb-3 grid grid-cols-3 gap-2 border-b-[3px] border-neo-dark pb-3 sm:mb-4 sm:border-b-4 sm:gap-3 sm:pb-4">
           <div className="flex items-center gap-2 border-[3px] border-neo-dark bg-white px-2 py-2 text-[10px] font-black uppercase tracking-[0.12em] text-neo-dark sm:border-4 sm:px-3 sm:text-xs">
             <span className="h-3 w-3 border-2 border-neo-dark bg-neo-cyan" />
@@ -378,12 +378,12 @@ export default async function CalendarioPage({
           {calendarCells.map((cell, index) => (
             <div
               key={cell.key}
-              className={`relative min-h-[78px] border-r-[3px] border-b-[3px] border-neo-dark px-1.5 py-1.5 sm:min-h-[96px] sm:border-r-4 sm:border-b-4 sm:px-2 sm:py-2 ${
+              className={`relative min-h-[78px] border-r-[3px] border-b-[3px] border-neo-dark px-1.5 py-1.5 sm:min-h-[96px] sm:border-r-4 sm:border-b-4 sm:px-2 sm:py-2 xl:min-h-[132px] xl:px-3 xl:py-3 ${
                 index % 7 === 6 ? "border-r-0" : ""
               } ${index >= calendarCells.length - 7 ? "border-b-0" : ""} ${cell.inCurrentMonth ? getCellTone(cell) : "bg-neo-dark/5 text-neo-dark/35"}`}
             >
               <div className="flex items-start justify-between gap-1">
-                <span className={`font-heading text-lg leading-none sm:text-2xl ${cell.isToday ? "italic" : ""}`}>
+                <span className={`font-heading text-lg leading-none sm:text-2xl xl:text-[2rem] ${cell.isToday ? "italic" : ""}`}>
                   {cell.dayNumber}
                 </span>
                 {cell.items.length > 0 ? (
@@ -394,11 +394,11 @@ export default async function CalendarioPage({
               </div>
 
               {cell.items.length > 0 ? (
-                <div className="mt-3 flex flex-wrap gap-1 sm:mt-4">
+                <div className="mt-3 flex flex-wrap gap-1 sm:mt-4 xl:mt-6 xl:gap-1.5">
                   {cell.items.slice(0, 3).map((item) => (
                     <span
                       key={item.id}
-                      className={`h-2.5 w-2.5 border border-neo-dark sm:h-3 sm:w-3 ${getMarkerClass(item)}`}
+                      className={`h-2.5 w-2.5 border border-neo-dark sm:h-3 sm:w-3 xl:h-3.5 xl:w-3.5 ${getMarkerClass(item)}`}
                     />
                   ))}
                   {cell.items.length > 3 ? (
@@ -413,9 +413,9 @@ export default async function CalendarioPage({
         </div>
       </Card>
 
-      <Card className="bg-white p-4 sm:p-5 md:p-6">
-        <div className="flex flex-col gap-4 border-b-[3px] border-neo-dark pb-4 sm:flex-row sm:items-center sm:justify-between sm:border-b-4">
-          <div>
+      <Card className="bg-white p-4 sm:p-5 md:p-6 xl:p-8">
+        <div className="flex flex-col gap-4 border-b-[3px] border-neo-dark pb-4 sm:flex-row sm:items-center sm:justify-between sm:border-b-4 xl:pb-5">
+          <div className="xl:max-w-3xl">
             <p className="font-heading text-[10px] uppercase tracking-[0.18em] text-neo-pink sm:text-sm sm:tracking-[0.26em]">
               {todayEvents.length > 0 ? "Eventos de hoje" : "Proximos eventos"}
             </p>
@@ -431,7 +431,7 @@ export default async function CalendarioPage({
           </Link>
         </div>
 
-        <div className="mt-4 grid gap-3 sm:mt-5 sm:gap-4">
+        <div className="mt-4 grid gap-3 sm:mt-5 sm:gap-4 xl:grid-cols-2">
           {fallbackEvents.length === 0 ? (
             <div className="border-[3px] border-neo-dark bg-white px-4 py-5 text-sm font-bold text-neo-dark/65 sm:border-4">
               Nenhum evento neste periodo. Use o botao adicionar para registrar uma conta, recebimento ou gasto.

@@ -34,14 +34,14 @@ function SummaryCard({
   accentClass?: string;
 }) {
   return (
-    <Card className="overflow-hidden bg-white p-0">
+    <Card className="overflow-hidden bg-white p-0 xl:min-h-[214px]">
       <div className={`border-b-[3px] border-neo-dark px-3 py-2 sm:border-b-4 sm:px-4 sm:py-3 ${accentClass}`}>
         <p className="font-heading text-[10px] uppercase tracking-[0.16em] text-neo-dark sm:text-sm sm:tracking-[0.24em]">
           {label}
         </p>
       </div>
-      <div className="space-y-2 p-3 sm:p-4 md:p-5">
-        <h2 className="font-heading text-3xl uppercase leading-none text-neo-dark sm:text-4xl md:text-5xl">
+      <div className="space-y-2 p-3 sm:p-4 md:p-5 xl:p-6">
+        <h2 className="font-heading text-3xl uppercase leading-none text-neo-dark sm:text-4xl md:text-5xl xl:text-[3.1rem]">
           {value}
         </h2>
         {description ? (
@@ -92,7 +92,7 @@ export default async function MetasPage({
   const urgentHouseBills = houseSnapshot?.pendingBills.filter((bill) => bill.status === "warning").length ?? 0;
 
   return (
-    <div className="space-y-6 pb-16 sm:space-y-8 sm:pb-20">
+    <div className="space-y-6 pb-16 sm:space-y-8 sm:pb-20 xl:space-y-10">
       <AppHeader monthLabel={monthLabel} title="Metas" />
 
       <ScopeTabs
@@ -106,8 +106,8 @@ export default async function MetasPage({
 
       {activeScope === "geral" ? (
         <>
-          <div className="grid gap-3 lg:grid-cols-[1.1fr_0.9fr] lg:items-start">
-            <div className="space-y-1.5 sm:space-y-2">
+          <div className="space-y-4 xl:space-y-5">
+            <div className="max-w-3xl space-y-1.5 sm:space-y-2">
               <p className="font-heading text-[10px] uppercase tracking-[0.2em] text-neo-pink sm:text-sm sm:tracking-[0.3em]">
                 Panorama geral
               </p>
@@ -115,7 +115,7 @@ export default async function MetasPage({
                 Metas pessoais, saude da casa e distribuicao dos fluxos no mesmo quadro.
               </p>
             </div>
-            <div className="grid grid-cols-2 gap-3 sm:gap-4">
+            <div className="grid grid-cols-2 gap-3 sm:gap-4 xl:grid-cols-4">
               <SummaryCard
                 label="Saldo pessoal"
                 value={formatCurrency(personalVisualization!.safeToSpendCents / 100)}
@@ -139,7 +139,7 @@ export default async function MetasPage({
             </div>
           </div>
 
-          <div className="grid gap-4 sm:gap-6 xl:grid-cols-2">
+          <div className="grid gap-4 sm:gap-6 xl:grid-cols-2 2xl:grid-cols-[1fr_1fr]">
             <DonutChartPreview
               title="Distribuicao dos gastos pessoais"
               totalLabel={`Total monitorado: ${formatCurrency(
@@ -170,8 +170,8 @@ export default async function MetasPage({
 
       {activeScope === "pessoal" ? (
         <>
-          <div className="grid gap-3 lg:grid-cols-[1.1fr_0.9fr] lg:items-start">
-            <div className="space-y-1.5 sm:space-y-2">
+          <div className="space-y-4 xl:space-y-5">
+            <div className="max-w-3xl space-y-1.5 sm:space-y-2">
               <p className="font-heading text-[10px] uppercase tracking-[0.2em] text-neo-pink sm:text-sm sm:tracking-[0.3em]">
                 Metas pessoais
               </p>
@@ -179,7 +179,7 @@ export default async function MetasPage({
                 Limites por categoria, urgencias do mes e leitura do fluxo privado.
               </p>
             </div>
-            <div className="grid gap-3 md:grid-cols-3">
+            <div className="grid gap-3 md:grid-cols-3 xl:grid-cols-3">
               <SummaryCard
                 label="Saldo livre"
                 value={formatCurrency(personalVisualization!.safeToSpendCents / 100)}
@@ -219,8 +219,8 @@ export default async function MetasPage({
 
       {activeScope === "casa" ? (
         <>
-          <div className="grid gap-3 lg:grid-cols-[1.1fr_0.9fr] lg:items-start">
-            <div className="space-y-1.5 sm:space-y-2">
+          <div className="space-y-4 xl:space-y-5">
+            <div className="max-w-3xl space-y-1.5 sm:space-y-2">
               <p className="font-heading text-[10px] uppercase tracking-[0.2em] text-neo-pink sm:text-sm sm:tracking-[0.3em]">
                 Saude da casa
               </p>
@@ -228,7 +228,7 @@ export default async function MetasPage({
                 Caixa livre, urgencias e distribuicao das contas compartilhadas.
               </p>
             </div>
-            <div className="grid gap-3 md:grid-cols-3">
+            <div className="grid gap-3 md:grid-cols-3 xl:grid-cols-3">
               <SummaryCard
                 label="Saude financeira"
                 value={houseSnapshot!.healthStatus}
