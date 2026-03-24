@@ -4,7 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { toCurrencyValue } from "@/lib/utils";
 import type { HouseSnapshot } from "@/types";
 import type { CreateHouseInput, CreateHouseBillInput, JoinHouseInput, LeaveHouseResult, UpdateHouseBillInput, UpsertContributionInput } from "./_types";
-import { AUDIT_HOUSE_CREATED, AUDIT_MEMBER_LEFT, AUDIT_MEMBER_JOINED, AUDIT_INVITE_ROTATED, ROLE_ADMIN, ROLE_MEMBER, RECORD_CONFIRMED, STATUS_PAID, createHouseAuditEntry, ensureUserWithoutHouse, ensureCurrentCycle, getMonthLabel, getMonthYear, getUserWithHouse, initials, mapHouseBill, randomInviteCode, requireHouseAdmin, requireHouseMember, roleToUi, sumBy, toBillStatus } from "./_shared";
+import { AUDIT_HOUSE_CREATED, AUDIT_MEMBER_LEFT, AUDIT_MEMBER_JOINED, AUDIT_INVITE_ROTATED, ROLE_ADMIN, ROLE_MEMBER, RECORD_CONFIRMED, STATUS_PAID, createHouseAuditEntry, ensureUserWithoutHouse, ensureCurrentCycle, getMonthLabel, getMonthRange, getMonthYear, initials, mapHouseBill, randomInviteCode, requireHouseAdmin, requireHouseMember, roleToUi, sumBy, toBillStatus } from "./_shared";
 import { ensureHouseRecurringTransactions } from "./_recurrence";
 import { EscopoTransacao, FrequenciaTransacao, TipoTransacao, StatusTransacao } from "@prisma/client";
 
@@ -149,28 +149,63 @@ export const houseRepository = {
     await ensureHouseRecurringTransactions(resident.casaId);
 
     const { month, year } = getMonthYear();
-    const user = await getUserWithHouse(userId);
-    if (!user?.casa) throw new Error("Usuario ainda nao participa de uma casa.");
-    const cycle = await ensureCurrentCycle(user.casa.id, month, year);
-    const casa = user.casa!;
+    const { start, end } = getMonthRange(month, year);
+    const [cycle, house, currentContributions, currentBills] = await Promise.all([
+      ensureCurrentCycle(resident.casaId, month, year),
+      prisma.casa.findUnique({
+        where: { id: resident.casaId },
+        select: {
+          id: true,
+          nome: true,
+          moradores: {
+            select: {
+              id: true,
+              nome: true,
+              avatarUrl: true,
+              role: true
+            }
+          }
+        }
+      }),
+      prisma.contribuicao.findMany({
+        where: { casaId: resident.casaId, mes: month, ano: year }
+      }),
+      prisma.transacao.findMany({
+        where: {
+          casaId: resident.casaId,
+          escopo: EscopoTransacao.CASA,
+          tipo: TipoTransacao.DESPESA,
+          dataVencimento: { gte: start, lt: end }
+        },
+        orderBy: { dataVencimento: "asc" },
+        select: {
+          id: true,
+          titulo: true,
+          categoria: true,
+          valorCentavos: true,
+          dataVencimento: true,
+          dataPagamento: true,
+          status: true,
+          observacao: true,
+          frequencia: true,
+          parcelaAtual: true,
+          parcelasTotais: true
+        }
+      })
+    ]);
 
-    const currentContributions = casa.contribuicoes.filter((item) => item.mes === month && item.ano === year);
-    
-    // Convert transacoes from house scope
-    const contasCasa = casa.transacoes.filter(t => t.escopo === "CASA" && t.tipo === "DESPESA").map(t => ({
-      ...t, vencimento: t.dataVencimento, status: t.status === "CONCLUIDA" ? STATUS_PAID : "PENDENTE", pagaEm: t.status === "CONCLUIDA" ? t.dataPagamento : null
-    }));
-
-    const currentBills = contasCasa.filter((item) => item.vencimento.getMonth() + 1 === month && item.vencimento.getFullYear() === year);
+    if (!house) throw new Error("Casa nao encontrada.");
 
     const totalDeclaredCents = sumBy(currentContributions, (item) => item.valorCentavos);
     const totalCommittedCents = sumBy(currentBills, (item) => item.valorCentavos);
-    const dueDate = currentBills.filter((item) => item.status !== STATUS_PAID).sort((a, b) => a.vencimento.getTime() - b.vencimento.getTime())[0]?.vencimento;
-    const urgentBills = currentBills.filter((item) => toBillStatus(item.status, item.vencimento) === "warning");
-    const pendingCount = currentBills.filter((item) => item.status !== STATUS_PAID).length;
+    const dueDate = currentBills
+      .filter((item) => item.status !== StatusTransacao.CONCLUIDA)
+      .sort((a, b) => a.dataVencimento.getTime() - b.dataVencimento.getTime())[0]?.dataVencimento;
+    const urgentBills = currentBills.filter((item) => toBillStatus(item.status, item.dataVencimento) === "warning");
+    const pendingCount = currentBills.filter((item) => item.status !== StatusTransacao.CONCLUIDA).length;
 
     const healthStatus =
-      cycle.endingBalance < 0 || urgentBills.some((item) => item.vencimento.getTime() < new Date().getTime())
+      cycle.endingBalance < 0 || urgentBills.some((item) => item.dataVencimento.getTime() < new Date().getTime())
         ? "Critico"
         : urgentBills.length > 0 || pendingCount > 0
           ? "Atencao"
@@ -184,16 +219,24 @@ export const houseRepository = {
           : "A casa esta equilibrada e sem contas urgentes no ciclo atual.";
 
     return {
-      monthLabel: getMonthLabel(), houseName: casa.nome, totalDeclared: toCurrencyValue(totalDeclaredCents), totalCommitted: toCurrencyValue(totalCommittedCents), freeBalance: cycle.endingBalance, cycle, healthStatus, healthDescription, reviewDate: dueDate ? new Intl.DateTimeFormat("pt-BR", { day: "2-digit", month: "long" }).format(dueDate) : "sem revisao pendente",
-      contributions: casa.moradores.map((resident) => {
-        const contribution = currentContributions.find((item) => item.moradorId === resident.id);
+      monthLabel: getMonthLabel(), houseName: house.nome, totalDeclared: toCurrencyValue(totalDeclaredCents), totalCommitted: toCurrencyValue(totalCommittedCents), freeBalance: cycle.endingBalance, cycle, healthStatus, healthDescription, reviewDate: dueDate ? new Intl.DateTimeFormat("pt-BR", { day: "2-digit", month: "long" }).format(dueDate) : "sem revisao pendente",
+      contributions: house.moradores.map((houseResident) => {
+        const contribution = currentContributions.find((item) => item.moradorId === houseResident.id);
         const contributionStatus: "confirmed" | "pending" = contribution ? "confirmed" : "pending";
         return {
-          id: resident.id, contributionId: contribution?.id, residentName: resident.nome, amount: toCurrencyValue(contribution?.valorCentavos ?? 0), status: contributionStatus, avatar: resident.avatarUrl || initials(resident.nome), role: roleToUi(resident.role), month, year, isCurrentUser: resident.id === userId
+          id: houseResident.id, contributionId: contribution?.id, residentName: houseResident.nome, amount: toCurrencyValue(contribution?.valorCentavos ?? 0), status: contributionStatus, avatar: houseResident.avatarUrl || initials(houseResident.nome), role: roleToUi(houseResident.role), month, year, isCurrentUser: houseResident.id === userId
         };
       }).sort((a, b) => b.amount - a.amount),
-      pendingBills: currentBills.filter((item) => item.status !== STATUS_PAID).sort((a, b) => a.vencimento.getTime() - b.vencimento.getTime()).map((item) => mapHouseBill(item)),
-      paidBills: currentBills.filter((item) => item.status === STATUS_PAID).sort((a, b) => (b.pagaEm?.getTime() ?? 0) - (a.pagaEm?.getTime() ?? 0)).map((item) => mapHouseBill(item, true))
+      pendingBills: currentBills.filter((item) => item.status !== StatusTransacao.CONCLUIDA).sort((a, b) => a.dataVencimento.getTime() - b.dataVencimento.getTime()).map((item) => mapHouseBill({
+        ...item,
+        vencimento: item.dataVencimento,
+        pagaEm: item.dataPagamento
+      })),
+      paidBills: currentBills.filter((item) => item.status === StatusTransacao.CONCLUIDA).sort((a, b) => (b.dataPagamento?.getTime() ?? 0) - (a.dataPagamento?.getTime() ?? 0)).map((item) => mapHouseBill({
+        ...item,
+        vencimento: item.dataVencimento,
+        pagaEm: item.dataPagamento
+      }, true))
     };
   },
   async getHouseBills(userId: string) { return (await this.getHouseSnapshot(userId)).pendingBills; },

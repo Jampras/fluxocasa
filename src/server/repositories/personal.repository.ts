@@ -4,7 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { toCurrencyValue } from "@/lib/utils";
 import type { PersonalSnapshot, IncomeRecord, PersonalBillRecord, ExpenseRecord, IncomeStatus } from "@/types";
 import type { CreateIncomeInput, UpdateIncomeInput, CreatePersonalBillInput, UpdatePersonalBillInput, CreateExpenseInput, UpdateExpenseInput, UpsertBudgetGoalInput, UpdateBudgetGoalInput } from "./_types";
-import { dateInputValue, formatDueLabel, frequencyToUi, getMonthLabel, getMonthYear, getUserWithHouse, mapHouseBill, sumBy, toBillStatus } from "./_shared";
+import { dateInputValue, formatDueLabel, frequencyToUi, getMonthLabel, getMonthRange, getMonthYear, mapHouseBill, sumBy, toBillStatus } from "./_shared";
 import { ensurePersonalRecurringTransactions } from "./_recurrence";
 import { EscopoTransacao, FrequenciaTransacao, TipoTransacao, StatusTransacao } from "@prisma/client";
 
@@ -187,24 +187,70 @@ export const personalRepository = {
 
   async getPersonalSnapshot(userId: string): Promise<PersonalSnapshot> {
     const { month, year } = getMonthYear();
+    const { start, end } = getMonthRange(month, year);
     await ensurePersonalRecurringTransactions(userId);
-    const user = await getUserWithHouse(userId);
+    const resident = await prisma.morador.findUnique({
+      where: { id: userId },
+      select: { id: true, casaId: true }
+    });
 
-    if (!user) throw new Error("Usuario nao encontrado.");
+    if (!resident) throw new Error("Usuario nao encontrado.");
 
-    const rendas = user.transacoes
-      .filter(t => t.tipo === "RECEITA" && t.escopo === "PESSOAL")
-      .map(t => ({ ...t, recebidaEm: t.dataPagamento, previstaEm: t.dataVencimento }));
-    const contasPessoais = user.transacoes.filter(t => t.tipo === "DESPESA" && t.escopo === "PESSOAL" && t.status === "PENDENTE").map(t => ({...t, vencimento: t.dataVencimento}));
-    const gastos = user.transacoes.filter(t => t.tipo === "DESPESA" && t.escopo === "PESSOAL" && t.status === "CONCLUIDA").map(t => ({...t, gastoEm: t.dataVencimento}));
+    const [transactions, goals, currentContribution] = await Promise.all([
+      prisma.transacao.findMany({
+        where: {
+          moradorId: userId,
+          escopo: EscopoTransacao.PESSOAL,
+          dataVencimento: { gte: start, lt: end }
+        },
+        orderBy: { dataVencimento: "desc" },
+        select: {
+          id: true,
+          titulo: true,
+          categoria: true,
+          valorCentavos: true,
+          status: true,
+          tipo: true,
+          dataVencimento: true,
+          dataPagamento: true,
+          frequencia: true,
+          parcelaAtual: true,
+          parcelasTotais: true,
+          observacao: true
+        }
+      }),
+      prisma.metaOrcamento.findMany({
+        where: { moradorId: userId, mes: month, ano: year },
+        orderBy: { categoria: "asc" }
+      }),
+      resident.casaId
+        ? prisma.contribuicao.findFirst({
+            where: {
+              moradorId: userId,
+              casaId: resident.casaId,
+              mes: month,
+              ano: year
+            }
+          })
+        : Promise.resolve(null)
+    ]);
 
-    const incomes = rendas
-      .filter((item) => item.previstaEm.getMonth() + 1 === month && item.previstaEm.getFullYear() === year)
+    const rendas = transactions
+      .filter((transaction) => transaction.tipo === TipoTransacao.RECEITA)
+      .map((transaction) => ({
+        ...transaction,
+        recebidaEm: transaction.dataPagamento,
+        previstaEm: transaction.dataVencimento
+      }))
       .sort((a, b) => (b.recebidaEm ?? b.previstaEm).getTime() - (a.recebidaEm ?? a.previstaEm).getTime());
-    const personalBills = contasPessoais.filter((item) => item.vencimento.getMonth() + 1 === month && item.vencimento.getFullYear() === year).sort((a, b) => a.vencimento.getTime() - b.vencimento.getTime());
-    const currentContribution = user.contribuicoes.find((item) => item.mes === month && item.ano === year);
-    const expenses = gastos.filter((item) => item.gastoEm.getMonth() + 1 === month && item.gastoEm.getFullYear() === year).sort((a, b) => b.gastoEm.getTime() - a.gastoEm.getTime());
-    const goals = user.metas.filter((item) => item.mes === month && item.ano === year);
+    const personalBills = transactions
+      .filter((transaction) => transaction.tipo === TipoTransacao.DESPESA && transaction.status === StatusTransacao.PENDENTE)
+      .map((transaction) => ({ ...transaction, vencimento: transaction.dataVencimento }))
+      .sort((a, b) => a.vencimento.getTime() - b.vencimento.getTime());
+    const expenses = transactions
+      .filter((transaction) => transaction.tipo === TipoTransacao.DESPESA && transaction.status === StatusTransacao.CONCLUIDA)
+      .map((transaction) => ({ ...transaction, gastoEm: transaction.dataVencimento }))
+      .sort((a, b) => b.gastoEm.getTime() - a.gastoEm.getTime());
     const weeklyBills = [...personalBills]
       .sort((a, b) => {
         const statusWeight = toBillStatus(a.status, a.vencimento) === "warning" ? -1 : 0;
@@ -226,7 +272,7 @@ export const personalRepository = {
         )
       );
 
-    const settledIncomes = incomes.filter((item) => item.status === StatusTransacao.CONCLUIDA);
+    const settledIncomes = rendas.filter((item) => item.status === StatusTransacao.CONCLUIDA);
     const salary = sumBy(settledIncomes.filter((item) => item.categoria === "SALARIO"), (item) => item.valorCentavos);
     const freelance = sumBy(settledIncomes.filter((item) => item.categoria !== "SALARIO"), (item) => item.valorCentavos);
     const totalMonthlyCents = salary + freelance;
@@ -248,7 +294,7 @@ export const personalRepository = {
           spent: toCurrencyValue(spent), limit: toCurrencyValue(goal.valorMetaCentavos), tone, month: goal.mes, year: goal.ano
         };
       }),
-      incomes: incomes.map<IncomeRecord>((item) => {
+      incomes: rendas.map<IncomeRecord>((item) => {
         const recurrence = frequencyToUi(item.frequencia, item.parcelaAtual, item.parcelasTotais);
         const effectiveReceivedDate = item.recebidaEm ?? item.previstaEm;
 

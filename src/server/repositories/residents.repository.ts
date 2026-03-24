@@ -11,7 +11,6 @@ import {
   formatAuditDate,
   getMonthLabel,
   getMonthYear,
-  getUserWithHouse,
   initials,
   mapAuditDescription,
   requireHouseAdmin,
@@ -20,7 +19,28 @@ import {
 
 export const residentsRepository = {
   async getResidentsSnapshot(userId: string): Promise<ResidentsSnapshot> {
-    const user = await getUserWithHouse(userId);
+    const user = await prisma.morador.findUnique({
+      where: { id: userId },
+      select: {
+        casaId: true,
+        role: true,
+        casa: {
+          select: {
+            id: true,
+            nome: true,
+            codigoConvite: true,
+            moradores: {
+              select: {
+                id: true,
+                nome: true,
+                avatarUrl: true,
+                role: true
+              }
+            }
+          }
+        }
+      }
+    });
 
     if (!user?.casa) {
       throw new Error("Usuario ainda nao participa de uma casa.");

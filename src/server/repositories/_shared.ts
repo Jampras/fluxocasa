@@ -160,7 +160,7 @@ export const getUserWithHouse = safeCache(async function getUserWithHouse(userId
     where: { id: userId },
     include: {
       casa: {
-        include: { moradores: true, contribuicoes: true, transacoes: true, ciclosMensais: true }
+        include: { moradores: true, contribuicoes: true, transacoes: true }
       },
       transacoes: true,
       metas: true,

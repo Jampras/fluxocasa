@@ -1,6 +1,8 @@
 import type { InteractiveCalendarView, CalendarCell, CalendarItem, CalendarScope } from "@/components/calendario/types";
-import { getPersonalSnapshot } from "@/server/services/personal.service";
-import { getHouseSnapshot } from "@/server/services/house.service";
+import { prisma } from "@/lib/prisma";
+import { EscopoTransacao, StatusTransacao, TipoTransacao } from "@prisma/client";
+import { dateInputValue, getMonthLabel, getMonthRange, getMonthYear } from "@/server/repositories/_shared";
+import { ensureHouseRecurringTransactions, ensurePersonalRecurringTransactions } from "@/server/repositories/_recurrence";
 
 function formatDateLabel(value: string) {
   return new Intl.DateTimeFormat("pt-BR", {
@@ -53,80 +55,165 @@ export async function getInteractiveCalendarView(
   userId: string,
   activeScope: CalendarScope = "geral"
 ): Promise<InteractiveCalendarView> {
+  const { month, year } = getMonthYear();
+  const { start, end } = getMonthRange(month, year);
+  const resident = await prisma.morador.findUnique({
+    where: { id: userId },
+    select: { casaId: true }
+  });
+  if (!resident) {
+    throw new Error("Usuario nao encontrado.");
+  }
+
   const shouldLoadHouse = activeScope !== "pessoal";
   const shouldLoadPersonal = activeScope !== "casa";
-  const houseSnapshot = shouldLoadHouse ? await getHouseSnapshot(userId) : null;
-  const personalSnapshot = shouldLoadPersonal ? await getPersonalSnapshot(userId) : null;
-  const monthLabel =
-    personalSnapshot?.monthLabel ??
-    houseSnapshot?.monthLabel ??
-    new Intl.DateTimeFormat("pt-BR", { month: "long", year: "numeric" }).format(new Date());
+
+  await Promise.all([
+    shouldLoadHouse && resident.casaId ? ensureHouseRecurringTransactions(resident.casaId) : Promise.resolve(),
+    shouldLoadPersonal ? ensurePersonalRecurringTransactions(userId) : Promise.resolve()
+  ]);
+
+  const [houseBills, personalTransactions] = await Promise.all([
+    shouldLoadHouse && resident.casaId
+      ? prisma.transacao.findMany({
+          where: {
+            casaId: resident.casaId,
+            escopo: EscopoTransacao.CASA,
+            tipo: TipoTransacao.DESPESA,
+            dataVencimento: { gte: start, lt: end }
+          },
+          orderBy: { dataVencimento: "asc" },
+          select: {
+            id: true,
+            titulo: true,
+            categoria: true,
+            valorCentavos: true,
+            status: true,
+            dataVencimento: true,
+            dataPagamento: true,
+            frequencia: true,
+            parcelaAtual: true,
+            parcelasTotais: true
+          }
+        })
+      : Promise.resolve([]),
+    shouldLoadPersonal
+      ? prisma.transacao.findMany({
+          where: {
+            moradorId: userId,
+            escopo: EscopoTransacao.PESSOAL,
+            dataVencimento: { gte: start, lt: end }
+          },
+          orderBy: { dataVencimento: "asc" },
+          select: {
+            id: true,
+            titulo: true,
+            categoria: true,
+            valorCentavos: true,
+            status: true,
+            tipo: true,
+            dataVencimento: true,
+            dataPagamento: true,
+            frequencia: true,
+            parcelaAtual: true,
+            parcelasTotais: true
+          }
+        })
+      : Promise.resolve([])
+  ]);
+
+  const monthLabel = getMonthLabel();
 
   const allEvents: CalendarItem[] = [
-    ...(houseSnapshot?.pendingBills.map((bill) => ({
-      id: `house-pending-${bill.id}`,
-      title: bill.title,
-      amount: bill.amount,
+    ...houseBills.map((bill) => ({
+      id: `house-${bill.id}`,
+      title: bill.titulo,
+      amount: bill.valorCentavos / 100,
       scope: "Casa" as const,
       type: "Conta" as const,
-      date: bill.dueDate,
-      dateLabel: bill.dueLabel,
-      status: bill.status === "warning" ? "Urgente" : "Pendente",
-      recurrenceLabel: bill.recurrenceLabel,
+      date: dateInputValue(bill.dataVencimento),
+      dateLabel:
+        bill.status === StatusTransacao.CONCLUIDA && bill.dataPagamento
+          ? formatDateLabel(dateInputValue(bill.dataPagamento)).replace(/^/, "Pago em ")
+          : `Vence em ${formatDateLabel(dateInputValue(bill.dataVencimento))}`,
+      status:
+        bill.status === StatusTransacao.CONCLUIDA
+          ? "Paga"
+          : new Date(bill.dataVencimento).getTime() < Date.now()
+            ? "Urgente"
+            : "Pendente",
+      recurrenceLabel:
+        bill.frequencia === "MENSAL"
+          ? "Mensal"
+          : bill.frequencia === "FIXA"
+            ? "Fixa"
+            : bill.frequencia === "PARCELADA"
+              ? "Parcelada"
+              : "Unica",
       href: `/gerenciar?tab=casa&focus=house-bill-${bill.id}#house-bill-${bill.id}`,
-      actionLabel: "Editar conta"
-    })) ?? []),
-    ...(houseSnapshot?.paidBills.map((bill) => ({
-      id: `house-paid-${bill.id}`,
-      title: bill.title,
-      amount: bill.amount,
-      scope: "Casa" as const,
-      type: "Conta" as const,
-      date: bill.dueDate,
-      dateLabel: bill.dueLabel,
-      status: "Paga",
-      recurrenceLabel: bill.recurrenceLabel,
-      href: `/gerenciar?tab=casa&focus=house-bill-${bill.id}#house-bill-${bill.id}`,
-      actionLabel: "Ver conta"
-    })) ?? []),
-    ...(personalSnapshot?.personalBills.map((bill) => ({
-      id: `personal-bill-${bill.id}`,
-      title: bill.title,
-      amount: bill.amount,
-      scope: "Pessoal" as const,
-      type: "Conta" as const,
-      date: bill.dueDate,
-      dateLabel: bill.dueLabel,
-      status: bill.status === "paid" ? "Paga" : bill.status === "warning" ? "Urgente" : "Pendente",
-      recurrenceLabel: bill.recurrenceLabel,
-      href: `/gerenciar?tab=pessoal&focus=personal-bill-${bill.id}#personal-bill-${bill.id}`,
-      actionLabel: "Editar conta"
-    })) ?? []),
-    ...(personalSnapshot?.incomes.map((income) => ({
-      id: `income-${income.id}`,
-      title: income.title,
-      amount: income.amount,
-      scope: "Pessoal" as const,
-      type: "Recebimento" as const,
-      date: income.referenceDate,
-      dateLabel: income.dateLabel,
-      status: income.status === "received" ? "Recebido" : "Previsto",
-      recurrenceLabel: income.recurrenceLabel,
-      href: `/gerenciar?tab=pessoal&focus=income-${income.id}#income-${income.id}`,
-      actionLabel: "Editar recebimento"
-    })) ?? []),
-    ...(personalSnapshot?.expenses.map((expense) => ({
-      id: `expense-${expense.id}`,
-      title: expense.title,
-      amount: expense.amount,
-      scope: "Pessoal" as const,
-      type: "Gasto" as const,
-      date: expense.expenseDate,
-      dateLabel: `Lancado em ${formatDateLabel(expense.expenseDate)}`,
-      status: "Registrado",
-      href: `/gerenciar?tab=pessoal&focus=expense-${expense.id}#expense-${expense.id}`,
-      actionLabel: "Ver gasto"
-    })) ?? [])
+      actionLabel: bill.status === StatusTransacao.CONCLUIDA ? "Ver conta" : "Editar conta"
+    })),
+    ...personalTransactions.map((transaction) => {
+      const isoDate = dateInputValue(transaction.dataPagamento ?? transaction.dataVencimento);
+      const recurrenceLabel =
+        transaction.frequencia === "MENSAL"
+          ? "Mensal"
+          : transaction.frequencia === "FIXA"
+            ? "Fixa"
+            : transaction.frequencia === "PARCELADA"
+              ? "Parcelada"
+              : "Unica";
+
+      if (transaction.tipo === TipoTransacao.RECEITA) {
+        const received = transaction.status === StatusTransacao.CONCLUIDA;
+        return {
+          id: `income-${transaction.id}`,
+          title: transaction.titulo,
+          amount: transaction.valorCentavos / 100,
+          scope: "Pessoal" as const,
+          type: "Recebimento" as const,
+          date: isoDate,
+          dateLabel: `${received ? "Recebido em" : "Previsto em"} ${formatDateLabel(isoDate)}`,
+          status: received ? "Recebido" : "Previsto",
+          recurrenceLabel,
+          href: `/gerenciar?tab=pessoal&focus=income-${transaction.id}#income-${transaction.id}`,
+          actionLabel: "Editar recebimento"
+        } satisfies CalendarItem;
+      }
+
+      if (transaction.status === StatusTransacao.PENDENTE) {
+        const dueIso = dateInputValue(transaction.dataVencimento);
+        const remaining = Math.round((new Date(dueIso).getTime() - new Date().setHours(0, 0, 0, 0)) / 86_400_000);
+
+        return {
+          id: `personal-bill-${transaction.id}`,
+          title: transaction.titulo,
+          amount: transaction.valorCentavos / 100,
+          scope: "Pessoal" as const,
+          type: "Conta" as const,
+          date: dueIso,
+          dateLabel: `Vence em ${formatDateLabel(dueIso)}`,
+          status: remaining < 0 || (remaining > 0 && remaining <= 3) ? "Urgente" : "Pendente",
+          recurrenceLabel,
+          href: `/gerenciar?tab=pessoal&focus=personal-bill-${transaction.id}#personal-bill-${transaction.id}`,
+          actionLabel: "Editar conta"
+        } satisfies CalendarItem;
+      }
+
+      return {
+        id: `expense-${transaction.id}`,
+        title: transaction.titulo,
+        amount: transaction.valorCentavos / 100,
+        scope: "Pessoal" as const,
+        type: "Gasto" as const,
+        date: isoDate,
+        dateLabel: `Lancado em ${formatDateLabel(isoDate)}`,
+        status: "Registrado",
+        recurrenceLabel,
+        href: `/gerenciar?tab=pessoal&focus=expense-${transaction.id}#expense-${transaction.id}`,
+        actionLabel: "Ver gasto"
+      } satisfies CalendarItem;
+    })
   ].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
 
   const events = allEvents.filter((item) => {
