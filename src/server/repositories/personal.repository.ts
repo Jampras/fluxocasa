@@ -250,6 +250,7 @@ export const personalRepository = {
       }),
       incomes: incomes.map<IncomeRecord>((item) => {
         const recurrence = frequencyToUi(item.frequencia, item.parcelaAtual, item.parcelasTotais);
+        const effectiveReceivedDate = item.recebidaEm ?? item.previstaEm;
 
         return {
           id: item.id,
@@ -259,12 +260,12 @@ export const personalRepository = {
           status: incomeUiStatus(item.status),
           statusLabel: item.status === StatusTransacao.CONCLUIDA ? "Recebido" : "Previsto",
           dateLabel:
-            item.status === StatusTransacao.CONCLUIDA && item.recebidaEm
-              ? formatDueLabel(item.recebidaEm, "Recebido em")
+            item.status === StatusTransacao.CONCLUIDA
+              ? formatDueLabel(effectiveReceivedDate, "Recebido em")
               : formatDueLabel(item.previstaEm, "Previsto em"),
           plannedDate: dateInputValue(item.previstaEm),
-          referenceDate: dateInputValue(item.recebidaEm ?? item.previstaEm),
-          receivedDate: item.recebidaEm ? dateInputValue(item.recebidaEm) : undefined,
+          referenceDate: dateInputValue(effectiveReceivedDate),
+          receivedDate: item.status === StatusTransacao.CONCLUIDA ? dateInputValue(effectiveReceivedDate) : undefined,
           recurrenceType: recurrence.recurrenceType,
           recurrenceLabel: recurrence.recurrenceLabel,
           installmentLabel: recurrence.installmentLabel,
