@@ -5,7 +5,7 @@ import { STATUS_PAID, ensureCurrentCycle, getMonthLabel, getMonthYear, getUserWi
 
 function formatActivityDate(date: Date, prefix: string) { return `${prefix} ${new Intl.DateTimeFormat("pt-BR", { day: "2-digit", month: "2-digit" }).format(date)}`; }
 function buildDashboardItemHref(tab: "casa" | "pessoal", focus: string) {
-  return `/dashboard?tab=${tab}&focus=${focus}#${focus}`;
+  return `/gerenciar?tab=${tab}&focus=${focus}#${focus}`;
 }
 
 export const dashboardRepository = {
@@ -48,9 +48,9 @@ export const dashboardRepository = {
           description: `A proxima vence em ${new Intl.DateTimeFormat("pt-BR", { day: "2-digit", month: "2-digit" }).format(nextPendingHouseBill.vencimento)}. Priorize essa revisao para evitar atraso.`, actionLabel: "Abrir contas da casa", actionHref: buildDashboardItemHref("casa", `house-bill-${nextPendingHouseBill.id}`)
         };
       }
-      if (privateWalletCents < 0) { return { title: "Sua carteira pessoal fechou no vermelho", description: "Revise gastos e contas pessoais para recuperar margem ainda neste mes.", actionLabel: "Abrir painel pessoal", actionHref: "/dashboard?tab=pessoal#personal-manage-bills" }; }
-      if (goalsThisMonth.length === 0) { return { title: "Voce ainda nao definiu metas para este mes", description: "Cadastre limites por categoria para acompanhar seus gastos variaveis.", actionLabel: "Criar metas", actionHref: "/dashboard?tab=pessoal#personal-create-goal" }; }
-      if ((cycle?.endingBalance ?? 0) > 0) { return { title: "A casa terminou o mes com folga", description: `O caixa projetado esta em ${new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(cycle?.endingBalance ?? 0)}. Considere reservar parte do saldo.`, actionLabel: "Ver resumo da casa", actionHref: "/dashboard?tab=casa" }; }
+      if (privateWalletCents < 0) { return { title: "Sua carteira pessoal fechou no vermelho", description: "Revise gastos e contas pessoais para recuperar margem ainda neste mes.", actionLabel: "Abrir gerenciar pessoal", actionHref: "/gerenciar?tab=pessoal#personal-manage-bills" }; }
+      if (goalsThisMonth.length === 0) { return { title: "Voce ainda nao definiu metas para este mes", description: "Cadastre limites por categoria para acompanhar seus gastos variaveis.", actionLabel: "Criar metas", actionHref: "/gerenciar?tab=pessoal#personal-create-goal" }; }
+      if ((cycle?.endingBalance ?? 0) > 0) { return { title: "A casa terminou o mes com folga", description: `O caixa projetado esta em ${new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(cycle?.endingBalance ?? 0)}. Considere reservar parte do saldo.`, actionLabel: "Ver gerenciar casa", actionHref: "/gerenciar?tab=casa" }; }
       return { title: "Panorama do mes atualizado", description: "Continue registrando contas e contribuicoes para manter o fechamento confiavel.", actionLabel: "Acompanhar dashboard", actionHref: ROUTES.dashboard };
     })();
 

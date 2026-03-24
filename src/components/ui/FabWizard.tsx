@@ -58,6 +58,18 @@ function getInitialScope(pathname: string, searchParams: ReturnType<typeof useSe
     }
   }
 
+  if (pathname.startsWith("/gerenciar")) {
+    const tab = searchParams.get("tab");
+
+    if (tab === "casa") {
+      return EscopoTransacao.CASA;
+    }
+
+    if (tab === "pessoal") {
+      return EscopoTransacao.PESSOAL;
+    }
+  }
+
   return null;
 }
 

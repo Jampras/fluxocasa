@@ -6,33 +6,9 @@ import { X } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 import { RecurrenceFields } from "@/components/forms/RecurrenceFields";
+import type { CalendarCell, CalendarItem, CalendarScope } from "@/components/calendario/types";
 import { requestJson } from "@/lib/client-api";
 import { formatCurrency } from "@/lib/utils";
-
-export type CalendarScope = "geral" | "casa" | "pessoal";
-
-export interface CalendarItem {
-  id: string;
-  title: string;
-  amount: number;
-  scope: "Casa" | "Pessoal";
-  type: "Conta" | "Recebimento" | "Gasto";
-  date: string;
-  dateLabel: string;
-  status: string;
-  recurrenceLabel?: string;
-  href: string;
-  actionLabel: string;
-}
-
-export interface CalendarCell {
-  key: string;
-  dayNumber: number;
-  isoDate: string;
-  inCurrentMonth: boolean;
-  isToday: boolean;
-  items: CalendarItem[];
-}
 
 type AddMode = "house-bill" | "personal-bill" | "income" | null;
 
@@ -252,8 +228,8 @@ export function CalendarGridModal({
                       : String(formData.get("frequencia") ?? "UNICA") === "PARCELADA"
                         ? "Parcelada"
                         : "Unica",
-                href: "/dashboard?tab=pessoal",
-                actionLabel: "Abrir painel"
+                href: "/gerenciar?tab=pessoal",
+                actionLabel: "Abrir gerenciar"
               }
             : {
                 id: `optimistic-bill-${Date.now()}`,
@@ -272,8 +248,8 @@ export function CalendarGridModal({
                       : String(formData.get("frequencia") ?? "UNICA") === "PARCELADA"
                         ? "Parcelada"
                         : "Unica",
-                href: addMode === "house-bill" ? "/dashboard?tab=casa" : "/dashboard?tab=pessoal",
-                actionLabel: "Abrir painel"
+                href: addMode === "house-bill" ? "/gerenciar?tab=casa" : "/gerenciar?tab=pessoal",
+                actionLabel: "Abrir gerenciar"
               };
 
         return {

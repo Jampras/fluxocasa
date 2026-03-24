@@ -8,25 +8,27 @@ test.describe("Authenticated App", () => {
 
     await page.goto("/", { waitUntil: "domcontentloaded" });
     await expect(page).toHaveURL(/\/dashboard/);
-    await expect(page.getByText("Painel geral")).toBeVisible();
+    await expect(page.getByText("Painel principal")).toBeVisible();
+    await expect(page.getByText("Calendario interativo", { exact: true })).toBeVisible();
   });
 
-  test("authenticated user can access the house dashboard", async ({ page }) => {
+  test("authenticated user can access the house management view", async ({ page }) => {
     await createE2ESession(page);
-    await page.goto("/dashboard?tab=casa", { waitUntil: "domcontentloaded" });
-    await expect(page.getByText("Painel da casa")).toBeVisible();
+    await page.goto("/gerenciar?tab=casa", { waitUntil: "domcontentloaded" });
+    await expect(page.getByText("Fluxo da casa")).toBeVisible();
   });
 
-  test("authenticated user can access the personal dashboard", async ({ page }) => {
+  test("authenticated user can access the personal management view", async ({ page }) => {
     await createE2ESession(page);
-    await page.goto("/dashboard?tab=pessoal", { waitUntil: "domcontentloaded" });
-    await expect(page.getByText("Painel pessoal")).toBeVisible();
+    await page.goto("/gerenciar?tab=pessoal", { waitUntil: "domcontentloaded" });
+    await expect(page.getByText("Fluxo pessoal")).toBeVisible();
   });
 
-  test("authenticated user can access the calendar", async ({ page }) => {
+  test("authenticated user is redirected from the old calendar route to the dashboard", async ({ page }) => {
     await createE2ESession(page);
     await page.goto("/calendario", { waitUntil: "domcontentloaded" });
-    await expect(page.getByText("Agenda mensal")).toBeVisible();
+    await expect(page).toHaveURL(/\/dashboard/);
+    await expect(page.getByText("Calendario interativo", { exact: true })).toBeVisible();
   });
 
   test("authenticated user can access the goals view", async ({ page }) => {
@@ -57,7 +59,7 @@ test.describe("Authenticated App", () => {
 
     expect(createResponse.ok()).toBeTruthy();
 
-    await page.goto("/dashboard?tab=pessoal");
+    await page.goto("/gerenciar?tab=pessoal");
     const incomeCard = page.locator("details").filter({ hasText: incomeTitle }).first();
 
     await expect(incomeCard).toBeVisible();
@@ -86,7 +88,7 @@ test.describe("Authenticated App", () => {
 
     expect(createResponse.ok()).toBeTruthy();
 
-    await page.goto("/dashboard?tab=casa");
+    await page.goto("/gerenciar?tab=casa");
     const billCard = page.locator("details").filter({ hasText: billTitle }).first();
 
     await expect(billCard).toBeVisible();
@@ -127,7 +129,7 @@ test.describe("Authenticated App", () => {
     expect(houseBillResponse.ok()).toBeTruthy();
     expect(incomeResponse.ok()).toBeTruthy();
 
-    await page.goto("/calendario", { waitUntil: "domcontentloaded" });
+    await page.goto("/dashboard", { waitUntil: "domcontentloaded" });
 
     await page.locator('button[aria-label*="2 registros"]').first().click();
 
