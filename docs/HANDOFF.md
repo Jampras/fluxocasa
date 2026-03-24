@@ -31,7 +31,7 @@ O sistema cobre:
 
 - login Google em ambiente com Supabase
 - onboarding de casa
-- casa, pessoal, calendario, metas e configuracoes
+- painel, gerenciar, metas e configuracoes
 - CRUD completo dos registros financeiros principais
 - recorrencia
 - saude financeira
@@ -62,8 +62,9 @@ Ao mexer em funcionalidade:
 
 - `apiHandler` e o ponto central de validacao, auth e tratamento de erro das APIs
 - `repositories` carregam a maior parte da regra de negocio e montagem de snapshot
-- `revalidateAppViews()` faz parte do fluxo normal de mutacao
-- o dashboard, o calendario e o historico recente hoje usam navegacao por item com `focus`
+- `revalidateAppViews()` agora trabalha com presets granulares por dominio
+- o painel, o gerenciar e o historico recente usam navegacao por item com `focus`
+- `/calendario`, `/casa` e `/pessoal` sao apenas redirecionamentos legados
 - o bypass E2E existe apenas para teste e nao faz parte do fluxo de producao
 
 ## Ambientes
@@ -96,3 +97,4 @@ npm run test:integration
 - nao ativar `E2E_BYPASS_AUTH` fora da suite de testes
 - nao assumir que `build` tolera execucoes concorrentes mexendo em `.next`
 - manter `NEXT_PUBLIC_APP_URL` coerente com o ambiente publicado
+- o gargalo principal restante de UX/performance hoje esta em `Metas`, por causa dos graficos e do escopo consolidado

@@ -7,8 +7,8 @@ Este roadmap reflete o estado atual depois da estabilizacao principal do produto
 - autenticacao com Google via Supabase
 - fallback local de auth para desenvolvimento
 - onboarding de casa
-- painel com abas `Geral`, `Casa` e `Pessoal`
-- calendario financeiro por escopo
+- painel com cards em carrossel, calendario interativo e historico resumido
+- gerenciar com abas `Casa` e `Pessoal`
 - metas por escopo
 - configuracoes centrais
 - recorrencia de contas e rendas
@@ -19,14 +19,18 @@ Este roadmap reflete o estado atual depois da estabilizacao principal do produto
 - cobertura E2E autenticada
 - padronizacao do `apiHandler`
 - semantica HTTP corrigida nas mutacoes principais
+- revalidacao granular das views
+- prefetch e loading para troca de guias
+- wizard mobile refinado com ocultacao da navbar inferior
 
 ## Proxima leva recomendada
 
-- filtros e busca nas listas de contas, rendas e gastos
-- ordenacao por status, vencimento e categoria
+- reduzir o custo de dados em `Metas`, principalmente no escopo `Geral`
+- adicionar filtros e busca nas listas de contas, rendas e gastos
+- adicionar ordenacao por status, vencimento e categoria
+- refinar estados vazios e skeletons por secao, nao so loading global
+- feedback mais explicito depois de salvar, excluir e marcar status
 - pagina dedicada de auditoria da casa com filtros
-- melhoria visual de estados vazios e loading
-- refinamento de feedback apos salvar e excluir
 
 ## Fase seguinte
 
@@ -40,6 +44,6 @@ Este roadmap reflete o estado atual depois da estabilizacao principal do produto
 ## Divida Tecnica Residual
 
 - reduzir ainda mais o custo do dashboard geral em cenarios com volume alto
-- ampliar a cobertura de cenarios de borda em recorrencia
+- ampliar a cobertura de cenarios de borda em recorrencia e onboarding
 - revisar encoding antigo em comentarios e docs legados
 - manter a documentacao sincronizada a cada rodada grande

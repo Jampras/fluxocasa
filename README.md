@@ -27,8 +27,8 @@ O projeto esta operando com os seguintes blocos:
 - autenticacao com Google via Supabase em ambientes configurados
 - fallback local de login/cadastro por e-mail e senha quando Supabase nao esta configurado
 - onboarding de casa por criacao ou entrada por codigo de convite
-- painel principal com abas `Geral`, `Casa` e `Pessoal`
-- calendario financeiro com filtros por escopo
+- painel principal com cards em carrossel, calendario interativo geral e historico resumido
+- tela `Gerenciar` com abas `Casa` e `Pessoal`
 - tela de metas e graficos por escopo
 - tela de configuracoes com perfil, casa, moradores e saida
 - CRUD de:
@@ -50,23 +50,37 @@ O projeto esta operando com os seguintes blocos:
 - historico recente com acoes contextuais
 - auditoria da casa para eventos administrativos
 - cobertura automatizada de fluxos autenticados e nao autenticados
+- wizard global de lancamentos com modal adaptado para mobile
 
 ## Navegacao Atual
 
 Navegacao principal:
 
 - `Painel` em `/dashboard`
-- `Calendario` em `/calendario`
+- `Gerenciar` em `/gerenciar`
 - `Metas` em `/metas`
 - `Configuracoes` em `/configuracoes`
 
-Dentro do painel:
+Experiencia por tela:
 
-- `Geral`
-- `Casa`
-- `Pessoal`
+- `Painel`
+  - cards-resumo em carrossel
+  - calendario interativo geral
+  - historico geral resumido
+- `Gerenciar`
+  - `Casa`
+  - `Pessoal`
+- `Metas`
+  - `Geral`
+  - `Pessoal`
+  - `Casa`
 
-As listas editaveis do painel aceitam foco por item via query string, usado pelo calendario e pelo historico recente para abrir o registro correto.
+Rotas legadas:
+
+- `/calendario` redireciona para `/dashboard`
+- `/casa` e `/pessoal` redirecionam para `/gerenciar`
+
+As listas editaveis seguem aceitando foco por item via query string, usado pelo calendario, historico recente e links contextuais para abrir o registro correto.
 
 ## Como Rodar
 
@@ -142,7 +156,7 @@ Observacao:
 - `src/components`
   - UI compartilhada
   - formularios
-  - blocos de dashboard, casa, pessoal e configuracoes
+  - blocos de dashboard, gerenciamento, metas e configuracoes
 - `src/config`
   - rotas
   - navegacao

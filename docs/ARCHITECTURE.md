@@ -67,7 +67,6 @@ Responsabilidades:
 
 Repositorios principais:
 
-- `fluxocasa.repository.ts`
 - `personal.repository.ts`
 - `house.repository.ts`
 - `dashboard.repository.ts`
@@ -109,7 +108,7 @@ Toda mutacao relevante segue este pipeline:
 3. `apiHandler` autentica e valida
 4. service chama repository
 5. repository persiste no Prisma
-6. `revalidateAppViews()` invalida as views necessarias
+6. `revalidateAppViews()` invalida apenas as views necessarias
 7. UI executa refresh leve da tela atual
 
 ## Dominios atuais
@@ -138,14 +137,13 @@ Toda mutacao relevante segue este pipeline:
 
 ### Dashboard e analytics
 
-- painel geral
-- painel da casa
-- painel pessoal
+- painel principal consolidado
+- gerenciar casa
+- gerenciar pessoal
 - historico recente
 - donut chart
 - waterfall chart
-- insight do mes
-- calendario por escopo
+- calendario interativo geral na home
 - metas por escopo
 
 ## Modelo de dados
@@ -175,6 +173,7 @@ Enums principais:
 - renda futura nao entra no saldo como recebida
 - itens recorrentes geram ocorrencias do ciclo atual
 - calendario e atividade recente apontam para o item exato, nao apenas para a secao
+- `/calendario`, `/casa` e `/pessoal` sobrevivem apenas como rotas legadas de redirecionamento
 
 ## Performance e consistencia
 
@@ -182,7 +181,10 @@ A arquitetura atual ja incorpora alguns ajustes importantes:
 
 - `safeCache` para compatibilizar cache server-side com testes
 - reaproveitamento do morador autenticado nas visualizacoes do dashboard
-- carregamento condicional por escopo em `metas` e `calendario`
+- revalidacao granular por dominio nas mutacoes
+- carregamento condicional por escopo em `metas`
+- lazy render dos graficos mais pesados em `metas`
+- prefetch de navegacao principal e tabs
 - script de build com limpeza de `.next`
 - E2E autenticado com sessao de teste isolada
 

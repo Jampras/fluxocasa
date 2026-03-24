@@ -10,37 +10,28 @@ FluxoCasa organiza o dinheiro da casa compartilhada sem misturar isso com o fina
 
 ### Painel
 
-O `Painel` e a tela principal e hoje possui tres visoes:
+O `Painel` e a tela principal e hoje possui uma visao unica com:
 
-- `Geral`
+- cards-resumo em carrossel
+- calendario interativo geral
+- historico recente resumido
+
+Ele concentra leitura rapida e contexto do mes, nao a gestao completa dos registros.
+
+### Gerenciar
+
+O trabalho operacional foi concentrado em `Gerenciar`, com duas abas:
+
 - `Casa`
 - `Pessoal`
 
-Ele concentra:
+Ali ficam:
 
-- saldos principais
-- pendencias
-- saude financeira
-- graficos
-- historico recente
-- formularios e listas de edicao
-
-### Calendario
-
-Mostra eventos financeiros por data:
-
-- contas da casa
-- contas pessoais
-- rendas
-- gastos
-
-O calendario filtra por:
-
-- `Geral`
-- `Casa`
-- `Pessoal`
-
-Cada item leva para o registro correto no painel.
+- formularios de criacao
+- edicao detalhada
+- historicos equivalentes por dominio
+- manutencao das listas
+- gestao cotidiana do fluxo
 
 ### Metas
 
@@ -81,6 +72,7 @@ Central de configuracao do produto:
 - saida da casa
 - remocao de morador
 - troca de admin
+- historico da casa dentro de `Gerenciar > Casa`
 
 ### Pessoal
 
@@ -94,6 +86,7 @@ Central de configuracao do produto:
 - registrar gasto
 - metas por categoria
 - editar e remover todos esses itens
+- historico pessoal dentro de `Gerenciar > Pessoal`
 
 ## Regras de Negocio Relevantes
 
@@ -105,6 +98,7 @@ Central de configuracao do produto:
 - saude financeira muda conforme saldo projetado e contas urgentes
 - renda futura nao entra como recebida por padrao
 - itens recorrentes permanecem no fluxo ate serem encerrados
+- o wizard de lancamento e modal global e se adapta ao contexto atual
 
 ## Recorrencia Atual
 
@@ -133,3 +127,4 @@ O projeto ja esta organizado para uso real com:
 - banco PostgreSQL / Supabase
 - testes automatizados
 - fluxos principais cobrindo casa e pessoal
+- navegacao principal estabilizada em `Painel / Gerenciar / Metas / Configuracoes`

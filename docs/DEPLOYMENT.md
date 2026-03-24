@@ -132,8 +132,10 @@ Checklist minimo:
 - login Google redireciona para `/dashboard`
 - `/api/health` responde
 - painel autenticado carrega
+- `Gerenciar` alterna entre `Casa` e `Pessoal`
 - criacao e edicao de renda, conta pessoal e conta da casa
-- calendario e metas carregam sem erro
+- wizard modal abre, salva e fecha sem cobrir o CTA no mobile
+- metas carregam sem erro
 
 ## Observabilidade Atual
 
