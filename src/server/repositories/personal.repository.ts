@@ -2,6 +2,7 @@ import { randomUUID } from "node:crypto";
 
 import { prisma } from "@/lib/prisma";
 import { toCurrencyValue } from "@/lib/utils";
+import { UserFacingError } from "@/server/http/errors";
 import type { PersonalSnapshot, IncomeRecord, PersonalBillRecord, ExpenseRecord, IncomeStatus } from "@/types";
 import type { CreateIncomeInput, UpdateIncomeInput, CreatePersonalBillInput, UpdatePersonalBillInput, CreateExpenseInput, UpdateExpenseInput, UpsertBudgetGoalInput, UpdateBudgetGoalInput } from "./_types";
 import { dateInputValue, formatDueLabel, frequencyToUi, getMonthLabel, getMonthRange, getMonthYear, mapHouseBill, sumBy, toBillStatus } from "./_shared";
@@ -61,7 +62,7 @@ export const personalRepository = {
   },
   async updateIncome(userId: string, incomeId: string, input: UpdateIncomeInput) {
     const income = await prisma.transacao.findUnique({ where: { id: incomeId } });
-    if (!income || income.moradorId !== userId) throw new Error("Renda nao encontrada.");
+    if (!income || income.moradorId !== userId) throw new UserFacingError("Renda nao encontrada.", 404);
     const frequency = input.frequencia as FrequenciaTransacao;
     const status = incomeStatusToDb(input.status);
     await prisma.transacao.update({
@@ -82,7 +83,7 @@ export const personalRepository = {
   },
   async markIncomeAsReceived(userId: string, incomeId: string) {
     const income = await prisma.transacao.findUnique({ where: { id: incomeId } });
-    if (!income || income.moradorId !== userId || income.tipo !== TipoTransacao.RECEITA) throw new Error("Renda nao encontrada.");
+    if (!income || income.moradorId !== userId || income.tipo !== TipoTransacao.RECEITA) throw new UserFacingError("Renda nao encontrada.", 404);
     await prisma.transacao.update({
       where: { id: incomeId },
       data: { status: StatusTransacao.CONCLUIDA, dataPagamento: income.dataPagamento ?? new Date() }
@@ -90,7 +91,7 @@ export const personalRepository = {
   },
   async deleteIncome(userId: string, incomeId: string) {
     const t = await prisma.transacao.findUnique({ where: { id: incomeId } });
-    if (!t || t.moradorId !== userId) throw new Error("Renda nao encontrada.");
+    if (!t || t.moradorId !== userId) throw new UserFacingError("Renda nao encontrada.", 404);
     await prisma.transacao.delete({ where: { id: incomeId } });
   },
   async createPersonalBill(userId: string, input: CreatePersonalBillInput) {
@@ -116,7 +117,7 @@ export const personalRepository = {
   },
   async updatePersonalBill(userId: string, billId: string, input: UpdatePersonalBillInput) {
     const bill = await prisma.transacao.findUnique({ where: { id: billId } });
-    if (!bill || bill.moradorId !== userId) throw new Error("Conta pessoal nao encontrada.");
+    if (!bill || bill.moradorId !== userId) throw new UserFacingError("Conta pessoal nao encontrada.", 404);
     const nextStatus = input.status === "PAGA" ? StatusTransacao.CONCLUIDA : StatusTransacao.PENDENTE;
     const frequency = input.frequencia as FrequenciaTransacao;
     await prisma.transacao.update({
@@ -138,7 +139,7 @@ export const personalRepository = {
   },
   async markPersonalBillAsPaid(userId: string, billId: string) {
     const bill = await prisma.transacao.findUnique({ where: { id: billId } });
-    if (!bill || bill.moradorId !== userId) throw new Error("Conta pessoal nao encontrada.");
+    if (!bill || bill.moradorId !== userId) throw new UserFacingError("Conta pessoal nao encontrada.", 404);
     await prisma.transacao.update({
       where: { id: billId },
       data: { status: StatusTransacao.CONCLUIDA, dataPagamento: bill.dataPagamento ?? new Date() }
@@ -146,7 +147,7 @@ export const personalRepository = {
   },
   async deletePersonalBill(userId: string, billId: string) {
     const bill = await prisma.transacao.findUnique({ where: { id: billId } });
-    if (!bill || bill.moradorId !== userId) throw new Error("Conta pessoal nao encontrada.");
+    if (!bill || bill.moradorId !== userId) throw new UserFacingError("Conta pessoal nao encontrada.", 404);
     await prisma.transacao.delete({ where: { id: billId } });
   },
   async createExpense(userId: string, input: CreateExpenseInput) {
@@ -156,7 +157,7 @@ export const personalRepository = {
   },
   async updateExpense(userId: string, expenseId: string, input: UpdateExpenseInput) {
     const expense = await prisma.transacao.findUnique({ where: { id: expenseId } });
-    if (!expense || expense.moradorId !== userId) throw new Error("Gasto nao encontrado.");
+    if (!expense || expense.moradorId !== userId) throw new UserFacingError("Gasto nao encontrado.", 404);
     await prisma.transacao.update({
       where: { id: expenseId },
       data: { titulo: input.titulo, categoria: input.categoria, valorCentavos: input.valorCentavos, dataVencimento: input.gastoEm }
@@ -164,7 +165,7 @@ export const personalRepository = {
   },
   async deleteExpense(userId: string, expenseId: string) {
     const expense = await prisma.transacao.findUnique({ where: { id: expenseId } });
-    if (!expense || expense.moradorId !== userId) throw new Error("Gasto nao encontrado.");
+    if (!expense || expense.moradorId !== userId) throw new UserFacingError("Gasto nao encontrado.", 404);
     await prisma.transacao.delete({ where: { id: expenseId } });
   },
   async upsertBudgetGoal(userId: string, input: UpsertBudgetGoalInput) {
@@ -176,12 +177,12 @@ export const personalRepository = {
   },
   async updateBudgetGoal(userId: string, goalId: string, input: UpdateBudgetGoalInput) {
     const goal = await prisma.metaOrcamento.findUnique({ where: { id: goalId } });
-    if (!goal || goal.moradorId !== userId) throw new Error("Meta nao encontrada.");
+    if (!goal || goal.moradorId !== userId) throw new UserFacingError("Meta nao encontrada.", 404);
     await prisma.metaOrcamento.update({ where: { id: goalId }, data: { categoria: input.categoria, valorMetaCentavos: input.valorMetaCentavos } });
   },
   async deleteBudgetGoal(userId: string, goalId: string) {
     const goal = await prisma.metaOrcamento.findUnique({ where: { id: goalId } });
-    if (!goal || goal.moradorId !== userId) throw new Error("Meta nao encontrada.");
+    if (!goal || goal.moradorId !== userId) throw new UserFacingError("Meta nao encontrada.", 404);
     await prisma.metaOrcamento.delete({ where: { id: goalId } });
   },
 
@@ -194,7 +195,7 @@ export const personalRepository = {
       select: { id: true, casaId: true }
     });
 
-    if (!resident) throw new Error("Usuario nao encontrado.");
+    if (!resident) throw new UserFacingError("Usuario nao encontrado.", 404);
 
     const [transactions, goals, currentContribution] = await Promise.all([
       prisma.transacao.findMany({

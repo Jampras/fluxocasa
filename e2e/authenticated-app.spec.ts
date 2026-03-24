@@ -1,6 +1,11 @@
 import { expect, test } from "@playwright/test";
 
-import { createE2EOnboardingSession, createE2ESession, todayInputValue } from "./support/session";
+import {
+  createE2EOnboardingSession,
+  createE2ESession,
+  sameOriginApiHeaders,
+  todayInputValue
+} from "./support/session";
 
 test.describe("Authenticated App", () => {
   test("authenticated user can access the general dashboard", async ({ page }) => {
@@ -28,7 +33,7 @@ test.describe("Authenticated App", () => {
     await createE2ESession(page);
     await page.goto("/calendario", { waitUntil: "domcontentloaded" });
     await expect(page).toHaveURL(/\/dashboard/);
-    await expect(page.getByText("Painel principal", { exact: true })).toBeVisible({ timeout: 15000 });
+    await expect(page.getByText("Painel principal")).toBeVisible({ timeout: 15000 });
     await expect(page.getByText("Calendario interativo", { exact: true })).toBeVisible({ timeout: 15000 });
   });
 
@@ -58,6 +63,7 @@ test.describe("Authenticated App", () => {
     await page.goto("/onboarding", { waitUntil: "domcontentloaded" });
 
     const createResponse = await page.request.post("/api/onboarding/create-house", {
+      headers: sameOriginApiHeaders(),
       data: {
         nome: `Casa onboarding ${Date.now()}`
       }
@@ -74,6 +80,7 @@ test.describe("Authenticated App", () => {
 
     await createE2ESession(page);
     const createResponse = await page.request.post("/api/pessoal/renda", {
+      headers: sameOriginApiHeaders(),
       data: {
         titulo: incomeTitle,
         categoria: "SALARIO",
@@ -104,6 +111,7 @@ test.describe("Authenticated App", () => {
 
     await createE2ESession(page);
     const createResponse = await page.request.post("/api/casa/contas", {
+      headers: sameOriginApiHeaders(),
       data: {
         titulo: billTitle,
         categoria: "Moradia",
@@ -134,6 +142,7 @@ test.describe("Authenticated App", () => {
     await createE2ESession(page);
 
     const houseBillResponse = await page.request.post("/api/casa/contas", {
+      headers: sameOriginApiHeaders(),
       data: {
         titulo: billTitle,
         categoria: "Moradia",
@@ -143,6 +152,7 @@ test.describe("Authenticated App", () => {
     });
 
     const incomeResponse = await page.request.post("/api/pessoal/renda", {
+      headers: sameOriginApiHeaders(),
       data: {
         titulo: incomeTitle,
         categoria: "SALARIO",

@@ -2,6 +2,7 @@ import { randomUUID } from "node:crypto";
 
 import { prisma } from "@/lib/prisma";
 import { toCurrencyValue } from "@/lib/utils";
+import { UserFacingError } from "@/server/http/errors";
 import type { HouseSnapshot } from "@/types";
 import type { CreateHouseInput, CreateHouseBillInput, JoinHouseInput, LeaveHouseResult, UpdateHouseBillInput, UpsertContributionInput } from "./_types";
 import { AUDIT_HOUSE_CREATED, AUDIT_MEMBER_LEFT, AUDIT_MEMBER_JOINED, AUDIT_INVITE_ROTATED, ROLE_ADMIN, ROLE_MEMBER, RECORD_CONFIRMED, STATUS_PAID, createHouseAuditEntry, ensureUserWithoutHouse, ensureCurrentCycle, getMonthLabel, getMonthRange, getMonthYear, initials, mapHouseBill, randomInviteCode, requireHouseAdmin, requireHouseMember, roleToUi, sumBy, toBillStatus } from "./_shared";
@@ -33,7 +34,7 @@ export const houseRepository = {
   async joinHouseByInviteCode(userId: string, input: JoinHouseInput) {
     await ensureUserWithoutHouse(userId);
     const house = await prisma.casa.findUnique({ where: { codigoConvite: input.codigoConvite } });
-    if (!house) throw new Error("Codigo de convite invalido.");
+    if (!house) throw new UserFacingError("Codigo de convite invalido.");
     await prisma.morador.update({ where: { id: userId }, data: { casaId: house.id, role: ROLE_MEMBER } });
     await createHouseAuditEntry({ casaId: house.id, type: AUDIT_MEMBER_JOINED, description: "Novo morador entrou na casa pelo codigo de convite.", actorResidentId: userId, targetResidentId: userId });
     const { month, year } = getMonthYear();
@@ -44,7 +45,7 @@ export const houseRepository = {
     const user = await requireHouseMember(userId);
     const houseResidents = await prisma.morador.findMany({ where: { casaId: user.casaId! }, select: { id: true } });
     if (user.role === ROLE_ADMIN) {
-      if (houseResidents.length > 1) throw new Error("Transfira a administracao antes de sair da casa.");
+      if (houseResidents.length > 1) throw new UserFacingError("Transfira a administracao antes de sair da casa.", 403);
       await prisma.$transaction(async (tx) => {
         await tx.morador.update({ where: { id: userId }, data: { casaId: null, role: ROLE_MEMBER } });
         await tx.casa.delete({ where: { id: user.casaId! } });
@@ -78,7 +79,7 @@ export const houseRepository = {
   async deleteContribution(userId: string, contributionId: string) {
     const user = await requireHouseMember(userId);
     const contribution = await prisma.contribuicao.findUnique({ where: { id: contributionId } });
-    if (!contribution || contribution.casaId !== user.casaId || contribution.moradorId !== userId) throw new Error("Contribuicao nao encontrada.");
+    if (!contribution || contribution.casaId !== user.casaId || contribution.moradorId !== userId) throw new UserFacingError("Contribuicao nao encontrada.", 404);
     await prisma.contribuicao.delete({ where: { id: contributionId } });
     await ensureCurrentCycle(user.casaId!, contribution.mes, contribution.ano);
   },
@@ -108,7 +109,7 @@ export const houseRepository = {
   async updateHouseBill(userId: string, billId: string, input: UpdateHouseBillInput) {
     const user = await requireHouseMember(userId);
     const current = await prisma.transacao.findUnique({ where: { id: billId } });
-    if (!current || current.casaId !== user.casaId) throw new Error("Conta da casa nao encontrada.");
+    if (!current || current.casaId !== user.casaId) throw new UserFacingError("Conta da casa nao encontrada.", 404);
     const nextStatus = input.status === STATUS_PAID ? StatusTransacao.CONCLUIDA : StatusTransacao.PENDENTE;
     const frequency = input.frequencia as FrequenciaTransacao;
     await prisma.transacao.update({
@@ -133,19 +134,19 @@ export const houseRepository = {
   async deleteHouseBill(userId: string, billId: string) {
     const user = await requireHouseMember(userId);
     const bill = await prisma.transacao.findUnique({ where: { id: billId } });
-    if (!bill || bill.casaId !== user.casaId) throw new Error("Conta da casa nao encontrada.");
+    if (!bill || bill.casaId !== user.casaId) throw new UserFacingError("Conta da casa nao encontrada.", 404);
     await prisma.transacao.delete({ where: { id: billId } });
     await ensureCurrentCycle(user.casaId!, bill.dataVencimento.getMonth() + 1, bill.dataVencimento.getFullYear());
   },
   async markHouseBillAsPaid(userId: string, billId: string) {
     const user = await requireHouseMember(userId);
     const bill = await prisma.transacao.findUnique({ where: { id: billId } });
-    if (!bill || bill.casaId !== user.casaId) throw new Error("Conta da casa nao encontrada.");
+    if (!bill || bill.casaId !== user.casaId) throw new UserFacingError("Conta da casa nao encontrada.", 404);
     await prisma.transacao.update({ where: { id: billId }, data: { status: StatusTransacao.CONCLUIDA, dataPagamento: new Date() } });
   },
   async getHouseSnapshot(userId: string): Promise<HouseSnapshot> {
     const resident = await prisma.morador.findUnique({ where: { id: userId }, select: { casaId: true } });
-    if (!resident?.casaId) throw new Error("Usuario ainda nao participa de uma casa.");
+    if (!resident?.casaId) throw new UserFacingError("Usuario ainda nao participa de uma casa.");
     await ensureHouseRecurringTransactions(resident.casaId);
 
     const { month, year } = getMonthYear();
@@ -194,7 +195,7 @@ export const houseRepository = {
       })
     ]);
 
-    if (!house) throw new Error("Casa nao encontrada.");
+    if (!house) throw new UserFacingError("Casa nao encontrada.", 404);
 
     const totalDeclaredCents = sumBy(currentContributions, (item) => item.valorCentavos);
     const totalCommittedCents = sumBy(currentBills, (item) => item.valorCentavos);

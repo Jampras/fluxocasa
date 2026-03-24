@@ -5,6 +5,7 @@ import { EscopoTransacao, StatusTransacao, TipoTransacao } from "@prisma/client"
 import { prisma } from "@/lib/prisma";
 import { requireCurrentResident } from "@/server/auth/user";
 import { revalidateAppViews } from "@/server/cache/revalidate-app";
+import { UserFacingError } from "@/server/http/errors";
 import { ensureHouseRecurringTransactions, ensurePersonalRecurringTransactions } from "@/server/repositories/_recurrence";
 import { createExpense, createIncome } from "@/server/services/personal.service";
 import { createHouseBill } from "@/server/services/house.service";
@@ -54,7 +55,7 @@ function parseDateInput(value: string) {
   const [year, month, day] = value.split("-").map(Number);
 
   if (!year || !month || !day) {
-    throw new Error("Data invalida.");
+    throw new UserFacingError("Data invalida.");
   }
 
   return new Date(year, month - 1, day, 12, 0, 0, 0);
@@ -121,18 +122,18 @@ export async function createTransacao(data: {
   const user = await requireCurrentResident();
 
   if (!data.titulo.trim()) {
-    throw new Error("Informe um titulo para o lancamento.");
+    throw new UserFacingError("Informe um titulo para o lancamento.");
   }
 
   if (data.valorCentavos <= 0) {
-    throw new Error("Informe um valor valido.");
+    throw new UserFacingError("Informe um valor valido.");
   }
 
   const referenceDate = parseDateInput(data.data);
 
   if (data.escopo === EscopoTransacao.CASA) {
     if (data.tipo !== TipoTransacao.DESPESA) {
-      throw new Error("No contexto da casa, o lancamento rapido cria contas compartilhadas.");
+      throw new UserFacingError("No contexto da casa, o lancamento rapido cria contas compartilhadas.");
     }
 
     await createHouseBill(user.id, {

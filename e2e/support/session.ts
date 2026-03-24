@@ -18,3 +18,10 @@ export function todayInputValue() {
 
   return new Date(today.getTime() - offset).toISOString().slice(0, 10);
 }
+
+export function sameOriginApiHeaders() {
+  return {
+    Origin: "http://localhost:3000",
+    Referer: "http://localhost:3000/dashboard"
+  };
+}

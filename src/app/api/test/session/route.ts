@@ -7,7 +7,7 @@ import { registerUser } from "@/server/services/auth.service";
 import { createHouseForUser } from "@/server/services/house.service";
 
 export async function POST() {
-  if (!isE2EBypassEnabled()) {
+  if (!(await isE2EBypassEnabled())) {
     return forbidden("Sessao de teste desativada.");
   }
 

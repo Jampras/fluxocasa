@@ -3,6 +3,7 @@ import { EscopoTransacao, StatusTransacao, TipoTransacao } from "@prisma/client"
 import { prisma } from "@/lib/prisma";
 import { ROUTES } from "@/config/routes";
 import { toCurrencyValue } from "@/lib/utils";
+import { UserFacingError } from "@/server/http/errors";
 import type { ActivityItem, DashboardSnapshot } from "@/types";
 import {
   ensureCurrentCycle,
@@ -33,7 +34,7 @@ async function getDashboardData(userId: string) {
   });
 
   if (!resident) {
-    throw new Error("Usuario nao encontrado.");
+    throw new UserFacingError("Usuario nao encontrado.", 404);
   }
 
   const [cycle, houseBills, personalTransactions, currentContribution, goals] = await Promise.all([

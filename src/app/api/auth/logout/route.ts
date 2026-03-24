@@ -5,6 +5,7 @@ import { apiHandler } from "@/server/http/handler";
 
 export const POST = apiHandler({
   auth: false,
+  csrf: true,
   handler: async () => {
     const supabase = await getSupabaseServerClient();
 

@@ -6,7 +6,7 @@ import { isE2EBypassEnabled, setE2EBypassUserId } from "@/server/auth/e2e";
 import { registerUser } from "@/server/services/auth.service";
 
 export async function POST() {
-  if (!isE2EBypassEnabled()) {
+  if (!(await isE2EBypassEnabled())) {
     return forbidden("Sessao de teste desativada.");
   }
 

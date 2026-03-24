@@ -1,6 +1,7 @@
 import { EscopoTransacao, StatusTransacao, TipoTransacao } from "@prisma/client";
 
 import { prisma } from "@/lib/prisma";
+import { UserFacingError } from "@/server/http/errors";
 import { ensureHouseRecurringTransactions, ensurePersonalRecurringTransactions } from "@/server/repositories/_recurrence";
 import { getMonthLabel, getMonthRange, getMonthYear, toBillStatus } from "@/server/repositories/_shared";
 
@@ -21,7 +22,7 @@ export async function getGoalsOverviewSummary(userId: string): Promise<GoalsOver
   });
 
   if (!resident) {
-    throw new Error("Usuario nao encontrado.");
+    throw new UserFacingError("Usuario nao encontrado.", 404);
   }
 
   await Promise.all([

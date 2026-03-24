@@ -1,5 +1,6 @@
 import type { InteractiveCalendarView, CalendarCell, CalendarItem, CalendarScope } from "@/components/calendario/types";
 import { prisma } from "@/lib/prisma";
+import { UserFacingError } from "@/server/http/errors";
 import { EscopoTransacao, StatusTransacao, TipoTransacao } from "@prisma/client";
 import { dateInputValue, getMonthLabel, getMonthRange, getMonthYear } from "@/server/repositories/_shared";
 import { ensureHouseRecurringTransactions, ensurePersonalRecurringTransactions } from "@/server/repositories/_recurrence";
@@ -62,7 +63,7 @@ export async function getInteractiveCalendarView(
     select: { casaId: true }
   });
   if (!resident) {
-    throw new Error("Usuario nao encontrado.");
+    throw new UserFacingError("Usuario nao encontrado.", 404);
   }
 
   const shouldLoadHouse = activeScope !== "pessoal";

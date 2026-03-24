@@ -1,3 +1,5 @@
+import { isUserFacingError } from "@/server/http/errors";
+
 type LogLevel = "info" | "warn" | "error";
 
 interface LogPayload {
@@ -62,12 +64,15 @@ export function logApiRequestFailure(input: {
   durationMs: number;
   error: unknown;
 }) {
+  const userError = isUserFacingError(input.error) ? input.error : null;
   const normalizedError =
     input.error instanceof Error
       ? {
           name: input.error.name,
           message: input.error.message,
-          stack: input.error.stack
+          userFacing: Boolean(userError),
+          ...(userError ? { status: userError.status } : {}),
+          ...(process.env.NODE_ENV !== "production" ? { stack: input.error.stack } : {})
         }
       : input.error;
 

@@ -2,12 +2,24 @@ import { cookies, headers } from "next/headers";
 
 export const E2E_BYPASS_COOKIE = "fluxocasa_e2e_user";
 
-export function isE2EBypassEnabled() {
-  return process.env.E2E_BYPASS_AUTH === "1";
+function isLocalE2EHost(host: string) {
+  return host.startsWith("localhost") || host.startsWith("127.0.0.1");
+}
+
+export async function isE2EBypassEnabled() {
+  if (process.env.E2E_BYPASS_AUTH !== "1") {
+    return false;
+  }
+
+  const headerStore = await headers();
+  const forwardedHost = headerStore.get("x-forwarded-host");
+  const host = forwardedHost ?? headerStore.get("host") ?? "";
+
+  return isLocalE2EHost(host);
 }
 
 export async function getE2EBypassUserId() {
-  if (!isE2EBypassEnabled()) {
+  if (!(await isE2EBypassEnabled())) {
     return null;
   }
 
@@ -16,6 +28,10 @@ export async function getE2EBypassUserId() {
 }
 
 export async function setE2EBypassUserId(userId: string) {
+  if (!(await isE2EBypassEnabled())) {
+    return;
+  }
+
   const cookieStore = await cookies();
   const headerStore = await headers();
   const host = headerStore.get("host") ?? "";

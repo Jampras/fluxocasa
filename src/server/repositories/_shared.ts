@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import { safeCache } from "@/lib/safe-cache";
 import { toCurrencyValue } from "@/lib/utils";
+import { UserFacingError } from "@/server/http/errors";
 import type { HouseAuditEvent, HouseBill, HouseCycleSummary, RecurrenceType, ResidentRole } from "@/types";
 
 // ─── Constants ─────────────────────────────────────────────
@@ -170,18 +171,18 @@ export const getUserWithHouse = safeCache(async function getUserWithHouse(userId
 });
 export async function requireHouseMember(userId: string) {
   const user = await prisma.morador.findUnique({ where: { id: userId } });
-  if (!user?.casaId) throw new Error("Usuario ainda nao participa de uma casa.");
+  if (!user?.casaId) throw new UserFacingError("Usuario ainda nao participa de uma casa.");
   return user;
 }
 export async function ensureUserWithoutHouse(userId: string) {
   const user = await prisma.morador.findUnique({ where: { id: userId } });
-  if (!user) throw new Error("Usuario nao encontrado.");
-  if (user.casaId) throw new Error("Saia da casa atual antes de criar ou entrar em outra.");
+  if (!user) throw new UserFacingError("Usuario nao encontrado.", 404);
+  if (user.casaId) throw new UserFacingError("Saia da casa atual antes de criar ou entrar em outra.");
   return user;
 }
 export async function requireHouseAdmin(userId: string, errorMessage = "Somente administradores podem gerenciar moradores.") {
   const user = await requireHouseMember(userId);
-  if (user.role !== ROLE_ADMIN) throw new Error(errorMessage);
+  if (user.role !== ROLE_ADMIN) throw new UserFacingError(errorMessage, 403);
   return user;
 }
 export async function createHouseAuditEntry(input: { casaId: string; type: string; description: string; actorResidentId?: string; targetResidentId?: string; }) {

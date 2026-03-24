@@ -1,5 +1,8 @@
+import { NextResponse } from "next/server";
 import { badRequest, serverError } from "./response";
+import { isUserFacingError } from "./errors";
 import { requireApiUser } from "@/server/auth/api";
+import { applyRateLimit, resolveRateLimitPolicy, type RateLimitPolicy } from "@/server/security/rate-limit";
 import {
   createRequestId,
   logApiRequestFailure,
@@ -9,6 +12,34 @@ import {
 import { z } from "zod";
 
 type RouteParams = Record<string, string | string[] | undefined>;
+const MUTATING_METHODS = new Set(["POST", "PUT", "PATCH", "DELETE"]);
+
+function getAllowedOrigins(request: Request) {
+  const allowed = new Set<string>([new URL(request.url).origin]);
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL;
+
+  if (appUrl) {
+    try {
+      allowed.add(new URL(appUrl).origin);
+    } catch {
+      // Ignore invalid optional app url here; env validation happens elsewhere.
+    }
+  }
+
+  return allowed;
+}
+
+function isAllowedSource(value: string | null, allowedOrigins: Set<string>) {
+  if (!value) {
+    return false;
+  }
+
+  try {
+    return allowedOrigins.has(new URL(value).origin);
+  } catch {
+    return false;
+  }
+}
 
 interface RouteContext<TParams extends RouteParams = RouteParams> {
   params: Promise<TParams>;
@@ -24,6 +55,8 @@ interface HandlerArgs<TData = any, TParams extends RouteParams = RouteParams> {
 
 interface HandlerOptions<TSchema extends z.ZodTypeAny | undefined, TParams extends RouteParams = RouteParams> {
   auth?: boolean;
+  csrf?: boolean;
+  rateLimit?: RateLimitPolicy | false;
   schema?: TSchema;
   handler: (
     args: HandlerArgs<TSchema extends z.ZodTypeAny ? z.infer<TSchema> : any, TParams>
@@ -43,6 +76,8 @@ export function apiHandler<
   TParams extends RouteParams = RouteParams
 >({
   auth = true,
+  csrf = auth,
+  rateLimit,
   schema,
   handler
 }: HandlerOptions<TSchema, TParams>) {
@@ -60,7 +95,21 @@ export function apiHandler<
     try {
       let user: any = { id: "anonymous" };
       let data: any = null;
+      let rateLimitHeaders: Record<string, string> = {};
       const params = ((await context?.params) ?? {}) as TParams;
+      const rateLimitPolicy = resolveRateLimitPolicy(path, request.method, rateLimit);
+
+      if (csrf && MUTATING_METHODS.has(request.method.toUpperCase())) {
+        const allowedOrigins = getAllowedOrigins(request);
+        const origin = request.headers.get("origin");
+        const referer = request.headers.get("referer");
+
+        if (!isAllowedSource(origin, allowedOrigins) && !isAllowedSource(referer, allowedOrigins)) {
+          const response = badRequest("Origem da requisicao nao autorizada.");
+          response.headers.set("X-Request-Id", requestId);
+          return response;
+        }
+      }
 
       // 1. Authentication
       if (auth) {
@@ -69,6 +118,22 @@ export function apiHandler<
           return authResult.error;
         }
         user = authResult.user;
+      }
+
+      if (rateLimitPolicy) {
+        const limitResult = await applyRateLimit({
+          request,
+          path,
+          policy: rateLimitPolicy,
+          userId: auth ? user.id : undefined
+        });
+
+        if (limitResult.limited) {
+          limitResult.response.headers.set("X-Request-Id", requestId);
+          return limitResult.response;
+        }
+
+        rateLimitHeaders = limitResult.headers;
       }
 
       // 2. Validation
@@ -90,6 +155,7 @@ export function apiHandler<
       // 3. Execution
       const response = await handler({ user, data, params, request, requestId });
       response.headers.set("X-Request-Id", requestId);
+      Object.entries(rateLimitHeaders).forEach(([key, value]) => response.headers.set(key, value));
 
       logApiRequestSuccess({
         requestId,
@@ -110,8 +176,8 @@ export function apiHandler<
       });
 
       // 4. Error Response
-      if (error instanceof Error) {
-        const response = badRequest(error.message);
+      if (isUserFacingError(error)) {
+        const response = NextResponse.json({ message: error.message }, { status: error.status });
         response.headers.set("X-Request-Id", requestId);
         return response;
       }

@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma";
+import { UserFacingError } from "@/server/http/errors";
 import type { HouseAuditEvent, ResidentsSnapshot } from "@/types";
 import {
   AUDIT_ADMIN_TRANSFERRED,
@@ -43,7 +44,7 @@ export const residentsRepository = {
     });
 
     if (!user?.casa) {
-      throw new Error("Usuario ainda nao participa de uma casa.");
+      throw new UserFacingError("Usuario ainda nao participa de uma casa.");
     }
 
     const auditLog = await prisma.auditoriaCasa.findMany({
@@ -90,17 +91,17 @@ export const residentsRepository = {
     const admin = await requireHouseAdmin(userId);
 
     if (residentId === userId) {
-      throw new Error("Selecione outro morador para transferir a administracao.");
+      throw new UserFacingError("Selecione outro morador para transferir a administracao.");
     }
 
     const target = await prisma.morador.findUnique({ where: { id: residentId } });
 
     if (!target || target.casaId !== admin.casaId) {
-      throw new Error("Morador nao encontrado nesta casa.");
+      throw new UserFacingError("Morador nao encontrado nesta casa.", 404);
     }
 
     if (target.role === ROLE_ADMIN) {
-      throw new Error("Este morador ja e administrador.");
+      throw new UserFacingError("Este morador ja e administrador.");
     }
 
     await prisma.$transaction([
@@ -121,17 +122,17 @@ export const residentsRepository = {
     const admin = await requireHouseAdmin(userId);
 
     if (residentId === userId) {
-      throw new Error("Transfira a administracao antes de sair da casa.");
+      throw new UserFacingError("Transfira a administracao antes de sair da casa.", 403);
     }
 
     const target = await prisma.morador.findUnique({ where: { id: residentId } });
 
     if (!target || target.casaId !== admin.casaId) {
-      throw new Error("Morador nao encontrado nesta casa.");
+      throw new UserFacingError("Morador nao encontrado nesta casa.", 404);
     }
 
     if (target.role === ROLE_ADMIN) {
-      throw new Error("Nao e possivel remover outro administrador.");
+      throw new UserFacingError("Nao e possivel remover outro administrador.", 403);
     }
 
     const { month, year } = getMonthYear();

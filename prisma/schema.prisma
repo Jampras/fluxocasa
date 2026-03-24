@@ -156,3 +156,15 @@ model AuditoriaCasa {
   @@index([atorMoradorId])
   @@index([alvoMoradorId])
 }
+
+model RateLimitBucket {
+  id          String   @id @default(cuid())
+  scope       String
+  identifier  String
+  count       Int      @default(0)
+  windowStart DateTime
+  updatedAt   DateTime @updatedAt
+
+  @@unique([scope, identifier])
+  @@index([updatedAt])
+}
