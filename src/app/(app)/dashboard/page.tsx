@@ -43,14 +43,14 @@ function SummaryMetricCard({
   accentClass: string;
 }) {
   return (
-    <NeoCard className="overflow-hidden bg-white p-0">
+    <NeoCard className="overflow-hidden bg-white p-0 lg:min-h-[214px]">
       <div className={`border-b-[3px] border-neo-dark px-3 py-2 sm:border-b-4 sm:px-4 sm:py-3 ${accentClass}`}>
         <p className="font-heading text-[10px] uppercase tracking-[0.14em] text-neo-dark sm:text-sm sm:tracking-[0.22em]">
           {label}
         </p>
       </div>
-      <div className="space-y-2 p-3 sm:p-4 md:p-5">
-        <h2 className="font-heading text-3xl uppercase leading-none text-neo-dark sm:text-4xl md:text-5xl">
+      <div className="space-y-2 p-3 sm:p-4 md:p-5 lg:p-6">
+        <h2 className="font-heading text-3xl uppercase leading-none text-neo-dark sm:text-4xl md:text-5xl xl:text-[3.25rem]">
           {value}
         </h2>
         <p className="font-body text-[11px] font-bold uppercase tracking-[0.08em] text-neo-dark/65 sm:text-sm sm:tracking-[0.12em]">
@@ -210,8 +210,8 @@ export default async function DashboardPage({
       <AppHeader monthLabel={snapshot.monthLabel} userName={user.nome} />
       <PanelTabs currentTab={activeTab} />
 
-      <div className="grid gap-3 xl:grid-cols-[1.1fr_0.9fr] xl:items-start">
-        <div className="space-y-1.5 sm:space-y-2">
+      <div className="space-y-4 lg:space-y-5">
+        <div className="max-w-3xl space-y-1.5 sm:space-y-2">
           <p className="font-heading text-[10px] uppercase tracking-[0.2em] text-neo-pink sm:text-sm sm:tracking-[0.3em]">
             Painel geral
           </p>
@@ -219,7 +219,7 @@ export default async function DashboardPage({
             A pagina inicial mostra o que mudou na casa e no pessoal sem obrigar troca de menu.
           </p>
         </div>
-        <div className="grid grid-cols-2 gap-3 sm:gap-4">
+        <div className="grid grid-cols-2 gap-3 sm:gap-4 xl:grid-cols-4">
           <SummaryMetricCard
             label="Caixa da casa"
             value={formatCurrency(snapshot.houseCash)}

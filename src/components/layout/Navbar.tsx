@@ -40,11 +40,11 @@ export function Navbar() {
         </nav>
       </div>
 
-      <aside className="sticky top-0 z-20 hidden min-h-screen w-72 shrink-0 flex-col border-r-4 border-neo-dark bg-neo-pink p-8 shadow-[8px_0_0_#0F172A] md:flex">
-        <div className="mb-16 flex items-center justify-center gap-4 bg-white p-4 border-4 border-neo-dark shadow-[4px_4px_0_#0F172A] rotate-[-2deg]">
+      <aside className="sticky top-0 z-20 hidden min-h-screen w-64 shrink-0 flex-col border-r-4 border-neo-dark bg-neo-pink p-6 shadow-[8px_0_0_#0F172A] md:flex xl:w-[272px] xl:p-8">
+        <div className="mb-12 flex items-center justify-center gap-4 border-4 border-neo-dark bg-white p-4 shadow-[4px_4px_0_#0F172A] rotate-[-2deg] xl:mb-16">
           <h1 className="m-0 font-heading text-4xl leading-none text-neo-dark uppercase">FLUXO.CASA</h1>
         </div>
-        <ul className="flex flex-col gap-6">
+        <ul className="flex flex-col gap-4 xl:gap-6">
           {APP_NAVIGATION.map((item) => {
             const Icon = item.icon;
             const active = pathname === item.href;
@@ -54,7 +54,7 @@ export function Navbar() {
                 <Link
                   href={item.href}
                   className={twMerge(
-                    "flex items-center gap-4 px-6 py-4 font-heading text-2xl uppercase border-4 border-neo-dark transition-all",
+                    "flex items-center gap-3 border-4 border-neo-dark px-5 py-3 font-heading text-xl uppercase transition-all xl:gap-4 xl:px-6 xl:py-4 xl:text-2xl",
                     active 
                       ? "bg-neo-yellow shadow-[6px_6px_0_#0F172A] -translate-y-1 text-neo-dark" 
                       : "bg-white text-neo-dark hover:bg-neo-cyan hover:-translate-y-1 hover:shadow-[4px_4px_0_#0F172A] active:translate-y-1 active:shadow-none"
