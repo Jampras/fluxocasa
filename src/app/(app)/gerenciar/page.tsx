@@ -3,13 +3,16 @@ import { HouseBillsSection } from "@/components/casa/HouseBillsSection";
 import { HouseOverview } from "@/components/casa/HouseOverview";
 import { HouseActions } from "@/components/forms/HouseActions";
 import { PersonalActions } from "@/components/forms/PersonalActions";
+import { HouseHistorySection } from "@/components/gerenciar/HouseHistorySection";
 import { ManageTabs } from "@/components/gerenciar/ManageTabs";
+import { PersonalHistorySection } from "@/components/gerenciar/PersonalHistorySection";
 import { AppHeader } from "@/components/layout/AppHeader";
 import { BudgetGoals } from "@/components/pessoal/BudgetGoals";
 import { PersonalOverview } from "@/components/pessoal/PersonalOverview";
 import { requireCurrentResident } from "@/server/auth/user";
 import { getHouseSnapshot } from "@/server/services/house.service";
 import { getPersonalSnapshot } from "@/server/services/personal.service";
+import { getResidentsSnapshot } from "@/server/services/residents.service";
 
 type ManageTab = "casa" | "pessoal";
 
@@ -54,11 +57,13 @@ export default async function GerenciarPage({
           expenses={snapshot.expenses}
           goals={snapshot.goals}
         />
+
+        <PersonalHistorySection incomes={snapshot.incomes} expenses={snapshot.expenses} />
       </div>
     );
   }
 
-  const snapshot = await getHouseSnapshot(user.id);
+  const [snapshot, residents] = await Promise.all([getHouseSnapshot(user.id), getResidentsSnapshot(user.id)]);
 
   return (
     <div className="min-h-screen w-full space-y-6 pb-16 sm:space-y-8 sm:pb-20">
@@ -78,7 +83,7 @@ export default async function GerenciarPage({
       <HouseActions contributions={snapshot.contributions} bills={[...snapshot.pendingBills, ...snapshot.paidBills]} />
       <ContributionsList items={snapshot.contributions} />
       <HouseBillsSection title="Contas Pendentes" items={snapshot.pendingBills} elevated allowMarkAsPaid />
-      <HouseBillsSection title="Historico da casa" items={snapshot.paidBills} />
+      <HouseHistorySection paidBills={snapshot.paidBills} auditLog={residents.auditLog} />
     </div>
   );
 }

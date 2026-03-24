@@ -5,6 +5,7 @@ import { ROUTES } from "@/config/routes";
 export function revalidateAppViews() {
   [
     ROUTES.dashboard,
+    ROUTES.gerenciar,
     ROUTES.calendario,
     ROUTES.metas,
     ROUTES.configuracoes,
