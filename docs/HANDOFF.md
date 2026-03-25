@@ -65,7 +65,7 @@ Ao mexer em funcionalidade:
 - `revalidateAppViews()` agora trabalha com presets granulares por dominio
 - o painel, o gerenciar e o historico recente usam navegacao por item com `focus`
 - `/calendario`, `/casa` e `/pessoal` sao apenas redirecionamentos legados
-- o bypass E2E existe apenas para teste e nao faz parte do fluxo de producao
+- a suite E2E cria sessao assinada localmente, sem expor rotas de teste no build
 
 ## Ambientes
 
@@ -78,10 +78,7 @@ Ao mexer em funcionalidade:
 
 ### Local
 
-Pode rodar em dois modos:
-
-- SQLite sem Supabase
-- Postgres / Supabase
+Pode rodar com SQLite ou Postgres / Supabase, mas o fluxo de produto continua Google-only.
 
 ## Validacao Minima Antes de Subir
 
@@ -94,7 +91,6 @@ npm run test:integration
 
 ## Atencao Especial
 
-- nao ativar `E2E_BYPASS_AUTH` fora da suite de testes
 - nao assumir que `build` tolera execucoes concorrentes mexendo em `.next`
 - manter `NEXT_PUBLIC_APP_URL` coerente com o ambiente publicado
 - o gargalo principal restante de UX/performance hoje esta em `Metas`, por causa dos graficos e do escopo consolidado

@@ -20,52 +20,20 @@ Todas as rotas protegidas passam por [`apiHandler`](C:/Users/Jotape/Desktop/cont
 
 ## Autenticacao
 
-### `POST /api/auth/login`
+O produto usa login Google via Supabase Auth.
 
-Uso:
+### `GET /auth/callback`
 
-- modo local, sem Supabase configurado
+Efeito:
 
-Body:
-
-```json
-{
-  "email": "voce@email.com",
-  "senha": "sua-senha"
-}
-```
-
-Resposta:
-
-- `200` com `redirectTo`
-- `400` se o ambiente estiver com Supabase ativo
-
-### `POST /api/auth/register`
-
-Uso:
-
-- modo local, sem Supabase configurado
-
-Body:
-
-```json
-{
-  "nome": "Joao",
-  "email": "voce@email.com",
-  "senha": "senha-forte"
-}
-```
-
-Resposta:
-
-- `201` com `redirectTo`
-- `400` se o ambiente estiver com Supabase ativo
+- troca o `code` do OAuth por sessao Supabase
+- sincroniza o usuario autenticado no banco local
+- redireciona para `/dashboard` ou `/onboarding`
 
 ### `POST /api/auth/logout`
 
 Efeito:
 
-- remove sessao local
 - limpa sessao Supabase quando disponivel
 
 ## Onboarding
@@ -308,16 +276,3 @@ Rotaciona o codigo de convite.
 ### `GET /api/health`
 
 Healthcheck publico.
-
-### `POST /api/test/session`
-
-Rota usada apenas na suite E2E.
-
-Condicao:
-
-- so funciona quando `E2E_BYPASS_AUTH=1`
-
-Efeito:
-
-- cria sessao de teste autenticada
-- permite validar areas protegidas no Playwright

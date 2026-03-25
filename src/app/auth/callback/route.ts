@@ -37,6 +37,11 @@ export async function GET(request: Request) {
     return NextResponse.redirect(loginUrl);
   }
 
+  if (!user.email_confirmed_at) {
+    loginUrl.searchParams.set("error", "oauth_unverified");
+    return NextResponse.redirect(loginUrl);
+  }
+
   const nome =
     user.user_metadata.full_name ||
     user.user_metadata.name ||
@@ -46,7 +51,8 @@ export async function GET(request: Request) {
   const appUser = await syncAuthenticatedUser({
     authUserId: user.id,
     email: user.email,
-    nome
+    nome,
+    emailVerified: true
   });
 
   return NextResponse.redirect(new URL(appUser.casaId ? ROUTES.dashboard : ROUTES.onboarding, url.origin));

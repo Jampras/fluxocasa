@@ -1,18 +1,27 @@
 import { test, expect } from "@playwright/test";
 
 test.describe("Seguranca da API", () => {
-  test("rotas de autenticacao retornam headers de rate limit", async ({ request }) => {
-    const response = await request.post("/api/auth/login", {
-      data: { email: "teste@teste.com", senha: "senha-invalida" }
+  test("logout same-origin responde sem expor detalhes internos", async ({ request }) => {
+    const response = await request.post("/api/auth/logout", {
+      headers: {
+        Origin: "http://localhost:3000",
+        Referer: "http://localhost:3000/login"
+      }
     });
 
-    expect(response.headers()["x-ratelimit-limit"]).toBeDefined();
-    expect(response.headers()["x-ratelimit-remaining"]).toBeDefined();
+    expect(response.status()).toBe(200);
+
+    const body = await response.json();
+    expect(body.message).toBeDefined();
+    expect(body.issues).toBeUndefined();
   });
 
-  test("login invalido nao expoe detalhes internos de validacao", async ({ request }) => {
-    const response = await request.post("/api/auth/login", {
-      data: { email: "email-invalido", senha: "" }
+  test("mutações com origem externa nao expõem detalhes internos", async ({ request }) => {
+    const response = await request.post("/api/auth/logout", {
+      headers: {
+        Origin: "https://evil.example",
+        Referer: "https://evil.example/phish"
+      }
     });
 
     expect(response.status()).toBe(400);

@@ -5,11 +5,7 @@ import { getSupabaseBrowserClient } from "@/lib/supabase/browser";
 import { NeoButton } from "@/components/ui/NeoButton";
 import { getPublicEnv } from "@/config/env";
 
-interface GoogleAuthButtonProps {
-  mode: "login" | "register";
-}
-
-export function GoogleAuthButton({ mode }: GoogleAuthButtonProps) {
+export function GoogleAuthButton() {
   const [error, setError] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
   const { NEXT_PUBLIC_APP_URL: appUrl } = getPublicEnv();
@@ -48,9 +44,7 @@ export function GoogleAuthButton({ mode }: GoogleAuthButtonProps) {
         </svg>
         {pending
           ? "REDIRECIONANDO..."
-          : mode === "login"
-            ? "ENTRAR COM GOOGLE"
-            : "CRIAR COM GOOGLE"}
+          : "ENTRAR COM GOOGLE"}
       </NeoButton>
       {error ? <div className="bg-neo-pink text-white font-bold p-3 border-4 border-neo-dark text-center">{error}</div> : null}
     </div>

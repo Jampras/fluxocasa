@@ -3,7 +3,6 @@ import type { Route } from "next";
 export const ROUTES = {
   home: "/" as Route,
   login: "/login" as Route,
-  cadastro: "/cadastro" as Route,
   onboarding: "/onboarding" as Route,
   dashboard: "/dashboard" as Route,
   gerenciar: "/gerenciar" as Route,

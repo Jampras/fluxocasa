@@ -1,5 +1,5 @@
 import { SignJWT, jwtVerify, type JWTPayload } from "jose";
-import { cookies, headers } from "next/headers";
+import { cookies } from "next/headers";
 
 import { getServerEnv } from "@/config/env";
 
@@ -20,19 +20,26 @@ function getSecretKey() {
 }
 
 async function shouldUseSecureCookies() {
-  const headerStore = await headers();
-  const host = headerStore.get("host") ?? "";
-  const forwardedProto = headerStore.get("x-forwarded-proto");
-
-  if (host.startsWith("localhost") || host.startsWith("127.0.0.1")) {
+  if (process.env.NODE_ENV !== "production") {
     return false;
   }
 
-  if (forwardedProto) {
-    return forwardedProto === "https";
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL;
+
+  if (appUrl) {
+    try {
+      const url = new URL(appUrl);
+      return url.protocol === "https:" && !url.hostname.startsWith("localhost") && !url.hostname.startsWith("127.0.0.1");
+    } catch {
+      return true;
+    }
   }
 
-  return process.env.NODE_ENV === "production";
+  return true;
+}
+
+export function isLocalTestSessionEnabled() {
+  return process.env.NODE_ENV === "test" || process.env.E2E_LOCAL_SESSION === "1";
 }
 
 export async function createSessionToken(payload: SessionPayload) {

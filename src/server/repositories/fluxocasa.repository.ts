@@ -60,17 +60,11 @@ export interface FluxoCasaRepository {
     email: string;
     casaId: string | null;
   } | null>;
-  findUserByEmail(email: string): Promise<{
-    id: string;
-    nome: string;
-    email: string;
-    senhaHash: string;
-    casaId: string | null;
-  } | null>;
   syncUserIdentity(input: {
     authUserId: string;
     email: string;
     nome: string;
+    emailVerified: boolean;
   }): Promise<{ id: string; casaId: string | null }>;
   createHouseForUser(userId: string, input: CreateHouseInput): Promise<{ casaId: string }>;
   joinHouseByInviteCode(userId: string, input: JoinHouseInput): Promise<{ casaId: string }>;

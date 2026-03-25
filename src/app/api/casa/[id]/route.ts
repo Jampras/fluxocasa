@@ -1,21 +1,14 @@
-import { accepted, ok } from "@/server/http/response";
-import { readStringParam } from "@/server/http/params";
-import { getHouseSnapshot } from "@/server/services/house.service";
+import { notFound } from "@/server/http/response";
 import { apiHandler } from "@/server/http/handler";
 
 export const GET = apiHandler({
-  handler: async ({ user, params }) => {
-    const houseId = readStringParam(params.id, "id");
-    return ok({
-      id: houseId,
-      ...(await getHouseSnapshot(user.id))
-    });
+  handler: async () => {
+    return notFound("Use /api/casa para acessar a casa atual.");
   }
 });
 
 export const PUT = apiHandler({
-  handler: async ({ params }) => {
-    const houseId = readStringParam(params.id, "id");
-    return accepted(`Atualizacao da casa ${houseId} pendente de persistencia real.`);
+  handler: async () => {
+    return notFound("Rota legada removida.");
   }
 });

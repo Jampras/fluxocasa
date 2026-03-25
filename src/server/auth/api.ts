@@ -1,25 +1,9 @@
 import { prisma } from "@/lib/prisma";
 import { getSupabaseServerClient } from "@/lib/supabase/server";
-import { getE2EBypassUserId } from "@/server/auth/e2e";
 import { unauthorized } from "@/server/http/response";
-import { getSessionUserId } from "@/server/auth/session";
-import type { Prisma } from "@prisma/client";
+import { getSessionUserId, isLocalTestSessionEnabled } from "@/server/auth/session";
 
 export async function requireApiUser() {
-  const e2eUserId = await getE2EBypassUserId();
-
-  if (e2eUserId) {
-    const user = await prisma.morador.findUnique({
-      where: { id: e2eUserId }
-    });
-
-    if (!user) {
-      return { error: unauthorized("Usuario nao encontrado.") };
-    }
-
-    return { user };
-  }
-
   const supabase = await getSupabaseServerClient();
 
   if (supabase) {
@@ -27,27 +11,23 @@ export async function requireApiUser() {
       data: { user: authUser }
     } = await supabase.auth.getUser();
 
-    if (!authUser) {
+    if (authUser) {
+      const user = await prisma.morador.findUnique({
+        where: {
+          authUserId: authUser.id
+        }
+      });
+
+      if (!user) {
+        return { error: unauthorized("Usuario nao encontrado.") };
+      }
+
+      return { user };
+    }
+
+    if (!isLocalTestSessionEnabled()) {
       return { error: unauthorized("Sessao invalida ou expirada.") };
     }
-
-    const whereClauses: Prisma.MoradorWhereInput[] = [{ authUserId: authUser.id }];
-
-    if (authUser.email) {
-      whereClauses.push({ email: authUser.email });
-    }
-
-    const user = await prisma.morador.findFirst({
-      where: {
-        OR: whereClauses
-      }
-    });
-
-    if (!user) {
-      return { error: unauthorized("Usuario nao encontrado.") };
-    }
-
-    return { user };
   }
 
   const userId = await getSessionUserId();

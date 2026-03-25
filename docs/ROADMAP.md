@@ -5,7 +5,7 @@ Este roadmap reflete o estado atual depois da estabilizacao principal do produto
 ## Entregue
 
 - autenticacao com Google via Supabase
-- fallback local de auth para desenvolvimento
+- login Google-only no produto publicado
 - onboarding de casa
 - painel com cards em carrossel, calendario interativo e historico resumido
 - gerenciar com abas `Casa` e `Pessoal`

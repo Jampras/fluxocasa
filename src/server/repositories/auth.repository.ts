@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma";
+import { UserFacingError } from "@/server/http/errors";
 import type { CreateUserInput } from "./_types";
 
 export const authRepository = {
@@ -16,14 +17,12 @@ export const authRepository = {
     });
   },
 
-  async findUserByEmail(email: string) {
-    return prisma.morador.findUnique({
-      where: { email },
-      select: { id: true, nome: true, email: true, senhaHash: true, casaId: true }
-    });
-  },
-
-  async syncUserIdentity(input: { authUserId: string; email: string; nome: string }) {
+  async syncUserIdentity(input: {
+    authUserId: string;
+    email: string;
+    nome: string;
+    emailVerified: boolean;
+  }) {
     const existingByAuth = await prisma.morador.findUnique({
       where: { authUserId: input.authUserId },
       select: { id: true, casaId: true }
@@ -43,6 +42,10 @@ export const authRepository = {
     });
 
     if (existingByEmail) {
+      if (!input.emailVerified) {
+        throw new UserFacingError("A conta Google precisa trazer um e-mail verificado.", 403);
+      }
+
       return prisma.morador.update({
         where: { id: existingByEmail.id },
         data: { authUserId: input.authUserId, nome: input.nome },

@@ -147,5 +147,4 @@ Checklist minimo:
 ## Observacoes Operacionais
 
 - o build local usa [`run_next_build.cjs`](C:/Users/Jotape/Desktop/contas/scripts/run_next_build.cjs) para limpar `.next` antes da compilacao
-- o ambiente E2E usa `E2E_BYPASS_AUTH=1` apenas para testes Playwright
-- essa configuracao nao deve ser ativada em producao
+- a suite E2E local injeta sessao assinada no contexto do navegador e nao depende de rotas de teste publicadas

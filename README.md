@@ -1,6 +1,6 @@
 # FluxoCasa
 
-Aplicacao web para organizacao financeira de casa compartilhada e vida pessoal, com UI neo-brutalista, App Router do Next.js, Prisma e autenticacao via Supabase Auth com Google em producao.
+Aplicacao web para organizacao financeira de casa compartilhada e vida pessoal, com UI neo-brutalista, App Router do Next.js, Prisma e autenticacao Google via Supabase Auth.
 
 Producao atual:
 - App: [fluxocasa.vercel.app](https://fluxocasa.vercel.app)
@@ -24,8 +24,7 @@ Producao atual:
 
 O projeto esta operando com os seguintes blocos:
 
-- autenticacao com Google via Supabase em ambientes configurados
-- fallback local de login/cadastro por e-mail e senha quando Supabase nao esta configurado
+- autenticacao Google via Supabase
 - onboarding de casa por criacao ou entrada por codigo de convite
 - painel principal com cards em carrossel, calendario interativo geral e historico resumido
 - tela `Gerenciar` com abas `Casa` e `Pessoal`
@@ -166,10 +165,9 @@ Observacao:
   - cliente Supabase
   - helpers de cliente e utilitarios
 - `src/server/auth`
-  - sessao local
+  - sessao assinada de suporte a testes
   - integracao Supabase server-side
   - helpers de usuario autenticado
-  - bypass controlado para E2E
 - `src/server/http`
   - `apiHandler`
   - helpers de resposta
@@ -195,7 +193,7 @@ Cobertura atual:
 
 - unitarios com Vitest
 - integracao e E2E com Playwright
-- fluxos autenticados com sessao de teste controlada em `E2E_BYPASS_AUTH`
+- fluxos autenticados com sessao de teste sem superficie publica dedicada
 - smoke tests de auth, dashboard e seguranca basica de API
 
 Executar tudo:

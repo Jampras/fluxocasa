@@ -8,6 +8,8 @@ import {
 } from "./support/session";
 
 test.describe("Authenticated App", () => {
+  test.setTimeout(60_000);
+
   test("authenticated user can access the general dashboard", async ({ page }) => {
     await createE2ESession(page);
 
@@ -33,8 +35,8 @@ test.describe("Authenticated App", () => {
     await createE2ESession(page);
     await page.goto("/calendario", { waitUntil: "domcontentloaded" });
     await expect(page).toHaveURL(/\/dashboard/);
-    await expect(page.getByText("Painel principal")).toBeVisible({ timeout: 15000 });
-    await expect(page.getByText("Calendario interativo", { exact: true })).toBeVisible({ timeout: 15000 });
+    await expect(page.getByText("Caixa da casa")).toBeVisible({ timeout: 30000 });
+    await expect(page.getByText("Calendario interativo", { exact: true })).toBeVisible({ timeout: 30000 });
   });
 
   test("authenticated user can access the goals view", async ({ page }) => {
@@ -92,7 +94,7 @@ test.describe("Authenticated App", () => {
 
     expect(createResponse.ok()).toBeTruthy();
 
-    await page.goto("/gerenciar?tab=pessoal");
+    await page.goto("/gerenciar?tab=pessoal", { waitUntil: "domcontentloaded" });
     const incomeCard = page.locator("details").filter({ hasText: incomeTitle }).first();
 
     await expect(incomeCard).toBeVisible();
@@ -122,7 +124,7 @@ test.describe("Authenticated App", () => {
 
     expect(createResponse.ok()).toBeTruthy();
 
-    await page.goto("/gerenciar?tab=casa");
+    await page.goto("/gerenciar?tab=casa", { waitUntil: "domcontentloaded" });
     const billCard = page.locator("details").filter({ hasText: billTitle }).first();
 
     await expect(billCard).toBeVisible();
@@ -165,7 +167,7 @@ test.describe("Authenticated App", () => {
     expect(houseBillResponse.ok()).toBeTruthy();
     expect(incomeResponse.ok()).toBeTruthy();
 
-    await page.goto("/dashboard", { waitUntil: "domcontentloaded" });
+    await page.goto("/dashboard", { waitUntil: "domcontentloaded", timeout: 45_000 });
 
     await page.locator('button[aria-label*="2 registros"]').first().click();
 

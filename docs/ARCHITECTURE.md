@@ -86,18 +86,13 @@ Banco atual:
 
 ## Autenticacao
 
-Existem dois modos reais:
+O produto usa login com Google via Supabase Auth.
 
-### Producao e ambientes com Supabase configurado
-
-- login com Google via Supabase Auth
 - callback em `/auth/callback`
 - sincronizacao do usuario autenticado para `Morador`
+- associacao por e-mail somente depois de e-mail verificado no provedor
 
-### Desenvolvimento sem Supabase
-
-- login e cadastro local por e-mail/senha
-- sessao local via JWT assinado em cookie
+Para a suite E2E local, os testes criam um cookie assinado diretamente no contexto do navegador. Esse mecanismo nao fica exposto por rotas publicas da aplicacao.
 
 ## Fluxo de escrita
 
@@ -186,7 +181,7 @@ A arquitetura atual ja incorpora alguns ajustes importantes:
 - lazy render dos graficos mais pesados em `metas`
 - prefetch de navegacao principal e tabs
 - script de build com limpeza de `.next`
-- E2E autenticado com sessao de teste isolada
+- E2E autenticado com sessao isolada sem rotas de teste publicadas
 
 ## Como evoluir sem quebrar o padrao
 

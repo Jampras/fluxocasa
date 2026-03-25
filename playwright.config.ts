@@ -20,8 +20,7 @@ export default defineConfig({
   webServer: {
     command: "npm start",
     env: {
-      ...process.env,
-      E2E_BYPASS_AUTH: "1"
+      E2E_LOCAL_SESSION: "1"
     },
     url: "http://localhost:3000",
     reuseExistingServer: false,

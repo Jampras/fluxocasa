@@ -1,15 +1,13 @@
-import Link from "next/link";
-
 import { LoginForm } from "@/components/forms/LoginForm";
 import { NeoCard } from "@/components/ui/NeoCard";
-import { ROUTES } from "@/config/routes";
 import { redirectIfAuthenticated } from "@/server/auth/user";
 
 const errorMessages: Record<string, string> = {
   oauth_callback: "O retorno do provedor nao trouxe o codigo esperado.",
   supabase_env: "Supabase nao configurado neste ambiente.",
   oauth_exchange: "Nao foi possivel concluir o login com Google.",
-  oauth_user: "Nao foi possivel identificar o usuario autenticado."
+  oauth_user: "Nao foi possivel identificar o usuario autenticado.",
+  oauth_unverified: "A conta Google precisa trazer um e-mail verificado para concluir a entrada."
 };
 
 export default async function LoginPage({
@@ -49,15 +47,6 @@ export default async function LoginPage({
           ) : null}
 
           <LoginForm />
-
-          <div className="pt-4 text-center">
-            <Link
-              className="inline-block border-4 border-transparent px-6 py-3 font-body font-black text-neo-dark transition-all hover:border-neo-dark hover:bg-white hover:shadow-[4px_4px_0_#0F172A]"
-              href={ROUTES.cadastro}
-            >
-              NAO TEM CONTA? CONTINUAR
-            </Link>
-          </div>
         </div>
       </NeoCard>
     </main>
