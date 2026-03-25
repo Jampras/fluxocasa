@@ -71,14 +71,11 @@ export function DashboardMetricCarousel({ items }: { items: DashboardMetricItem[
 
   return (
     <div className="relative">
-      <div className="mb-3 flex items-center gap-3 xl:mb-4">
+      <div className="mb-3 flex items-center justify-between gap-3 xl:mb-4">
         <p className="font-body text-[11px] font-bold uppercase tracking-[0.12em] text-neo-dark/60 sm:text-sm sm:tracking-[0.16em]">
           Deslize no touch ou use as setas no desktop.
         </p>
-      </div>
-
-      <div className="relative md:px-14">
-        <div className="pointer-events-none absolute inset-y-0 left-0 right-0 z-10 hidden items-center justify-between md:flex">
+        <div className="hidden items-center gap-2 md:flex">
           <button
             type="button"
             onClick={() => scrollByDirection("left")}
@@ -98,7 +95,9 @@ export function DashboardMetricCarousel({ items }: { items: DashboardMetricItem[
             <ChevronRight className="h-6 w-6 stroke-[3px]" />
           </button>
         </div>
+      </div>
 
+      <div className="relative">
         <div
           ref={containerRef}
           className="flex snap-x snap-mandatory gap-3 overflow-x-auto pb-3 pr-2 scrollbar-none [scrollbar-width:none] [-ms-overflow-style:none] touch-pan-x sm:gap-4 xl:gap-5"
