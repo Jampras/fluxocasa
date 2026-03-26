@@ -67,7 +67,7 @@ export function DashboardMetricCarousel({ items }: { items: DashboardMetricItem[
   }
 
   const navButtonBaseClass =
-    "pointer-events-auto flex h-12 w-12 items-center justify-center border-4 border-neo-dark text-neo-dark shadow-[4px_4px_0_#0F172A] transition-all hover:-translate-y-1 disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:translate-y-0";
+    "neo-pressable pointer-events-auto flex h-12 w-12 items-center justify-center border-4 border-neo-dark text-neo-dark shadow-[4px_4px_0_#0F172A] disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:translate-y-0";
 
   return (
     <div className="relative">

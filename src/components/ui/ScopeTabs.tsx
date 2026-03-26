@@ -56,10 +56,10 @@ export function ScopeTabs({
               void router.prefetch(href);
             }}
             className={twMerge(
-              "flex min-h-[78px] flex-col justify-center border-[3px] border-neo-dark bg-white px-2 py-2.5 text-center shadow-[4px_4px_0_#0F172A] transition-all sm:min-h-[96px] sm:border-4 sm:px-4 sm:py-3.5 sm:shadow-[5px_5px_0_#0F172A]",
+              "neo-pressable flex min-h-[78px] flex-col justify-center border-[3px] border-neo-dark bg-white px-2 py-2.5 text-center shadow-[4px_4px_0_#0F172A] sm:min-h-[96px] sm:border-4 sm:px-4 sm:py-3.5 sm:shadow-[5px_5px_0_#0F172A]",
               active
                 ? "bg-neo-yellow -translate-y-1"
-                : "hover:bg-neo-cyan hover:-translate-y-1"
+                : "hover:bg-neo-cyan"
             )}
           >
             <p className="font-heading text-lg uppercase leading-none text-neo-dark sm:text-2xl">{tab.label}</p>

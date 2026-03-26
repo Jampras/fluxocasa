@@ -61,7 +61,7 @@ export function InteractiveCalendarSection({
               </div>
               <Link
                 href={actionHref}
-                className="inline-flex items-center justify-center border-[3px] border-neo-dark bg-neo-cyan px-4 py-3 font-heading text-lg uppercase text-neo-dark shadow-[4px_4px_0_#0F172A] transition-all hover:-translate-y-1 sm:border-4"
+                className="neo-pressable inline-flex items-center justify-center border-[3px] border-neo-dark bg-neo-cyan px-4 py-3 font-heading text-lg uppercase text-neo-dark shadow-[4px_4px_0_#0F172A] sm:border-4"
               >
                 {actionLabel}
               </Link>
@@ -129,7 +129,7 @@ export function InteractiveCalendarSection({
           </div>
           <Link
             href={actionHref}
-            className="inline-flex items-center justify-center border-[3px] border-neo-dark bg-neo-yellow px-4 py-3 font-heading text-lg uppercase text-neo-dark shadow-[4px_4px_0_#0F172A] transition-all hover:-translate-y-1 sm:border-4"
+            className="neo-pressable inline-flex items-center justify-center border-[3px] border-neo-dark bg-neo-yellow px-4 py-3 font-heading text-lg uppercase text-neo-dark shadow-[4px_4px_0_#0F172A] sm:border-4"
           >
             {actionLabel}
           </Link>
@@ -173,7 +173,7 @@ export function InteractiveCalendarSection({
                   </p>
                   <a
                     href={item.href}
-                    className="inline-flex items-center justify-center border-[3px] border-neo-dark bg-neo-yellow px-4 py-3 font-heading text-base uppercase text-neo-dark shadow-[4px_4px_0_#0F172A] transition-all hover:-translate-y-1 sm:border-4 sm:text-lg"
+                    className="neo-pressable inline-flex items-center justify-center border-[3px] border-neo-dark bg-neo-yellow px-4 py-3 font-heading text-base uppercase text-neo-dark shadow-[4px_4px_0_#0F172A] sm:border-4 sm:text-lg"
                   >
                     {item.actionLabel}
                   </a>

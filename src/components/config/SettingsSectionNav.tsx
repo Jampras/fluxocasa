@@ -16,7 +16,7 @@ export function SettingsSectionNav() {
         <a
           key={section.id}
           href={`#${section.id}`}
-          className={`border-[3px] border-neo-dark px-3 py-3 text-center font-heading text-lg uppercase text-neo-dark shadow-[4px_4px_0_#0F172A] transition-all hover:-translate-y-1 sm:border-4 sm:px-4 sm:text-xl xl:px-5 xl:py-4 xl:text-2xl ${
+          className={`neo-pressable border-[3px] border-neo-dark px-3 py-3 text-center font-heading text-lg uppercase text-neo-dark shadow-[4px_4px_0_#0F172A] sm:border-4 sm:px-4 sm:text-xl xl:px-5 xl:py-4 xl:text-2xl ${
             index % 3 === 0
               ? "bg-white hover:bg-neo-yellow"
               : index % 3 === 1

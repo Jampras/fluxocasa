@@ -40,7 +40,7 @@ export function LogoutButton() {
       }}
       aria-label={pending ? "Saindo da conta" : "Sair da conta"}
       title={pending ? "Saindo da conta" : "Sair da conta"}
-      className="flex h-12 w-12 items-center justify-center gap-2 border-[3px] border-neo-dark bg-neo-pink px-0 py-0 font-heading text-base uppercase tracking-[0.18em] text-white shadow-[3px_3px_0_#0F172A] transition-all hover:-translate-y-1 hover:shadow-[5px_5px_0_#0F172A] active:translate-y-1 active:shadow-none sm:h-14 sm:w-14 sm:border-4 sm:text-lg sm:shadow-[4px_4px_0_#0F172A] md:h-auto md:w-auto md:px-5 md:py-3 md:text-2xl"
+      className="neo-pressable flex h-12 w-12 items-center justify-center gap-2 border-[3px] border-neo-dark bg-neo-pink px-0 py-0 font-heading text-base uppercase tracking-[0.18em] text-white shadow-[3px_3px_0_#0F172A] sm:h-14 sm:w-14 sm:border-4 sm:text-lg sm:shadow-[4px_4px_0_#0F172A] md:h-auto md:w-auto md:px-5 md:py-3 md:text-2xl"
       disabled={pending}
     >
       {pending ? (
