@@ -56,11 +56,11 @@ export function Navbar() {
         </nav>
       </div>
 
-      <aside className="sticky top-0 z-20 hidden min-h-screen w-64 shrink-0 flex-col border-r-4 border-neo-dark bg-neo-pink p-6 shadow-[8px_0_0_#0F172A] md:flex xl:w-[272px] xl:p-8">
-        <div className="mb-12 flex items-center justify-center gap-4 border-4 border-neo-dark bg-white p-4 shadow-[4px_4px_0_#0F172A] rotate-[-2deg] xl:mb-16">
-          <h1 className="m-0 font-heading text-4xl leading-none text-neo-dark uppercase">FLUXO.CASA</h1>
+      <aside className="sticky top-0 z-20 hidden min-h-screen w-[220px] shrink-0 flex-col border-r-4 border-neo-dark bg-neo-pink p-4 shadow-[8px_0_0_#0F172A] md:flex lg:w-[232px] lg:p-5 xl:w-[252px] xl:p-6">
+        <div className="mb-8 flex items-center justify-center gap-4 border-4 border-neo-dark bg-white p-3 shadow-[4px_4px_0_#0F172A] rotate-[-2deg] lg:mb-10 xl:mb-12 xl:p-4">
+          <h1 className="m-0 font-heading text-[2rem] leading-none text-neo-dark uppercase lg:text-[2.2rem] xl:text-4xl">FLUXO.CASA</h1>
         </div>
-        <ul className="flex flex-col gap-4 xl:gap-6">
+        <ul className="flex flex-col gap-3 lg:gap-4 xl:gap-5">
           {APP_NAVIGATION.map((item) => {
             const Icon = item.icon;
             const active = pathname === item.href;
@@ -73,13 +73,13 @@ export function Navbar() {
                   onMouseEnter={() => prefetchRoute(item.href)}
                   onTouchStart={() => prefetchRoute(item.href)}
                   className={twMerge(
-                    "flex items-center gap-3 border-4 border-neo-dark px-5 py-3 font-heading text-xl uppercase transition-all xl:gap-4 xl:px-6 xl:py-4 xl:text-2xl",
+                    "flex items-center gap-3 border-4 border-neo-dark px-4 py-3 font-heading text-lg uppercase transition-all lg:px-5 lg:text-xl xl:gap-4 xl:px-6 xl:py-4 xl:text-2xl",
                     active 
                       ? "bg-neo-yellow shadow-[6px_6px_0_#0F172A] -translate-y-1 text-neo-dark" 
                       : "bg-white text-neo-dark hover:bg-neo-cyan hover:-translate-y-1 hover:shadow-[4px_4px_0_#0F172A] active:translate-y-1 active:shadow-none"
                   )}
                 >
-                  <Icon className="h-6 w-6 stroke-[3px]" />
+                  <Icon className="h-5 w-5 stroke-[3px] lg:h-6 lg:w-6" />
                   <span>{item.label}</span>
                 </Link>
               </li>
