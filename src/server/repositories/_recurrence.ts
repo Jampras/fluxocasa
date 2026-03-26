@@ -13,6 +13,18 @@ function monthKey(date: Date) {
   return date.getFullYear() * 12 + date.getMonth();
 }
 
+function isSyncStateCurrent(
+  state: { syncedMonth: number; syncedYear: number } | null,
+  month: number,
+  year: number
+) {
+  if (!state) {
+    return false;
+  }
+
+  return state.syncedYear > year || (state.syncedYear === year && state.syncedMonth >= month);
+}
+
 function isRecurring(frequency: FrequenciaTransacao) {
   return frequency === FrequenciaTransacao.MENSAL ||
     frequency === FrequenciaTransacao.PARCELADA ||
@@ -75,17 +87,42 @@ async function ensureRecurringTransactions(where: {
   moradorId?: string;
   casaId?: string;
   escopo: EscopoTransacao;
+  ownerId: string;
 }) {
+  const { ownerId, ...queryWhere } = where;
   const referenceDate = new Date();
+  const referenceMonth = referenceDate.getMonth() + 1;
+  const referenceYear = referenceDate.getFullYear();
+  const state = await prisma.recurringSyncState.findUnique({
+    where: {
+      scope_ownerId: {
+        scope: where.escopo,
+        ownerId
+      }
+    },
+    select: {
+      syncedMonth: true,
+      syncedYear: true
+    }
+  });
+
+  if (isSyncStateCurrent(state, referenceMonth, referenceYear)) {
+    return;
+  }
+
+  const monthEnd = new Date(referenceYear, referenceDate.getMonth() + 1, 1);
   const recurringTransactions = await prisma.transacao.findMany({
     where: {
-      ...where,
+      ...queryWhere,
       frequencia: {
         in: [
           FrequenciaTransacao.MENSAL,
           FrequenciaTransacao.PARCELADA,
           FrequenciaTransacao.FIXA
         ]
+      },
+      dataVencimento: {
+        lt: monthEnd
       }
     },
     orderBy: [{ dataVencimento: "asc" }, { criadaEm: "asc" }]
@@ -124,10 +161,30 @@ async function ensureRecurringTransactions(where: {
       latest = created;
     }
   }
+
+  await prisma.recurringSyncState.upsert({
+    where: {
+      scope_ownerId: {
+        scope: where.escopo,
+        ownerId
+      }
+    },
+    update: {
+      syncedMonth: referenceMonth,
+      syncedYear: referenceYear
+    },
+    create: {
+      scope: where.escopo,
+      ownerId,
+      syncedMonth: referenceMonth,
+      syncedYear: referenceYear
+    }
+  });
 }
 
 export const ensurePersonalRecurringTransactions = safeCache(async function ensurePersonalRecurringTransactions(userId: string) {
   await ensureRecurringTransactions({
+    ownerId: userId,
     moradorId: userId,
     escopo: EscopoTransacao.PESSOAL
   });
@@ -135,7 +192,17 @@ export const ensurePersonalRecurringTransactions = safeCache(async function ensu
 
 export const ensureHouseRecurringTransactions = safeCache(async function ensureHouseRecurringTransactions(casaId: string) {
   await ensureRecurringTransactions({
+    ownerId: casaId,
     casaId,
     escopo: EscopoTransacao.CASA
   });
 });
+
+export async function invalidateRecurringSyncState(scope: EscopoTransacao, ownerId: string) {
+  await prisma.recurringSyncState.deleteMany({
+    where: {
+      scope,
+      ownerId
+    }
+  });
+}

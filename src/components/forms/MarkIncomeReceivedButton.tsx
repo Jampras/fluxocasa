@@ -9,10 +9,14 @@ import { cx } from "@/lib/utils";
 
 export function MarkIncomeReceivedButton({
   incomeId,
-  className
+  className,
+  onSuccess,
+  skipRefresh = false
 }: {
   incomeId: string;
   className?: string;
+  onSuccess?: () => void;
+  skipRefresh?: boolean;
 }) {
   const router = useRouter();
   const pathname = usePathname();
@@ -31,7 +35,11 @@ export function MarkIncomeReceivedButton({
       });
 
       setStatus("success");
-      refreshCurrentView(router, pathname, searchParams, { delayMs: 220 });
+      onSuccess?.();
+
+      if (!skipRefresh) {
+        refreshCurrentView(router, pathname, searchParams, { delayMs: 220 });
+      }
     } catch {
       setStatus("error");
     } finally {

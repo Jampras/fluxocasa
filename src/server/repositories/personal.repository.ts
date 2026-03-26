@@ -6,7 +6,7 @@ import { UserFacingError } from "@/server/http/errors";
 import type { PersonalSnapshot, IncomeRecord, PersonalBillRecord, ExpenseRecord, IncomeStatus } from "@/types";
 import type { CreateIncomeInput, UpdateIncomeInput, CreatePersonalBillInput, UpdatePersonalBillInput, CreateExpenseInput, UpdateExpenseInput, UpsertBudgetGoalInput, UpdateBudgetGoalInput } from "./_types";
 import { dateInputValue, formatDueLabel, frequencyToUi, getMonthLabel, getMonthRange, getMonthYear, mapHouseBill, sumBy, toBillStatus } from "./_shared";
-import { ensurePersonalRecurringTransactions } from "./_recurrence";
+import { ensurePersonalRecurringTransactions, invalidateRecurringSyncState } from "./_recurrence";
 import { EscopoTransacao, FrequenciaTransacao, TipoTransacao, StatusTransacao } from "@prisma/client";
 
 function buildRecurringData(
@@ -59,6 +59,7 @@ export const personalRepository = {
         status
       }
     });
+    await invalidateRecurringSyncState(EscopoTransacao.PESSOAL, userId);
   },
   async updateIncome(userId: string, incomeId: string, input: UpdateIncomeInput) {
     const income = await prisma.transacao.findUnique({ where: { id: incomeId } });
@@ -80,6 +81,7 @@ export const personalRepository = {
         status
       }
     });
+    await invalidateRecurringSyncState(EscopoTransacao.PESSOAL, userId);
   },
   async markIncomeAsReceived(userId: string, incomeId: string) {
     const income = await prisma.transacao.findUnique({ where: { id: incomeId } });
@@ -93,6 +95,7 @@ export const personalRepository = {
     const t = await prisma.transacao.findUnique({ where: { id: incomeId } });
     if (!t || t.moradorId !== userId) throw new UserFacingError("Renda nao encontrada.", 404);
     await prisma.transacao.delete({ where: { id: incomeId } });
+    await invalidateRecurringSyncState(EscopoTransacao.PESSOAL, userId);
   },
   async createPersonalBill(userId: string, input: CreatePersonalBillInput) {
     const recurrence = buildRecurringData(input.frequencia, input.parcelasTotais);
@@ -114,6 +117,7 @@ export const personalRepository = {
         status: StatusTransacao.PENDENTE
       }
     });
+    await invalidateRecurringSyncState(EscopoTransacao.PESSOAL, userId);
   },
   async updatePersonalBill(userId: string, billId: string, input: UpdatePersonalBillInput) {
     const bill = await prisma.transacao.findUnique({ where: { id: billId } });
@@ -136,6 +140,7 @@ export const personalRepository = {
         dataPagamento: nextStatus === StatusTransacao.CONCLUIDA ? bill.dataPagamento ?? new Date() : null
       }
     });
+    await invalidateRecurringSyncState(EscopoTransacao.PESSOAL, userId);
   },
   async markPersonalBillAsPaid(userId: string, billId: string) {
     const bill = await prisma.transacao.findUnique({ where: { id: billId } });
@@ -149,6 +154,7 @@ export const personalRepository = {
     const bill = await prisma.transacao.findUnique({ where: { id: billId } });
     if (!bill || bill.moradorId !== userId) throw new UserFacingError("Conta pessoal nao encontrada.", 404);
     await prisma.transacao.delete({ where: { id: billId } });
+    await invalidateRecurringSyncState(EscopoTransacao.PESSOAL, userId);
   },
   async createExpense(userId: string, input: CreateExpenseInput) {
     await prisma.transacao.create({

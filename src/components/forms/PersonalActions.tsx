@@ -47,6 +47,69 @@ function compareText(a: string, b: string) {
   return a.localeCompare(b, "pt-BR");
 }
 
+function buildRecurrenceSnapshot(
+  frequency: string,
+  installmentTotal?: number,
+  installmentCurrent?: number
+) {
+  if (frequency === "MENSAL") {
+    return {
+      recurrenceType: "monthly" as const,
+      recurrenceLabel: "Mensal",
+      installmentLabel: undefined,
+      installmentCurrent: undefined,
+      installmentTotal: undefined
+    };
+  }
+
+  if (frequency === "FIXA") {
+    return {
+      recurrenceType: "fixed" as const,
+      recurrenceLabel: "Fixa",
+      installmentLabel: undefined,
+      installmentCurrent: undefined,
+      installmentTotal: undefined
+    };
+  }
+
+  if (frequency === "PARCELADA") {
+    const total = installmentTotal && installmentTotal > 0 ? installmentTotal : installmentCurrent ?? 1;
+    const current = installmentCurrent ?? 1;
+
+    return {
+      recurrenceType: "installment" as const,
+      recurrenceLabel: "Parcelada",
+      installmentLabel: `${current}/${total}`,
+      installmentCurrent: current,
+      installmentTotal: total
+    };
+  }
+
+  return {
+    recurrenceType: "single" as const,
+    recurrenceLabel: "Unica",
+    installmentLabel: undefined,
+    installmentCurrent: undefined,
+    installmentTotal: undefined
+  };
+}
+
+function formatDueLabelFromDate(value: string, prefix: string) {
+  return `${prefix} ${new Intl.DateTimeFormat("pt-BR", {
+    day: "2-digit",
+    month: "long"
+  }).format(new Date(`${value}T12:00:00`))}`;
+}
+
+function resolveBillStatus(dueDate: string) {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const due = new Date(`${dueDate}T12:00:00`);
+  const remaining = Math.round((due.getTime() - today.getTime()) / 86_400_000);
+
+  return remaining < 0 || (remaining > 0 && remaining <= 3) ? "warning" : "pending";
+}
+
 interface PersonalActionsProps {
   incomes: IncomeRecord[];
   personalBills: PersonalBillRecord[];
@@ -75,15 +138,19 @@ export function PersonalActions({
   const [expenseQuery, setExpenseQuery] = useState("");
   const [expenseCategoryFilter, setExpenseCategoryFilter] = useState("all");
   const [expenseSort, setExpenseSort] = useState("date-desc");
+  const [incomeItems, setIncomeItems] = useState(incomes);
+  const [personalBillItems, setPersonalBillItems] = useState(personalBills);
+  const [expenseItems, setExpenseItems] = useState(expenses);
+  const [goalItems, setGoalItems] = useState(goals);
   const focusedItemId = searchParams.get("focus");
   const normalizedIncomeQuery = normalizeSearch(incomeQuery);
   const normalizedBillQuery = normalizeSearch(billQuery);
   const normalizedExpenseQuery = normalizeSearch(expenseQuery);
-  const expenseCategories = Array.from(new Set(expenses.map((expense) => expense.category))).sort((a, b) =>
+  const expenseCategories = Array.from(new Set(expenseItems.map((expense) => expense.category))).sort((a, b) =>
     a.localeCompare(b, "pt-BR")
   );
 
-  const filteredIncomes = incomes
+  const filteredIncomes = incomeItems
     .filter((income) => {
       const matchesQuery =
         normalizedIncomeQuery.length === 0 ||
@@ -111,7 +178,7 @@ export function PersonalActions({
       return incomeSort === "date-asc" ? leftDate - rightDate : rightDate - leftDate;
     });
 
-  const filteredPersonalBills = personalBills
+  const filteredPersonalBills = personalBillItems
     .filter((bill) => {
       const matchesQuery =
         normalizedBillQuery.length === 0 ||
@@ -140,7 +207,7 @@ export function PersonalActions({
       return billSort === "due-desc" ? rightDate - leftDate : leftDate - rightDate;
     });
 
-  const filteredExpenses = expenses
+  const filteredExpenses = expenseItems
     .filter((expense) => {
       const matchesQuery =
         normalizedExpenseQuery.length === 0 ||
@@ -183,6 +250,22 @@ export function PersonalActions({
     return () => window.clearTimeout(handle);
   }, [error, feedback]);
 
+  useEffect(() => {
+    setIncomeItems(incomes);
+  }, [incomes]);
+
+  useEffect(() => {
+    setPersonalBillItems(personalBills);
+  }, [personalBills]);
+
+  useEffect(() => {
+    setExpenseItems(expenses);
+  }, [expenses]);
+
+  useEffect(() => {
+    setGoalItems(goals);
+  }, [goals]);
+
   async function submit(url: string, method: string, payload?: Record<string, unknown>) {
     await requestJson(url, {
       method,
@@ -194,7 +277,13 @@ export function PersonalActions({
     action: string,
     callback: () => Promise<void>,
     fallback: string,
-    successMessage = "Operacao concluida."
+    successMessage = "Operacao concluida.",
+    options?: {
+      clearFocus?: boolean;
+      refreshDelayMs?: number;
+      skipRefresh?: boolean;
+      onSuccess?: () => void;
+    }
   ) {
     setLoadingAction(action);
     setError(null);
@@ -202,10 +291,15 @@ export function PersonalActions({
 
     try {
       await callback();
+      options?.onSuccess?.();
       setFeedback(successMessage);
-      refreshCurrentView(router, pathname, searchParams, {
-        clearFocus: action.includes("delete")
-      });
+
+      if (!options?.skipRefresh) {
+        refreshCurrentView(router, pathname, searchParams, {
+          clearFocus: options?.clearFocus ?? action.includes("delete"),
+          delayMs: options?.refreshDelayMs
+        });
+      }
     } catch (submissionError) {
       setError(submissionError instanceof Error ? submissionError.message : fallback);
     } finally {
@@ -383,7 +477,7 @@ export function PersonalActions({
       <Card id="personal-manage-income" className="bg-neo-bg">
         <div className="space-y-4">
           <h3 className="text-2xl font-semibold text-neo-dark">Gerenciar renda</h3>
-          {incomes.length > 0 ? (
+          {incomeItems.length > 0 ? (
             <ManageListFilters
               searchId="income-search"
               searchLabel="Buscar renda"
@@ -409,11 +503,11 @@ export function PersonalActions({
                 { value: "category", label: "Tipo" }
               ]}
               onSortChange={setIncomeSort}
-              resultLabel={`${filteredIncomes.length} de ${incomes.length} rendas visiveis`}
+              resultLabel={`${filteredIncomes.length} de ${incomeItems.length} rendas visiveis`}
             />
           ) : null}
-          {incomes.length === 0 ? <p className="text-sm text-neo-dark/60">Nenhuma renda registrada neste mes.</p> : null}
-          {incomes.length > 0 && filteredIncomes.length === 0 ? (
+          {incomeItems.length === 0 ? <p className="text-sm text-neo-dark/60">Nenhuma renda registrada neste mes.</p> : null}
+          {incomeItems.length > 0 && filteredIncomes.length === 0 ? (
             <p className="text-sm text-neo-dark/60">Nenhuma renda encontrada com esse filtro.</p>
           ) : null}
           {filteredIncomes.map((income) => (
@@ -446,20 +540,65 @@ export function PersonalActions({
                 onSubmit={(event: FormEvent<HTMLFormElement>) => {
                   event.preventDefault();
                   const formData = new FormData(event.currentTarget);
+                  const titulo = String(formData.get("titulo") ?? "");
+                  const categoria = String(formData.get("categoria") ?? "SALARIO");
+                  const valor = Number(formData.get("valor") ?? 0);
+                  const recebidaEm = String(formData.get("recebidaEm") ?? income.plannedDate);
+                  const status = String(formData.get("status") ?? "PREVISTO");
+                  const frequencia = String(formData.get("frequencia") ?? "UNICA");
+                  const parcelasTotais = Number(formData.get("parcelasTotais") ?? 0) || undefined;
+
                   void runAction(
                     `income-update-${income.id}`,
                     () =>
                       submit(`/api/pessoal/renda/${income.id}`, "PUT", {
-                        titulo: formData.get("titulo"),
-                        categoria: formData.get("categoria"),
-                        valor: formData.get("valor"),
-                        recebidaEm: formData.get("recebidaEm"),
-                        status: formData.get("status"),
-                        frequencia: formData.get("frequencia"),
-                        parcelasTotais: formData.get("parcelasTotais")
+                        titulo,
+                        categoria,
+                        valor,
+                        recebidaEm,
+                        status,
+                        frequencia,
+                        parcelasTotais
                       }),
                     "Nao foi possivel atualizar a renda.",
-                    "Renda atualizada com sucesso."
+                    "Renda atualizada com sucesso.",
+                    {
+                      refreshDelayMs: 650,
+                      onSuccess: () => {
+                        const recurrence = buildRecurrenceSnapshot(
+                          frequencia,
+                          parcelasTotais,
+                          income.installmentCurrent
+                        );
+                        const received = status === "RECEBIDO";
+
+                        setIncomeItems((current) =>
+                          current.map((item) =>
+                            item.id === income.id
+                              ? {
+                                  ...item,
+                                  title: titulo,
+                                  amount: valor,
+                                  categoryLabel: categoria === "SALARIO" ? "Salario" : "Renda extra",
+                                  status: received ? "received" : "scheduled",
+                                  statusLabel: received ? "Recebido" : "Previsto",
+                                  plannedDate: recebidaEm,
+                                  referenceDate: recebidaEm,
+                                  receivedDate: received ? recebidaEm : undefined,
+                                  dateLabel: received
+                                    ? formatDueLabelFromDate(recebidaEm, "Recebido em")
+                                    : formatDueLabelFromDate(recebidaEm, "Previsto em"),
+                                  recurrenceType: recurrence.recurrenceType,
+                                  recurrenceLabel: recurrence.recurrenceLabel,
+                                  installmentLabel: recurrence.installmentLabel,
+                                  installmentCurrent: recurrence.installmentCurrent,
+                                  installmentTotal: recurrence.installmentTotal
+                                }
+                              : item
+                          )
+                        );
+                      }
+                    }
                   );
                 }}
               >
@@ -510,7 +649,32 @@ export function PersonalActions({
                 />
                 <div className="flex gap-3">
                   <Button disabled={loadingAction === `income-update-${income.id}`}>Atualizar</Button>
-                  {income.status !== "received" ? <MarkIncomeReceivedButton incomeId={income.id} /> : null}
+                  {income.status !== "received" ? (
+                    <MarkIncomeReceivedButton
+                      incomeId={income.id}
+                      skipRefresh
+                      onSuccess={() => {
+                        const today = new Date();
+                        const receivedDate = `${today.getFullYear()}-${`${today.getMonth() + 1}`.padStart(2, "0")}-${`${today.getDate()}`.padStart(2, "0")}`;
+
+                        setIncomeItems((current) =>
+                          current.map((item) =>
+                            item.id === income.id
+                              ? {
+                                  ...item,
+                                  status: "received",
+                                  statusLabel: "Recebido",
+                                  referenceDate: receivedDate,
+                                  receivedDate,
+                                  dateLabel: formatDueLabelFromDate(receivedDate, "Recebido em")
+                                }
+                              : item
+                          )
+                        );
+                        refreshCurrentView(router, pathname, searchParams, { delayMs: 650 });
+                      }}
+                    />
+                  ) : null}
                   <Button
                     type="button"
                     variant="secondary"
@@ -520,7 +684,14 @@ export function PersonalActions({
                         `income-delete-${income.id}`,
                         () => submit(`/api/pessoal/renda/${income.id}`, "DELETE"),
                         "Nao foi possivel remover a renda.",
-                        "Renda removida com sucesso."
+                        "Renda removida com sucesso.",
+                        {
+                          clearFocus: true,
+                          refreshDelayMs: 650,
+                          onSuccess: () => {
+                            setIncomeItems((current) => current.filter((item) => item.id !== income.id));
+                          }
+                        }
                       );
                     }}
                   >
@@ -536,7 +707,7 @@ export function PersonalActions({
       <Card id="personal-manage-bills" className="bg-neo-bg border-4 border-neo-dark ">
         <div className="space-y-4">
           <h3 className="text-2xl font-semibold text-neo-dark">Gerenciar contas pessoais</h3>
-          {personalBills.length > 0 ? (
+          {personalBillItems.length > 0 ? (
             <ManageListFilters
               searchId="personal-bill-search"
               searchLabel="Buscar conta"
@@ -563,11 +734,11 @@ export function PersonalActions({
                 { value: "category", label: "Categoria" }
               ]}
               onSortChange={setBillSort}
-              resultLabel={`${filteredPersonalBills.length} de ${personalBills.length} contas visiveis`}
+              resultLabel={`${filteredPersonalBills.length} de ${personalBillItems.length} contas visiveis`}
             />
           ) : null}
-          {personalBills.length === 0 ? <p className="text-sm text-neo-dark/60">Nenhuma conta pessoal registrada.</p> : null}
-          {personalBills.length > 0 && filteredPersonalBills.length === 0 ? (
+          {personalBillItems.length === 0 ? <p className="text-sm text-neo-dark/60">Nenhuma conta pessoal registrada.</p> : null}
+          {personalBillItems.length > 0 && filteredPersonalBills.length === 0 ? (
             <p className="text-sm text-neo-dark/60">Nenhuma conta encontrada com esse filtro.</p>
           ) : null}
           {filteredPersonalBills.map((bill) => (
@@ -595,21 +766,67 @@ export function PersonalActions({
                 onSubmit={(event: FormEvent<HTMLFormElement>) => {
                   event.preventDefault();
                   const formData = new FormData(event.currentTarget);
+                  const titulo = String(formData.get("titulo") ?? "");
+                  const categoria = String(formData.get("categoria") ?? "");
+                  const valor = Number(formData.get("valor") ?? 0);
+                  const vencimento = String(formData.get("vencimento") ?? bill.dueDate);
+                  const observacao = String(formData.get("observacao") ?? "");
+                  const status = String(formData.get("status") ?? "PENDENTE");
+                  const frequencia = String(formData.get("frequencia") ?? "UNICA");
+                  const parcelasTotais = Number(formData.get("parcelasTotais") ?? 0) || undefined;
+
                   void runAction(
                     `personal-bill-update-${bill.id}`,
                     () =>
                       submit(`/api/pessoal/contas/${bill.id}`, "PUT", {
-                        titulo: formData.get("titulo"),
-                        categoria: formData.get("categoria"),
-                        valor: formData.get("valor"),
-                        vencimento: formData.get("vencimento"),
-                        observacao: formData.get("observacao"),
-                        status: formData.get("status"),
-                        frequencia: formData.get("frequencia"),
-                        parcelasTotais: formData.get("parcelasTotais")
+                        titulo,
+                        categoria,
+                        valor,
+                        vencimento,
+                        observacao,
+                        status,
+                        frequencia,
+                        parcelasTotais
                       }),
                     "Nao foi possivel atualizar a conta.",
-                    "Conta pessoal atualizada com sucesso."
+                    "Conta pessoal atualizada com sucesso.",
+                    {
+                      refreshDelayMs: 650,
+                      onSuccess: () => {
+                        if (status === "PAGA") {
+                          setPersonalBillItems((current) => current.filter((item) => item.id !== bill.id));
+                          return;
+                        }
+
+                        const recurrence = buildRecurrenceSnapshot(
+                          frequencia,
+                          parcelasTotais,
+                          bill.installmentCurrent
+                        );
+
+                        setPersonalBillItems((current) =>
+                          current.map((item) =>
+                            item.id === bill.id
+                              ? {
+                                  ...item,
+                                  title: titulo,
+                                  category: categoria,
+                                  amount: valor,
+                                  dueDate: vencimento,
+                                  dueLabel: formatDueLabelFromDate(vencimento, "Vence em"),
+                                  status: resolveBillStatus(vencimento),
+                                  note: observacao || undefined,
+                                  recurrenceType: recurrence.recurrenceType,
+                                  recurrenceLabel: recurrence.recurrenceLabel,
+                                  installmentLabel: recurrence.installmentLabel,
+                                  installmentCurrent: recurrence.installmentCurrent,
+                                  installmentTotal: recurrence.installmentTotal
+                                }
+                              : item
+                          )
+                        );
+                      }
+                    }
                   );
                 }}
               >
@@ -650,7 +867,16 @@ export function PersonalActions({
                 </label>
                 <div className="flex gap-3">
                   <Button disabled={loadingAction === `personal-bill-update-${bill.id}`}>Atualizar</Button>
-                  {bill.status !== "paid" ? <MarkPersonalBillPaidButton billId={bill.id} /> : null}
+                  {bill.status !== "paid" ? (
+                    <MarkPersonalBillPaidButton
+                      billId={bill.id}
+                      skipRefresh
+                      onSuccess={() => {
+                        setPersonalBillItems((current) => current.filter((item) => item.id !== bill.id));
+                        refreshCurrentView(router, pathname, searchParams, { delayMs: 650 });
+                      }}
+                    />
+                  ) : null}
                   <Button
                     type="button"
                     variant="secondary"
@@ -660,7 +886,14 @@ export function PersonalActions({
                         `personal-bill-delete-${bill.id}`,
                         () => submit(`/api/pessoal/contas/${bill.id}`, "DELETE"),
                         "Nao foi possivel remover a conta.",
-                        "Conta pessoal removida com sucesso."
+                        "Conta pessoal removida com sucesso.",
+                        {
+                          clearFocus: true,
+                          refreshDelayMs: 650,
+                          onSuccess: () => {
+                            setPersonalBillItems((current) => current.filter((item) => item.id !== bill.id));
+                          }
+                        }
                       );
                     }}
                   >
@@ -676,7 +909,7 @@ export function PersonalActions({
       <Card id="personal-expense-history" className="bg-transparent  border-none p-0 mt-8">
         <div className="space-y-4">
           <h3 className="text-2xl font-bold text-neo-dark pl-2">Historico de gastos</h3>
-          {expenses.length > 0 ? (
+          {expenseItems.length > 0 ? (
             <ManageListFilters
               searchId="personal-expense-search"
               searchLabel="Buscar gasto"
@@ -701,11 +934,11 @@ export function PersonalActions({
                 { value: "amount-desc", label: "Maior valor" }
               ]}
               onSortChange={setExpenseSort}
-              resultLabel={`${filteredExpenses.length} de ${expenses.length} gastos visiveis`}
+              resultLabel={`${filteredExpenses.length} de ${expenseItems.length} gastos visiveis`}
             />
           ) : null}
-          {expenses.length === 0 ? <p className="text-sm text-neo-pink pl-2">Nenhum gasto registrado neste mes.</p> : null}
-          {expenses.length > 0 && filteredExpenses.length === 0 ? (
+          {expenseItems.length === 0 ? <p className="text-sm text-neo-pink pl-2">Nenhum gasto registrado neste mes.</p> : null}
+          {expenseItems.length > 0 && filteredExpenses.length === 0 ? (
             <p className="text-sm text-neo-dark/60 pl-2">Nenhum gasto encontrado com esse filtro.</p>
           ) : null}
           <div className="grid gap-3">
@@ -734,17 +967,39 @@ export function PersonalActions({
                 onSubmit={(event: FormEvent<HTMLFormElement>) => {
                   event.preventDefault();
                   const formData = new FormData(event.currentTarget);
+                  const titulo = String(formData.get("titulo") ?? "");
+                  const categoria = String(formData.get("categoria") ?? "");
+                  const valor = Number(formData.get("valor") ?? 0);
+                  const gastoEm = String(formData.get("gastoEm") ?? expense.expenseDate);
                   void runAction(
                     `expense-update-${expense.id}`,
                     () =>
                       submit(`/api/pessoal/gastos/${expense.id}`, "PUT", {
-                        titulo: formData.get("titulo"),
-                        categoria: formData.get("categoria"),
-                        valor: formData.get("valor"),
-                        gastoEm: formData.get("gastoEm")
+                        titulo,
+                        categoria,
+                        valor,
+                        gastoEm
                       }),
                     "Nao foi possivel atualizar o gasto.",
-                    "Gasto atualizado com sucesso."
+                    "Gasto atualizado com sucesso.",
+                    {
+                      refreshDelayMs: 650,
+                      onSuccess: () => {
+                        setExpenseItems((current) =>
+                          current.map((item) =>
+                            item.id === expense.id
+                              ? {
+                                  ...item,
+                                  title: titulo,
+                                  category: categoria,
+                                  amount: valor,
+                                  expenseDate: gastoEm
+                                }
+                              : item
+                          )
+                        );
+                      }
+                    }
                   );
                 }}
               >
@@ -781,7 +1036,14 @@ export function PersonalActions({
                         `expense-delete-${expense.id}`,
                         () => submit(`/api/pessoal/gastos/${expense.id}`, "DELETE"),
                         "Nao foi possivel remover o gasto.",
-                        "Gasto removido com sucesso."
+                        "Gasto removido com sucesso.",
+                        {
+                          clearFocus: true,
+                          refreshDelayMs: 650,
+                          onSuccess: () => {
+                            setExpenseItems((current) => current.filter((item) => item.id !== expense.id));
+                          }
+                        }
                       );
                     }}
                   >
@@ -799,8 +1061,8 @@ export function PersonalActions({
       <Card id="personal-manage-goals" className="bg-neo-bg border-4 border-neo-dark ">
         <div className="space-y-4">
           <h3 className="text-2xl font-semibold text-neo-dark">Gerenciar metas</h3>
-          {goals.length === 0 ? <p className="text-sm text-neo-dark/60">Nenhuma meta registrada neste mes.</p> : null}
-          {goals.map((goal) => (
+          {goalItems.length === 0 ? <p className="text-sm text-neo-dark/60">Nenhuma meta registrada neste mes.</p> : null}
+          {goalItems.map((goal) => (
             <details
               key={goal.id}
               id={`goal-${goal.id}`}
@@ -818,15 +1080,33 @@ export function PersonalActions({
                 onSubmit={(event: FormEvent<HTMLFormElement>) => {
                   event.preventDefault();
                   const formData = new FormData(event.currentTarget);
+                  const categoria = String(formData.get("categoria") ?? "");
+                  const valorMeta = Number(formData.get("valorMeta") ?? 0);
                   void runAction(
                     `goal-update-${goal.id}`,
                     () =>
                       submit(`/api/pessoal/metas/${goal.id}`, "PUT", {
-                        categoria: formData.get("categoria"),
-                        valorMeta: formData.get("valorMeta")
+                        categoria,
+                        valorMeta
                       }),
                     "Nao foi possivel atualizar a meta.",
-                    "Meta atualizada com sucesso."
+                    "Meta atualizada com sucesso.",
+                    {
+                      refreshDelayMs: 650,
+                      onSuccess: () => {
+                        setGoalItems((current) =>
+                          current.map((item) =>
+                            item.id === goal.id
+                              ? {
+                                  ...item,
+                                  label: categoria,
+                                  limit: valorMeta
+                                }
+                              : item
+                          )
+                        );
+                      }
+                    }
                   );
                 }}
               >
@@ -850,7 +1130,14 @@ export function PersonalActions({
                         `goal-delete-${goal.id}`,
                         () => submit(`/api/pessoal/metas/${goal.id}`, "DELETE"),
                         "Nao foi possivel remover a meta.",
-                        "Meta removida com sucesso."
+                        "Meta removida com sucesso.",
+                        {
+                          clearFocus: true,
+                          refreshDelayMs: 650,
+                          onSuccess: () => {
+                            setGoalItems((current) => current.filter((item) => item.id !== goal.id));
+                          }
+                        }
                       );
                     }}
                   >

@@ -168,3 +168,15 @@ model RateLimitBucket {
   @@unique([scope, identifier])
   @@index([updatedAt])
 }
+
+model RecurringSyncState {
+  id          String   @id @default(cuid())
+  scope       String
+  ownerId     String
+  syncedMonth Int
+  syncedYear  Int
+  updatedAt   DateTime @updatedAt
+
+  @@unique([scope, ownerId])
+  @@index([updatedAt])
+}

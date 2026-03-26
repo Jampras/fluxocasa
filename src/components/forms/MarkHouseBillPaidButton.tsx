@@ -9,10 +9,14 @@ import { cx } from "@/lib/utils";
 
 export function MarkHouseBillPaidButton({
   billId,
-  className
+  className,
+  onSuccess,
+  skipRefresh = false
 }: {
   billId: string;
   className?: string;
+  onSuccess?: () => void;
+  skipRefresh?: boolean;
 }) {
   const router = useRouter();
   const pathname = usePathname();
@@ -31,7 +35,11 @@ export function MarkHouseBillPaidButton({
       });
 
       setStatus("success");
-      refreshCurrentView(router, pathname, searchParams, { delayMs: 220 });
+      onSuccess?.();
+
+      if (!skipRefresh) {
+        refreshCurrentView(router, pathname, searchParams, { delayMs: 220 });
+      }
     } catch {
       setStatus("error");
     } finally {

@@ -1,13 +1,18 @@
+import { Suspense } from "react";
 import { EscopoTransacao } from "@prisma/client";
 
 import { DashboardMetricCarousel } from "@/components/dashboard/DashboardMetricCarousel";
+import {
+  GeneralGoalsCharts,
+  GoalsChartsGridSkeleton,
+  HouseGoalsCharts,
+  PersonalGoalsCharts
+} from "@/components/metas/GoalsChartSections";
 import { AppHeader } from "@/components/layout/AppHeader";
-import { LazyDonutChartPreview } from "@/components/metas/LazyDonutChartPreview";
-import { LazyWaterfallChartPreview } from "@/components/metas/LazyWaterfallChartPreview";
 import { BudgetGoals } from "@/components/pessoal/BudgetGoals";
 import { ScopeTabs } from "@/components/ui/ScopeTabs";
 import { formatCurrency } from "@/lib/utils";
-import { getDashboardVisualization } from "@/server/actions/transactions";
+import { getDashboardVisualizationSummary } from "@/server/actions/transactions";
 import { requireCurrentResident } from "@/server/auth/user";
 import { getHouseSnapshot } from "@/server/services/house.service";
 import { getGoalsOverviewSummary } from "@/server/services/metas.service";
@@ -37,20 +42,20 @@ export default async function MetasPage({
     year: "numeric"
   }).format(new Date());
 
-  const [generalOverview, personalSnapshot, personalVisualization, houseSnapshot, houseVisualization] = await Promise.all([
+  const [generalOverview, personalSnapshot, personalSummary, houseSnapshot, houseSummary] = await Promise.all([
     activeScope === "geral" ? getGoalsOverviewSummary(user.id) : Promise.resolve(null),
     activeScope === "pessoal"
       ? getPersonalSnapshot(user.id)
       : Promise.resolve(null),
     activeScope !== "casa"
-      ? getDashboardVisualization(EscopoTransacao.PESSOAL, resident)
+      ? getDashboardVisualizationSummary(EscopoTransacao.PESSOAL, resident)
       : Promise.resolve(null)
     ,
     activeScope === "casa"
       ? getHouseSnapshot(user.id)
       : Promise.resolve(null),
     activeScope !== "pessoal"
-      ? getDashboardVisualization(EscopoTransacao.CASA, resident)
+      ? getDashboardVisualizationSummary(EscopoTransacao.CASA, resident)
       : Promise.resolve(null)
   ]);
   const monthLabel =
@@ -102,13 +107,13 @@ export default async function MetasPage({
               items={[
                 {
                   label: "Saldo pessoal",
-                  value: formatCurrency(personalVisualization!.safeToSpendCents / 100),
+                  value: formatCurrency(personalSummary!.safeToSpendCents / 100),
                   description: "Margem privada disponivel para o mes.",
                   accentClass: "bg-neo-yellow"
                 },
                 {
                   label: "Caixa da casa",
-                  value: formatCurrency(houseVisualization!.safeToSpendCents / 100),
+                  value: formatCurrency(houseSummary!.safeToSpendCents / 100),
                   description: "Saldo compartilhado projetado agora.",
                   accentClass: "bg-neo-cyan"
                 },
@@ -128,32 +133,9 @@ export default async function MetasPage({
             />
           </div>
 
-          <div className="grid gap-4 sm:gap-6 xl:grid-cols-2 2xl:grid-cols-[1fr_1fr]">
-            <LazyDonutChartPreview
-              title="Distribuicao dos gastos pessoais"
-              totalLabel={`Total monitorado: ${formatCurrency(
-                personalVisualization!.donutData.reduce((sum, item) => sum + item.valueCents, 0) / 100
-              )}`}
-              segments={personalVisualization!.donutData}
-            />
-            <LazyDonutChartPreview
-              title="Distribuicao das contas da casa"
-              totalLabel={`Total monitorado: ${formatCurrency(
-                houseVisualization!.donutData.reduce((sum, item) => sum + item.valueCents, 0) / 100
-              )}`}
-              segments={houseVisualization!.donutData}
-            />
-            <LazyWaterfallChartPreview
-              title="Fluxo pessoal"
-              subtitle="Evolucao de entradas e saidas mais recentes."
-              steps={personalVisualization!.waterfallData}
-            />
-            <LazyWaterfallChartPreview
-              title="Fluxo da casa"
-              subtitle="Evolucao do caixa compartilhado em ordem cronologica."
-              steps={houseVisualization!.waterfallData}
-            />
-          </div>
+          <Suspense fallback={<GoalsChartsGridSkeleton cards={4} />}>
+            <GeneralGoalsCharts resident={resident} />
+          </Suspense>
         </>
       ) : null}
 
@@ -172,7 +154,7 @@ export default async function MetasPage({
               items={[
                 {
                   label: "Saldo livre",
-                  value: formatCurrency(personalVisualization!.safeToSpendCents / 100),
+                  value: formatCurrency(personalSummary!.safeToSpendCents / 100),
                   description: "Quanto ainda cabe no seu fluxo pessoal.",
                   accentClass: "bg-neo-yellow"
                 },
@@ -194,20 +176,9 @@ export default async function MetasPage({
 
           <BudgetGoals bills={personalSnapshot!.weeklyBills} goals={personalSnapshot!.goals} />
 
-          <div className="grid gap-4 sm:gap-6 xl:grid-cols-2">
-            <LazyDonutChartPreview
-              title="Distribuicao dos gastos pessoais"
-              totalLabel={`Total monitorado: ${formatCurrency(
-                personalVisualization!.donutData.reduce((sum, item) => sum + item.valueCents, 0) / 100
-              )}`}
-              segments={personalVisualization!.donutData}
-            />
-            <LazyWaterfallChartPreview
-              title="Fluxo pessoal"
-              subtitle="Evolucao de entradas, contas e gastos."
-              steps={personalVisualization!.waterfallData}
-            />
-          </div>
+          <Suspense fallback={<GoalsChartsGridSkeleton cards={2} />}>
+            <PersonalGoalsCharts resident={resident} />
+          </Suspense>
         </>
       ) : null}
 
@@ -232,7 +203,7 @@ export default async function MetasPage({
                 },
                 {
                   label: "Caixa livre",
-                  value: formatCurrency(houseVisualization!.safeToSpendCents / 100),
+                  value: formatCurrency(houseSummary!.safeToSpendCents / 100),
                   description: "Saldo compartilhado depois das contas do mes.",
                   accentClass: "bg-neo-cyan"
                 },
@@ -246,20 +217,9 @@ export default async function MetasPage({
             />
           </div>
 
-          <div className="grid gap-4 sm:gap-6 xl:grid-cols-2">
-            <LazyDonutChartPreview
-              title="Distribuicao das contas da casa"
-              totalLabel={`Total monitorado: ${formatCurrency(
-                houseVisualization!.donutData.reduce((sum, item) => sum + item.valueCents, 0) / 100
-              )}`}
-              segments={houseVisualization!.donutData}
-            />
-            <LazyWaterfallChartPreview
-              title="Fluxo da casa"
-              subtitle="Contribuicoes e contas compartilhadas em ordem cronologica."
-              steps={houseVisualization!.waterfallData}
-            />
-          </div>
+          <Suspense fallback={<GoalsChartsGridSkeleton cards={2} />}>
+            <HouseGoalsCharts resident={resident} />
+          </Suspense>
         </>
       ) : null}
     </div>

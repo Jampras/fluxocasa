@@ -33,6 +33,11 @@ interface DashboardVisualization {
   waterfallData: DashboardFlowStep[];
 }
 
+export interface DashboardVisualizationSummary {
+  safeToSpendCents: number;
+  pendingCount: number;
+}
+
 interface VisualizationResident {
   id: string;
   casaId: string | null;
@@ -302,5 +307,112 @@ export async function getDashboardVisualization(
     pendingCount: outgoing.filter((item) => item.status === StatusTransacao.PENDENTE).length,
     donutData: buildDonutData(outgoing),
     waterfallData: buildWaterfallData(waterfallItems)
+  };
+}
+
+export async function getDashboardVisualizationSummary(
+  escopo: EscopoTransacao,
+  resident?: VisualizationResident
+): Promise<DashboardVisualizationSummary> {
+  const user = resident ?? await requireCurrentResident();
+  const { month, year, start, end } = getCurrentMonthRange();
+
+  if (escopo === EscopoTransacao.CASA) {
+    await ensureHouseRecurringTransactions(user.casaId!);
+
+    const [billsAggregate, pendingCount, contributionsAggregate] = await Promise.all([
+      prisma.transacao.aggregate({
+        where: {
+          casaId: user.casaId!,
+          escopo: EscopoTransacao.CASA,
+          tipo: TipoTransacao.DESPESA,
+          dataVencimento: { gte: start, lt: end }
+        },
+        _sum: {
+          valorCentavos: true
+        }
+      }),
+      prisma.transacao.count({
+        where: {
+          casaId: user.casaId!,
+          escopo: EscopoTransacao.CASA,
+          tipo: TipoTransacao.DESPESA,
+          status: StatusTransacao.PENDENTE,
+          dataVencimento: { gte: start, lt: end }
+        }
+      }),
+      prisma.contribuicao.aggregate({
+        where: {
+          casaId: user.casaId!,
+          mes: month,
+          ano: year
+        },
+        _sum: {
+          valorCentavos: true
+        }
+      })
+    ]);
+
+    return {
+      safeToSpendCents:
+        (contributionsAggregate._sum.valorCentavos ?? 0) - (billsAggregate._sum.valorCentavos ?? 0),
+      pendingCount
+    };
+  }
+
+  await ensurePersonalRecurringTransactions(user.id);
+
+  const [incomeAggregate, outgoingAggregate, pendingCount, currentContribution] = await Promise.all([
+    prisma.transacao.aggregate({
+      where: {
+        moradorId: user.id,
+        escopo: EscopoTransacao.PESSOAL,
+        tipo: TipoTransacao.RECEITA,
+        status: StatusTransacao.CONCLUIDA,
+        dataVencimento: { gte: start, lt: end }
+      },
+      _sum: {
+        valorCentavos: true
+      }
+    }),
+    prisma.transacao.aggregate({
+      where: {
+        moradorId: user.id,
+        escopo: EscopoTransacao.PESSOAL,
+        tipo: TipoTransacao.DESPESA,
+        dataVencimento: { gte: start, lt: end }
+      },
+      _sum: {
+        valorCentavos: true
+      }
+    }),
+    prisma.transacao.count({
+      where: {
+        moradorId: user.id,
+        escopo: EscopoTransacao.PESSOAL,
+        tipo: TipoTransacao.DESPESA,
+        status: StatusTransacao.PENDENTE,
+        dataVencimento: { gte: start, lt: end }
+      }
+    }),
+    prisma.contribuicao.findFirst({
+      where: {
+        moradorId: user.id,
+        casaId: user.casaId!,
+        mes: month,
+        ano: year
+      },
+      select: {
+        valorCentavos: true
+      }
+    })
+  ]);
+
+  return {
+    safeToSpendCents:
+      (incomeAggregate._sum.valorCentavos ?? 0) -
+      (outgoingAggregate._sum.valorCentavos ?? 0) -
+      (currentContribution?.valorCentavos ?? 0),
+    pendingCount
   };
 }

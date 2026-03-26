@@ -6,6 +6,11 @@ const { prismaMock } = vi.hoisted(() => ({
     transacao: {
       findMany: vi.fn(),
       create: vi.fn()
+    },
+    recurringSyncState: {
+      findUnique: vi.fn(),
+      upsert: vi.fn(),
+      deleteMany: vi.fn()
     }
   }
 }));
@@ -28,6 +33,8 @@ describe("recurrence guards", () => {
     vi.clearAllMocks();
     vi.useFakeTimers();
     vi.setSystemTime(new Date("2026-03-24T12:00:00.000Z"));
+    prismaMock.recurringSyncState.findUnique.mockResolvedValue(null);
+    prismaMock.recurringSyncState.upsert.mockResolvedValue(null);
   });
 
   afterEach(() => {

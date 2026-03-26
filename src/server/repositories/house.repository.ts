@@ -6,7 +6,7 @@ import { UserFacingError } from "@/server/http/errors";
 import type { HouseSnapshot } from "@/types";
 import type { CreateHouseInput, CreateHouseBillInput, JoinHouseInput, LeaveHouseResult, UpdateHouseBillInput, UpsertContributionInput } from "./_types";
 import { AUDIT_HOUSE_CREATED, AUDIT_MEMBER_LEFT, AUDIT_MEMBER_JOINED, AUDIT_INVITE_ROTATED, ROLE_ADMIN, ROLE_MEMBER, RECORD_CONFIRMED, STATUS_PAID, createHouseAuditEntry, ensureUserWithoutHouse, ensureCurrentCycle, getMonthLabel, getMonthRange, getMonthYear, initials, mapHouseBill, randomInviteCode, requireHouseAdmin, requireHouseMember, roleToUi, sumBy, toBillStatus } from "./_shared";
-import { ensureHouseRecurringTransactions } from "./_recurrence";
+import { ensureHouseRecurringTransactions, invalidateRecurringSyncState } from "./_recurrence";
 import { EscopoTransacao, FrequenciaTransacao, TipoTransacao, StatusTransacao } from "@prisma/client";
 
 function buildRecurringData(
@@ -105,6 +105,7 @@ export const houseRepository = {
       }
     });
     await ensureCurrentCycle(user.casaId!, input.vencimento.getMonth() + 1, input.vencimento.getFullYear());
+    await invalidateRecurringSyncState(EscopoTransacao.CASA, user.casaId!);
   },
   async updateHouseBill(userId: string, billId: string, input: UpdateHouseBillInput) {
     const user = await requireHouseMember(userId);
@@ -130,6 +131,7 @@ export const houseRepository = {
     });
     await ensureCurrentCycle(user.casaId!, current.dataVencimento.getMonth() + 1, current.dataVencimento.getFullYear());
     await ensureCurrentCycle(user.casaId!, input.vencimento.getMonth() + 1, input.vencimento.getFullYear());
+    await invalidateRecurringSyncState(EscopoTransacao.CASA, user.casaId!);
   },
   async deleteHouseBill(userId: string, billId: string) {
     const user = await requireHouseMember(userId);
@@ -137,6 +139,7 @@ export const houseRepository = {
     if (!bill || bill.casaId !== user.casaId) throw new UserFacingError("Conta da casa nao encontrada.", 404);
     await prisma.transacao.delete({ where: { id: billId } });
     await ensureCurrentCycle(user.casaId!, bill.dataVencimento.getMonth() + 1, bill.dataVencimento.getFullYear());
+    await invalidateRecurringSyncState(EscopoTransacao.CASA, user.casaId!);
   },
   async markHouseBillAsPaid(userId: string, billId: string) {
     const user = await requireHouseMember(userId);
