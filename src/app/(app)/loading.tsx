@@ -1,6 +1,6 @@
-function LoadingCard({ accentClass = "bg-white" }: { accentClass?: string }) {
+function LoadingCard({ accentClass = "bg-neo-cream" }: { accentClass?: string }) {
   return (
-    <div className="neo-pop-in overflow-hidden border-[3px] border-neo-dark bg-white shadow-[4px_4px_0_#0F172A] sm:border-4 sm:shadow-[5px_5px_0_#0F172A]">
+    <div className="neo-pop-in overflow-hidden border-[3px] border-neo-dark bg-neo-cream shadow-[4px_4px_0_#0F172A] sm:border-4 sm:shadow-[5px_5px_0_#0F172A]">
       <div className={`border-b-[3px] border-neo-dark px-3 py-2 sm:border-b-4 sm:px-4 sm:py-3 ${accentClass}`}>
         <div className="neo-shimmer h-3 w-24 bg-neo-dark/15 sm:h-4 sm:w-28" />
       </div>
@@ -31,7 +31,7 @@ export default function AppLoading() {
         <LoadingCard accentClass="bg-neo-lime" />
       </div>
 
-      <div className="border-[3px] border-neo-dark bg-white p-4 shadow-[4px_4px_0_#0F172A] sm:border-4 sm:p-5 sm:shadow-[5px_5px_0_#0F172A]">
+      <div className="border-[3px] border-neo-dark bg-neo-cream p-4 shadow-[4px_4px_0_#0F172A] sm:border-4 sm:p-5 sm:shadow-[5px_5px_0_#0F172A]">
         <div className="neo-shimmer mb-4 h-5 w-40 bg-neo-dark/10" />
         <div className="grid grid-cols-7 gap-2">
           {Array.from({ length: 35 }).map((_, index) => (
@@ -43,7 +43,7 @@ export default function AppLoading() {
         </div>
       </div>
 
-      <div className="border-[3px] border-neo-dark bg-white p-4 shadow-[4px_4px_0_#0F172A] sm:border-4 sm:p-5 sm:shadow-[5px_5px_0_#0F172A]">
+      <div className="border-[3px] border-neo-dark bg-neo-cream p-4 shadow-[4px_4px_0_#0F172A] sm:border-4 sm:p-5 sm:shadow-[5px_5px_0_#0F172A]">
         <div className="neo-shimmer mb-4 h-6 w-48 bg-neo-dark/10" />
         <div className="space-y-4">
           {Array.from({ length: 3 }).map((_, index) => (

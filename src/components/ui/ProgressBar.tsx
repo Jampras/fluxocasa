@@ -26,7 +26,7 @@ export function ProgressBar({ spent, limit, tone = "emerald" }: ProgressBarProps
         <span>{Math.round(value)}%</span>
       </div>
       <div
-        className="relative h-4 w-full overflow-hidden rounded-none border-[3px] border-neo-dark bg-white sm:border-4"
+      className="relative h-4 w-full overflow-hidden rounded-none border-[3px] border-neo-dark bg-neo-cream sm:border-4"
       >
         <div
           className={cx("neo-shimmer h-full bg-gradient-to-r transition-all", fills[tone])}

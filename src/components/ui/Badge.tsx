@@ -5,9 +5,9 @@ import { cx } from "@/lib/utils";
 
 const toneMap: Record<Tone | "primary", string> = {
   emerald: "bg-neo-lime text-neo-dark",
-  zinc: "bg-white text-neo-dark",
+  zinc: "bg-neo-cream text-neo-dark",
   amber: "bg-neo-yellow text-neo-dark",
-  slate: "bg-white text-neo-dark",
+  slate: "bg-neo-cream text-neo-dark",
   danger: "bg-neo-pink text-white",
   success: "bg-neo-lime text-neo-dark",
   primary: "bg-neo-cyan text-neo-dark"

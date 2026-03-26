@@ -67,7 +67,7 @@ export function LeaveHouseActions({ isAdmin, residentCount }: LeaveHouseActionsP
       <Button
         type="button"
         variant={canLeave ? "ghost" : "secondary"}
-        className={canLeave ? "border-[3px] border-neo-dark bg-white text-rose-700 sm:border-4" : ""}
+                    className={canLeave ? "border-[3px] border-neo-dark bg-neo-cream text-rose-700 sm:border-4" : ""}
         disabled={pending || !canLeave}
         onClick={() => void handleLeaveHouse()}
       >

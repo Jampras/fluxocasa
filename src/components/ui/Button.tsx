@@ -12,7 +12,7 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 
 const variantStyles: Record<ButtonVariant, string> = {
   primary: "bg-neo-yellow text-neo-dark",
-  secondary: "bg-white text-neo-dark",
+  secondary: "bg-neo-cream text-neo-dark",
   ghost: "bg-neo-cyan text-neo-dark"
 };
 

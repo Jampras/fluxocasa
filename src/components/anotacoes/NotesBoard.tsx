@@ -293,7 +293,7 @@ export function NotesBoard({ initialSnapshot }: NotesBoardProps) {
       </div>
 
       {snapshot.notes.length === 0 ? (
-        <Card className="border-dashed bg-white p-6 text-center sm:p-10">
+        <Card className="border-dashed bg-neo-cream p-6 text-center sm:p-10">
           <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center border-4 border-neo-dark bg-neo-yellow shadow-[4px_4px_0_#0F172A]">
             <StickyNote className="h-8 w-8 stroke-[2.8px] text-neo-dark" />
           </div>
@@ -335,7 +335,7 @@ export function NotesBoard({ initialSnapshot }: NotesBoardProps) {
                   setDraggedNoteId(null);
                   setDropTargetId(null);
                 }}
-                className={`mb-4 break-inside-avoid rounded-none border-[3px] border-neo-dark bg-white shadow-[4px_4px_0_#0F172A] transition-transform sm:border-4 sm:shadow-[6px_6px_0_#0F172A] ${
+                className={`mb-4 break-inside-avoid rounded-none border-[3px] border-neo-dark bg-neo-cream shadow-[4px_4px_0_#0F172A] transition-transform sm:border-4 sm:shadow-[6px_6px_0_#0F172A] ${
                   draggedNoteId === note.id ? "opacity-60" : ""
                 } ${dropTargetId === note.id && draggedNoteId !== note.id ? "-translate-y-1 ring-4 ring-neo-cyan/60" : ""}`}
               >
@@ -343,14 +343,14 @@ export function NotesBoard({ initialSnapshot }: NotesBoardProps) {
                   <div className="flex items-start justify-between gap-3">
                     <div className="space-y-2">
                       <div className="flex flex-wrap items-center gap-2">
-                        <span className="inline-flex items-center gap-2 border-[3px] border-neo-dark bg-white px-2.5 py-1 font-body text-[10px] font-black uppercase tracking-[0.16em] text-neo-dark sm:border-4">
+                        <span className="inline-flex items-center gap-2 border-[3px] border-neo-dark bg-neo-cream px-2.5 py-1 font-body text-[10px] font-black uppercase tracking-[0.16em] text-neo-dark sm:border-4">
                           {note.tag}
                         </span>
                         <span className={`inline-flex h-9 w-9 items-center justify-center border-[3px] border-neo-dark text-neo-dark sm:border-4 ${note.iconToneClass}`}>
                           <VisibilityIcon className="h-4 w-4 stroke-[2.8px]" />
                         </span>
                         <span
-                          className={`hidden md:inline-flex h-9 w-9 items-center justify-center border-[3px] border-neo-dark bg-white text-neo-dark sm:border-4 ${canDrag ? "cursor-grab" : "opacity-50"}`}
+                          className={`hidden md:inline-flex h-9 w-9 items-center justify-center border-[3px] border-neo-dark bg-neo-cream text-neo-dark sm:border-4 ${canDrag ? "cursor-grab" : "opacity-50"}`}
                           title={canDrag ? "Arraste para reorganizar." : "Voce nao pode reorganizar esta anotacao."}
                         >
                           <GripVertical className="h-4 w-4 stroke-[2.8px]" />
@@ -368,10 +368,10 @@ export function NotesBoard({ initialSnapshot }: NotesBoardProps) {
 
                 <div className="space-y-4 px-4 py-4 sm:px-5 sm:py-5">
                   <div className="flex flex-wrap items-center gap-2">
-                    <span className="inline-flex border-[3px] border-neo-dark bg-white px-2.5 py-1 font-body text-[10px] font-black uppercase tracking-[0.14em] text-neo-dark">
+                    <span className="inline-flex border-[3px] border-neo-dark bg-neo-cream px-2.5 py-1 font-body text-[10px] font-black uppercase tracking-[0.14em] text-neo-dark">
                       {note.visibilityLabel}
                     </span>
-                    <span className="inline-flex border-[3px] border-neo-dark bg-white px-2.5 py-1 font-body text-[10px] font-black uppercase tracking-[0.14em] text-neo-dark">
+                    <span className="inline-flex border-[3px] border-neo-dark bg-neo-cream px-2.5 py-1 font-body text-[10px] font-black uppercase tracking-[0.14em] text-neo-dark">
                       {note.scopeLabel}
                     </span>
                   </div>
@@ -462,7 +462,7 @@ export function NotesBoard({ initialSnapshot }: NotesBoardProps) {
             className="flex max-h-[calc(100vh-1rem)] w-full max-w-3xl flex-col overflow-hidden border-4 border-neo-dark bg-neo-bg shadow-[10px_10px_0_#0F172A]"
             onClick={(event) => event.stopPropagation()}
           >
-            <div className="flex items-center justify-between border-b-4 border-neo-dark bg-white px-4 py-3 sm:px-5 sm:py-4">
+            <div className="flex items-center justify-between border-b-4 border-neo-dark bg-neo-cream px-4 py-3 sm:px-5 sm:py-4">
               <div>
                 <p className="font-heading text-[10px] uppercase tracking-[0.18em] text-neo-pink sm:text-sm sm:tracking-[0.28em]">
                   {editingNote ? "Editar anotacao" : "Nova anotacao"}
@@ -523,7 +523,7 @@ export function NotesBoard({ initialSnapshot }: NotesBoardProps) {
                       <button
                         type="button"
                         onClick={() => setForm((current) => ({ ...current, escopo: "PESSOAL" }))}
-                        className={`neo-pressable border-4 border-neo-dark px-4 py-3 font-heading text-base uppercase text-neo-dark shadow-[4px_4px_0_#0F172A] ${form.escopo === "PESSOAL" ? "bg-neo-yellow" : "bg-white"}`}
+                        className={`neo-pressable border-4 border-neo-dark px-4 py-3 font-heading text-base uppercase text-neo-dark shadow-[4px_4px_0_#0F172A] ${form.escopo === "PESSOAL" ? "bg-neo-yellow" : "bg-neo-cream"}`}
                       >
                         Pessoal
                       </button>
@@ -532,7 +532,7 @@ export function NotesBoard({ initialSnapshot }: NotesBoardProps) {
                         onClick={() =>
                           setForm((current) => ({ ...current, escopo: "CASA", visibilidade: "PUBLICA" }))
                         }
-                        className={`neo-pressable border-4 border-neo-dark px-4 py-3 font-heading text-base uppercase text-neo-dark shadow-[4px_4px_0_#0F172A] ${form.escopo === "CASA" ? "bg-neo-lime" : "bg-white"}`}
+                        className={`neo-pressable border-4 border-neo-dark px-4 py-3 font-heading text-base uppercase text-neo-dark shadow-[4px_4px_0_#0F172A] ${form.escopo === "CASA" ? "bg-neo-lime" : "bg-neo-cream"}`}
                       >
                         Da casa
                       </button>
@@ -546,21 +546,21 @@ export function NotesBoard({ initialSnapshot }: NotesBoardProps) {
                         <button
                           type="button"
                           onClick={() => setForm((current) => ({ ...current, visibilidade: "PRIVADA" }))}
-                          className={`neo-pressable border-4 border-neo-dark px-4 py-3 font-heading text-base uppercase text-neo-dark shadow-[4px_4px_0_#0F172A] ${form.visibilidade === "PRIVADA" ? "bg-[#ffdbe8]" : "bg-white"}`}
+                          className={`neo-pressable border-4 border-neo-dark px-4 py-3 font-heading text-base uppercase text-neo-dark shadow-[4px_4px_0_#0F172A] ${form.visibilidade === "PRIVADA" ? "bg-[#ffdbe8]" : "bg-neo-cream"}`}
                         >
                           Privada
                         </button>
                         <button
                           type="button"
                           onClick={() => setForm((current) => ({ ...current, visibilidade: "PUBLICA" }))}
-                          className={`neo-pressable border-4 border-neo-dark px-4 py-3 font-heading text-base uppercase text-neo-dark shadow-[4px_4px_0_#0F172A] ${form.visibilidade === "PUBLICA" ? "bg-neo-yellow" : "bg-white"}`}
+                          className={`neo-pressable border-4 border-neo-dark px-4 py-3 font-heading text-base uppercase text-neo-dark shadow-[4px_4px_0_#0F172A] ${form.visibilidade === "PUBLICA" ? "bg-neo-yellow" : "bg-neo-cream"}`}
                         >
                           Publica
                         </button>
                       </div>
                     </div>
                   ) : (
-                    <Card className="bg-white p-4">
+                    <Card className="bg-neo-cream p-4">
                       <p className="font-body text-xs font-black uppercase tracking-[0.14em] text-neo-dark/70">
                         Notas da casa sao sempre publicas para todos os moradores.
                       </p>

@@ -43,7 +43,7 @@ export function ManageListFilters({
   resultLabel
 }: ManageListFiltersProps) {
   return (
-    <div className="grid gap-3 rounded-none border-[3px] border-neo-dark bg-white p-3 shadow-[4px_4px_0_#0F172A] sm:border-4 sm:p-4">
+    <div className="grid gap-3 rounded-none border-[3px] border-neo-dark bg-neo-cream p-3 shadow-[4px_4px_0_#0F172A] sm:border-4 sm:p-4">
       <div
         className={`grid gap-3 ${
           sortId && sortOptions && onSortChange

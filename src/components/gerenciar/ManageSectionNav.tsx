@@ -30,7 +30,7 @@ export function ManageSectionNav({
             key={item.id}
             href={`#${item.id}`}
             className={twMerge(
-              "neo-pressable inline-flex min-h-[54px] items-center justify-center border-[3px] border-neo-dark bg-white px-3 py-2.5 text-center font-heading text-sm uppercase text-neo-dark shadow-[4px_4px_0_#0F172A] sm:min-h-[58px] sm:border-4 sm:px-4 sm:text-base xl:min-h-[62px] xl:px-5 xl:text-lg",
+              "neo-pressable inline-flex min-h-[54px] items-center justify-center border-[3px] border-neo-dark bg-neo-cream px-3 py-2.5 text-center font-heading text-sm uppercase text-neo-dark shadow-[4px_4px_0_#0F172A] sm:min-h-[58px] sm:border-4 sm:px-4 sm:text-base xl:min-h-[62px] xl:px-5 xl:text-lg",
               index % 3 === 0
                 ? "hover:bg-neo-yellow"
                 : index % 3 === 1

@@ -35,7 +35,7 @@ function getCellTone(cell: CalendarCell) {
     return "bg-neo-pink/20";
   }
 
-  return "bg-white";
+  return "bg-neo-cream";
 }
 
 function getStatusClass(item: CalendarItem) {
@@ -286,7 +286,7 @@ export function CalendarGridModal({
         {weekdayLabels.map((label) => (
           <div
             key={label}
-            className="border-b-[3px] border-r-[3px] border-neo-dark bg-white px-1 py-2 text-center font-heading text-[10px] uppercase text-neo-dark last:border-r-0 sm:border-b-4 sm:border-r-4 sm:px-2 sm:py-3 sm:text-sm"
+            className="border-b-[3px] border-r-[3px] border-neo-dark bg-neo-cream px-1 py-2 text-center font-heading text-[10px] uppercase text-neo-dark last:border-r-0 sm:border-b-4 sm:border-r-4 sm:px-2 sm:py-3 sm:text-sm"
           >
             {label}
           </div>
@@ -345,7 +345,7 @@ export function CalendarGridModal({
             className="max-h-[92vh] w-full max-w-[1120px] overflow-hidden border-4 border-neo-dark bg-neo-bg shadow-[10px_10px_0_#0F172A] xl:max-w-[1080px] 2xl:max-w-[1160px]"
             onClick={(event) => event.stopPropagation()}
           >
-            <div className="flex items-start justify-between gap-4 border-b-4 border-neo-dark bg-white px-4 py-4 sm:px-5 xl:px-7 xl:py-5">
+            <div className="flex items-start justify-between gap-4 border-b-4 border-neo-dark bg-neo-cream px-4 py-4 sm:px-5 xl:px-7 xl:py-5">
               <div className="max-w-[30rem] xl:max-w-[36rem]">
                 <p className="font-heading text-[10px] uppercase tracking-[0.18em] text-neo-pink sm:text-sm sm:tracking-[0.28em]">
                   Agenda do dia
@@ -387,7 +387,7 @@ export function CalendarGridModal({
                 </div>
 
                 {selectedItems.length === 0 ? (
-                  <div className="grid min-h-[220px] place-items-center border-4 border-neo-dark bg-white px-4 py-6 text-center xl:min-h-[340px] xl:px-8">
+                  <div className="grid min-h-[220px] place-items-center border-4 border-neo-dark bg-neo-cream px-4 py-6 text-center xl:min-h-[340px] xl:px-8">
                     <div className="max-w-md space-y-3">
                       <p className="font-heading text-2xl uppercase text-neo-dark xl:text-3xl">
                         Dia livre
@@ -402,7 +402,7 @@ export function CalendarGridModal({
                     {selectedItems.map((item) => (
                       <div
                         key={item.id}
-                        className="grid gap-3 border-[3px] border-neo-dark bg-white px-4 py-4 shadow-[4px_4px_0_#0F172A] sm:border-4 lg:grid-cols-[1fr_auto]"
+                        className="grid gap-3 border-[3px] border-neo-dark bg-neo-cream px-4 py-4 shadow-[4px_4px_0_#0F172A] sm:border-4 lg:grid-cols-[1fr_auto]"
                       >
                         <div className="space-y-2">
                           <div className="flex flex-wrap items-center gap-2">
@@ -459,7 +459,7 @@ export function CalendarGridModal({
                         type="button"
                         onClick={() => setAddMode(option.id)}
                         className={`border-[3px] border-neo-dark px-4 py-3 text-left font-heading text-lg uppercase shadow-[4px_4px_0_#0F172A] transition-all hover:-translate-y-1 sm:border-4 xl:px-5 xl:py-4 xl:text-xl ${
-                          addMode === option.id ? option.color : "bg-white"
+                          addMode === option.id ? option.color : "bg-neo-cream"
                         }`}
                       >
                         {option.label}
@@ -471,7 +471,7 @@ export function CalendarGridModal({
                 {addMode ? (
                   <form
                     key={`${addMode}-${selectedCell.isoDate}-${formVersion}`}
-                    className="grid gap-4 border-4 border-neo-dark bg-white p-4 xl:gap-5 xl:p-5"
+                    className="grid gap-4 border-4 border-neo-dark bg-neo-cream p-4 xl:gap-5 xl:p-5"
                     onSubmit={(event) => void handleSubmit(event)}
                   >
                     <label className="grid gap-2 text-sm font-medium text-neo-dark/75">
@@ -571,7 +571,7 @@ export function CalendarGridModal({
                     </button>
                   </form>
                 ) : (
-                  <div className="border-4 border-neo-dark bg-white px-4 py-5 text-sm font-bold text-neo-dark/65">
+                  <div className="border-4 border-neo-dark bg-neo-cream px-4 py-5 text-sm font-bold text-neo-dark/65">
                     Escolha se quer criar uma conta da casa, conta pessoal ou recebimento.
                   </div>
                 )}

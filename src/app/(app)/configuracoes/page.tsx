@@ -16,7 +16,7 @@ export default async function ConfiguracoesPage() {
       <SettingsSectionNav />
 
       <div className="grid gap-4 xl:grid-cols-[0.78fr_1.22fr] xl:gap-6">
-        <Card id="config-perfil" className="bg-white p-4 sm:p-5 md:p-6 xl:p-7">
+        <Card id="config-perfil" className="bg-neo-cream p-4 sm:p-5 md:p-6 xl:p-7">
           <p className="font-heading text-[10px] uppercase tracking-[0.18em] text-neo-pink sm:text-sm sm:tracking-[0.28em]">
             Perfil
           </p>
@@ -47,7 +47,7 @@ export default async function ConfiguracoesPage() {
           </div>
         </Card>
 
-        <Card id="config-geral" className="bg-white p-4 sm:p-5 md:p-6 xl:p-7">
+        <Card id="config-geral" className="bg-neo-cream p-4 sm:p-5 md:p-6 xl:p-7">
           <p className="font-heading text-[10px] uppercase tracking-[0.18em] text-neo-pink sm:text-sm sm:tracking-[0.28em]">
             Configuracoes gerais
           </p>
@@ -81,25 +81,25 @@ export default async function ConfiguracoesPage() {
           <div className="mt-4 grid gap-2 sm:mt-6 sm:gap-3 md:grid-cols-2 xl:mt-8 xl:grid-cols-4">
             <a
               href="#config-convite"
-              className="border-[3px] border-neo-dark bg-white px-4 py-3 font-heading text-base uppercase text-neo-dark shadow-[4px_4px_0_#0F172A] transition-all hover:-translate-y-1 hover:bg-neo-yellow sm:border-4 sm:text-xl"
+                className="border-[3px] border-neo-dark bg-neo-cream px-4 py-3 font-heading text-base uppercase text-neo-dark shadow-[4px_4px_0_#0F172A] transition-all hover:-translate-y-1 hover:bg-neo-yellow sm:border-4 sm:text-xl"
             >
               Ir para convite
             </a>
             <a
               href="#config-moradores"
-              className="border-[3px] border-neo-dark bg-white px-4 py-3 font-heading text-base uppercase text-neo-dark shadow-[4px_4px_0_#0F172A] transition-all hover:-translate-y-1 hover:bg-neo-cyan sm:border-4 sm:text-xl"
+                className="border-[3px] border-neo-dark bg-neo-cream px-4 py-3 font-heading text-base uppercase text-neo-dark shadow-[4px_4px_0_#0F172A] transition-all hover:-translate-y-1 hover:bg-neo-cyan sm:border-4 sm:text-xl"
             >
               Ver moradores
             </a>
             <a
               href="#config-historico"
-              className="border-[3px] border-neo-dark bg-white px-4 py-3 font-heading text-base uppercase text-neo-dark shadow-[4px_4px_0_#0F172A] transition-all hover:-translate-y-1 hover:bg-neo-lime sm:border-4 sm:text-xl"
+                className="border-[3px] border-neo-dark bg-neo-cream px-4 py-3 font-heading text-base uppercase text-neo-dark shadow-[4px_4px_0_#0F172A] transition-all hover:-translate-y-1 hover:bg-neo-lime sm:border-4 sm:text-xl"
             >
               Abrir historico
             </a>
             <a
               href="#config-saida"
-              className="border-[3px] border-neo-dark bg-white px-4 py-3 font-heading text-base uppercase text-neo-dark shadow-[4px_4px_0_#0F172A] transition-all hover:-translate-y-1 hover:bg-neo-pink sm:border-4 sm:text-xl"
+                className="border-[3px] border-neo-dark bg-neo-cream px-4 py-3 font-heading text-base uppercase text-neo-dark shadow-[4px_4px_0_#0F172A] transition-all hover:-translate-y-1 hover:bg-neo-pink sm:border-4 sm:text-xl"
             >
               Sair da casa
             </a>

@@ -79,7 +79,7 @@ export function ResidentsPanel({ snapshot }: ResidentsPanelProps) {
               ) : null}
               <div className="grid gap-3 md:grid-cols-2">
                 {snapshot.auditLog.map((item) => (
-                  <div key={item.id} className="border-[3px] border-neo-dark bg-white px-4 py-3 shadow-[4px_4px_0_#0F172A] sm:border-4">
+              <div key={item.id} className="border-[3px] border-neo-dark bg-neo-cream px-4 py-3 shadow-[4px_4px_0_#0F172A] sm:border-4">
                     <div className="flex flex-col gap-2">
                       <div>
                         <p className="text-base font-bold text-neo-dark">{item.title}</p>

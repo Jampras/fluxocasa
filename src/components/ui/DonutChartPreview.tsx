@@ -50,7 +50,7 @@ export function DonutChartPreview({ title, totalLabel, segments }: DonutChartPre
         </div>
       </div>
 
-      <div className="rounded-none border-[3px] border-neo-dark bg-white p-3 shadow-[4px_4px_0_#0F172A] sm:border-4 sm:p-4">
+      <div className="rounded-none border-[3px] border-neo-dark bg-neo-cream p-3 shadow-[4px_4px_0_#0F172A] sm:border-4 sm:p-4">
         <p className="text-center text-[10px] font-bold uppercase tracking-[0.12em] text-neo-dark/65 sm:text-sm sm:tracking-[0.18em]">
           {totalLabel}
         </p>

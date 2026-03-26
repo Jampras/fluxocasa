@@ -363,7 +363,7 @@ export function FabWizard() {
               onClick={(event) => event.stopPropagation()}
               className="flex max-h-[calc(100vh-0.75rem)] w-full max-w-4xl flex-col overflow-hidden border-4 border-neo-dark bg-neo-bg shadow-[10px_10px_0_#0F172A] sm:max-h-[calc(100vh-1.5rem)] md:max-h-[calc(100vh-3rem)]"
             >
-              <div className="flex items-center justify-between border-b-4 border-neo-dark bg-white px-3 py-3 sm:px-5 sm:py-4">
+              <div className="flex items-center justify-between border-b-4 border-neo-dark bg-neo-cream px-3 py-3 sm:px-5 sm:py-4">
                 <div>
                   <p className="font-heading text-[10px] uppercase tracking-[0.18em] text-neo-pink sm:text-sm sm:tracking-[0.28em]">
                     Novo lancamento
@@ -385,10 +385,10 @@ export function FabWizard() {
               <div className="min-h-0 flex-1 overflow-y-auto p-3 pb-16 sm:p-5 sm:pb-24 md:p-8 md:pb-8">
                 {step === "details" ? (
                   <div className="mb-4 flex flex-wrap items-center gap-2 sm:mb-6 sm:gap-3">
-                  <span className="border-4 border-neo-dark bg-white px-4 py-2 font-heading text-lg uppercase text-neo-dark">
+                  <span className="border-4 border-neo-dark bg-neo-cream px-4 py-2 font-heading text-lg uppercase text-neo-dark">
                     {currentScope === EscopoTransacao.CASA ? "Casa" : "Pessoal"}
                   </span>
-                  <span className="border-4 border-neo-dark bg-white px-4 py-2 font-heading text-lg uppercase text-neo-dark">
+                  <span className="border-4 border-neo-dark bg-neo-cream px-4 py-2 font-heading text-lg uppercase text-neo-dark">
                     {currentScope === EscopoTransacao.CASA
                       ? "Conta"
                       : tipo === TipoTransacao.RECEITA
@@ -489,7 +489,7 @@ export function FabWizard() {
                           onClick={() => handleSelectCategory(option)}
                           className={`flex flex-col items-start justify-between border-4 border-neo-dark p-4 text-left text-neo-dark shadow-[4px_4px_0_#0F172A] transition-all hover:-translate-y-1 sm:p-6 ${option.color}`}
                         >
-                          <div className="rounded-[1rem] border-4 border-neo-dark bg-white p-2.5 shadow-[4px_4px_0_#0F172A] sm:p-3">
+                          <div className="rounded-[1rem] border-4 border-neo-dark bg-neo-cream p-2.5 shadow-[4px_4px_0_#0F172A] sm:p-3">
                             {option.icon}
                           </div>
                           <span className="mt-4 font-heading text-2xl uppercase tracking-wider sm:mt-6 sm:text-3xl">
@@ -512,7 +512,7 @@ export function FabWizard() {
                       </h2>
                     </div>
 
-                    <NeoCard className="grid gap-4 bg-white p-4 sm:gap-5 sm:p-6">
+                    <NeoCard className="grid gap-4 bg-neo-cream p-4 sm:gap-5 sm:p-6">
                       <label className="grid gap-2">
                         <span className="font-heading text-xl uppercase text-neo-dark sm:text-2xl">Titulo</span>
                         <input
@@ -580,7 +580,7 @@ export function FabWizard() {
                 ) : null}
               </div>
 
-              <div className="shrink-0 border-t-4 border-neo-dark bg-white px-3 py-3 pb-[calc(env(safe-area-inset-bottom)+0.75rem)] sm:px-5 sm:py-4">
+              <div className="shrink-0 border-t-4 border-neo-dark bg-neo-cream px-3 py-3 pb-[calc(env(safe-area-inset-bottom)+0.75rem)] sm:px-5 sm:py-4">
                 {step === "details" ? (
                   <p className="mb-2 font-body text-[10px] font-black uppercase tracking-[0.12em] text-neo-dark/60 sm:mb-3 sm:text-sm sm:tracking-[0.18em]">
                     Revise os campos acima e toque em salvar lancamento.

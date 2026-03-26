@@ -51,7 +51,7 @@ export function PersonalHistorySection({
   const items = buildHistoryItems(incomes, expenses);
 
   return (
-    <Card className="bg-white p-4 sm:p-5 md:p-6">
+    <Card className="bg-neo-cream p-4 sm:p-5 md:p-6">
       <div className="space-y-1">
         <p className="font-heading text-[10px] uppercase tracking-[0.18em] text-neo-pink sm:text-sm sm:tracking-[0.26em]">
           Historico pessoal

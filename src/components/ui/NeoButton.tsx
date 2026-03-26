@@ -21,7 +21,7 @@ export function NeoButton({
 
   const variantClasses = {
     primary: "bg-neo-cyan text-neo-dark shadow-neo hover:bg-[#00D4EC]",
-    secondary: "bg-white text-neo-dark shadow-neo hover:bg-gray-50",
+  secondary: "bg-neo-cream text-neo-dark shadow-neo hover:bg-gray-50",
     danger: "bg-neo-pink text-white shadow-neo hover:bg-[#E62577]",
     success: "bg-neo-lime text-neo-dark shadow-neo hover:bg-[#95E600]",
     warning: "bg-neo-yellow text-neo-dark shadow-neo hover:bg-[#E6D100]",

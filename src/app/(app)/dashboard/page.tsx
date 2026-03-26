@@ -59,7 +59,7 @@ export default async function DashboardPage({
             label: "Pendencias",
             value: String(snapshot.pendingBills),
             description: "Aguardando",
-            accentClass: "bg-white"
+    accentClass: "bg-neo-cream"
           },
           {
             label: "Anotacoes",

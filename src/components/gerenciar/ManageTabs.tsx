@@ -53,7 +53,7 @@ export function ManageTabs({ currentTab }: { currentTab: ManageTab }) {
               void router.prefetch(href);
             }}
             className={twMerge(
-              "neo-pressable flex min-h-[58px] items-center justify-center border-[3px] border-neo-dark bg-white px-3 py-2.5 text-center shadow-[4px_4px_0_#0F172A] sm:min-h-[72px] sm:border-4 sm:px-4 sm:py-3 sm:shadow-[5px_5px_0_#0F172A]",
+              "neo-pressable flex min-h-[58px] items-center justify-center border-[3px] border-neo-dark bg-neo-cream px-3 py-2.5 text-center shadow-[4px_4px_0_#0F172A] sm:min-h-[72px] sm:border-4 sm:px-4 sm:py-3 sm:shadow-[5px_5px_0_#0F172A]",
               active ? "neo-tab-active bg-neo-yellow -translate-y-1" : "hover:bg-neo-cyan"
             )}
           >

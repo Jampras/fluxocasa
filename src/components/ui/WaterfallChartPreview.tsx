@@ -24,7 +24,7 @@ export function WaterfallChartPreview({
   const finalBalance = visibleSteps[visibleSteps.length - 1]?.runningTotalCents ?? 0;
 
   return (
-    <NeoCard className="relative flex h-full flex-col gap-5 bg-white p-4 sm:gap-6 sm:p-5 lg:gap-8 lg:p-8">
+    <NeoCard className="relative flex h-full flex-col gap-5 bg-neo-cream p-4 sm:gap-6 sm:p-5 lg:gap-8 lg:p-8">
       <div className="flex flex-col gap-2">
         <h3 className="font-heading text-2xl uppercase text-neo-dark sm:text-3xl">{title}</h3>
         <p className="font-body text-[10px] font-bold uppercase tracking-[0.12em] text-neo-dark/65 sm:text-sm sm:tracking-[0.18em]">

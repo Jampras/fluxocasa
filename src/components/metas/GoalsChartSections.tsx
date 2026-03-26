@@ -23,7 +23,7 @@ export function GoalsChartsGridSkeleton({ cards }: { cards: number }) {
           key={item}
           title={item % 2 === 0 ? "Carregando distribuicao" : "Carregando fluxo"}
           subtitle="Montando os dados desta visao."
-          accentClass={item < 2 ? "bg-neo-yellow" : "bg-white"}
+            accentClass={item < 2 ? "bg-neo-yellow" : "bg-neo-cream"}
         />
       ))}
     </div>

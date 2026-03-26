@@ -77,7 +77,7 @@ export function DashboardMetricCarousel({ items }: { items: DashboardMetricItem[
             type="button"
             onClick={() => scrollByDirection("left")}
             disabled={!canScrollLeft}
-            className={`${navButtonBaseClass} bg-white`}
+                className={`${navButtonBaseClass} bg-neo-cream`}
             aria-label="Ver cards anteriores"
           >
             <ChevronLeft className="h-6 w-6 stroke-[3px]" />
@@ -102,7 +102,7 @@ export function DashboardMetricCarousel({ items }: { items: DashboardMetricItem[
           {items.map((item) => (
             <NeoCard
               key={item.label}
-              className="min-h-[210px] min-w-[88%] snap-start overflow-hidden bg-white p-0 sm:min-h-[224px] sm:min-w-[68%] lg:min-h-[236px] lg:min-w-[calc(50%-10px)] xl:min-h-[248px] xl:min-w-[calc(50%-10px)] 2xl:min-h-[272px]"
+                className="min-h-[210px] min-w-[88%] snap-start overflow-hidden bg-neo-cream p-0 sm:min-h-[224px] sm:min-w-[68%] lg:min-h-[236px] lg:min-w-[calc(50%-10px)] xl:min-h-[248px] xl:min-w-[calc(50%-10px)] 2xl:min-h-[272px]"
             >
               <div className={`border-b-[3px] border-neo-dark px-3 py-2 sm:border-b-4 sm:px-4 sm:py-3 xl:px-5 xl:py-4 ${item.accentClass}`}>
                 <p className="font-heading text-[10px] uppercase tracking-[0.14em] text-neo-dark sm:text-sm sm:tracking-[0.22em] xl:text-base">

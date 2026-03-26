@@ -3,7 +3,7 @@ import { NeoCard } from "@/components/ui/NeoCard";
 export function ChartCardSkeleton({
   title,
   subtitle,
-  accentClass = "bg-white"
+  accentClass = "bg-neo-cream"
 }: {
   title: string;
   subtitle: string;

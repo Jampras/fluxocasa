@@ -35,7 +35,7 @@ export default async function LoginPage({
             <h1 className="font-heading text-6xl uppercase leading-[0.8] text-neo-dark drop-shadow-[2px_2px_0_#FFF]">
               FLUXO<span className="text-neo-pink">.</span>CASA
             </h1>
-            <p className="border-4 border-neo-dark bg-white px-4 py-2 font-body text-xl font-bold uppercase tracking-wider text-neo-dark shadow-[4px_4px_0_#0F172A]">
+          <p className="border-4 border-neo-dark bg-neo-cream px-4 py-2 font-body text-xl font-bold uppercase tracking-wider text-neo-dark shadow-[4px_4px_0_#0F172A]">
               Acesso restrito
             </p>
           </div>
