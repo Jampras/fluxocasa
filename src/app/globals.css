@@ -97,10 +97,11 @@ html, body {
 
 body {
   background:
-    radial-gradient(circle at top right, rgba(255, 42, 133, 0.14), transparent 28%),
-    radial-gradient(circle at 18% 18%, rgba(34, 211, 238, 0.16), transparent 24%),
-    radial-gradient(circle at 82% 78%, rgba(183, 255, 53, 0.14), transparent 20%),
-    linear-gradient(180deg, #fff8fb 0%, #fff4ee 45%, #fff8f1 100%);
+    radial-gradient(circle at 12% 14%, rgba(255, 55, 145, 0.22), transparent 0 18%),
+    radial-gradient(circle at 88% 12%, rgba(34, 211, 238, 0.2), transparent 0 16%),
+    radial-gradient(circle at 84% 82%, rgba(183, 255, 53, 0.2), transparent 0 18%),
+    radial-gradient(circle at 16% 84%, rgba(255, 222, 89, 0.2), transparent 0 16%),
+    linear-gradient(180deg, #fff7de 0%, #fff5ef 38%, #fff8f7 100%);
   color: #0F172A;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -118,18 +119,19 @@ body.wizard-open .mobile-app-navbar {
   pointer-events: none;
 }
 
-/* Halftone texture background (subtle dotted pattern) */
+/* Pop-art dotted texture background */
 body::before {
   content: "";
   position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
+  inset: 0;
   pointer-events: none;
-  background-image: radial-gradient(circle, #0F172A 1.5px, transparent 1.5px);
-  background-size: 24px 24px;
-  opacity: 0.05;
+  background:
+    radial-gradient(circle, rgba(15, 23, 42, 0.14) 1.5px, transparent 1.5px),
+    radial-gradient(circle at 20% 30%, rgba(255, 42, 133, 0.08) 2px, transparent 2px),
+    radial-gradient(circle at 80% 70%, rgba(34, 211, 238, 0.08) 2px, transparent 2px);
+  background-size: 22px 22px, 34px 34px, 36px 36px;
+  background-position: 0 0, 8px 10px, 14px 4px;
+  opacity: 0.6;
   z-index: -2;
 }
 
@@ -139,9 +141,12 @@ body::after {
   inset: 0;
   pointer-events: none;
   background:
-    linear-gradient(135deg, transparent 0 72%, rgba(255, 216, 77, 0.18) 72% 76%, transparent 76% 100%),
-    linear-gradient(25deg, transparent 0 82%, rgba(34, 211, 238, 0.12) 82% 86%, transparent 86% 100%);
-  opacity: 0.55;
+    radial-gradient(circle at 8% 22%, rgba(255, 255, 255, 0.46) 0 8%, transparent 8% 100%),
+    radial-gradient(circle at 94% 18%, rgba(255, 255, 255, 0.4) 0 7%, transparent 7% 100%),
+    linear-gradient(140deg, transparent 0 66%, rgba(255, 42, 133, 0.08) 66% 70%, transparent 70% 100%),
+    linear-gradient(24deg, transparent 0 78%, rgba(34, 211, 238, 0.08) 78% 82%, transparent 82% 100%),
+    linear-gradient(90deg, transparent 0 48%, rgba(255, 222, 89, 0.05) 48% 52%, transparent 52% 100%);
+  opacity: 0.9;
   z-index: -3;
 }
 
