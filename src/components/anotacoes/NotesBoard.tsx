@@ -296,98 +296,38 @@ export function NotesBoard({ initialSnapshot }: NotesBoardProps) {
       {feedback ? <ActionFeedback tone="success" message={feedback} /> : null}
       {error && !isModalOpen ? <ActionFeedback tone="error" message={error} /> : null}
 
-      <Card className="overflow-hidden bg-white p-0">
-        <div className="grid gap-0 lg:grid-cols-[minmax(0,1.15fr)_minmax(320px,0.85fr)]">
-          <div className="space-y-4 border-b-4 border-neo-dark p-5 lg:border-b-0 lg:border-r-4 lg:p-6">
-            <div className="space-y-1.5">
-              <p className="font-heading text-[10px] uppercase tracking-[0.22em] text-neo-pink sm:text-sm sm:tracking-[0.28em]">
-                Mural vivo
-              </p>
-              <p className="max-w-3xl font-body text-sm font-bold uppercase tracking-[0.12em] text-neo-dark/75 sm:text-base sm:tracking-wide">
-                Crie recados em segundos, arraste para reorganizar e acompanhe as mudancas sem recarregar a tela.
-              </p>
-            </div>
+      <Card className="bg-white p-4 sm:p-5">
+        <div className="flex flex-wrap gap-2 sm:gap-3">
+          <button
+            type="button"
+            onClick={() => openQuickCreate("PESSOAL", "PRIVADA")}
+            className="neo-pressable inline-flex h-14 items-center gap-2 border-4 border-neo-dark bg-[#ffdbe8] px-4 text-left text-neo-dark shadow-[5px_5px_0_#0F172A]"
+          >
+            <Lock className="h-4 w-4 stroke-[2.8px]" />
+            <span className="font-heading text-lg uppercase leading-none">Privada</span>
+          </button>
 
-            <div className="grid gap-3 sm:grid-cols-3">
-              <button
-                type="button"
-                onClick={() => openQuickCreate("PESSOAL", "PRIVADA")}
-                className="neo-pressable flex min-h-[112px] flex-col items-start justify-between border-4 border-neo-dark bg-[#ffdbe8] px-4 py-4 text-left text-neo-dark shadow-[5px_5px_0_#0F172A]"
-              >
-                <Lock className="h-5 w-5 stroke-[2.8px]" />
-                <div>
-                  <p className="font-heading text-2xl uppercase leading-none">Privada</p>
-                  <p className="mt-2 font-body text-[11px] font-black uppercase tracking-[0.14em] text-neo-dark/70">
-                    So voce ve
-                  </p>
-                </div>
-              </button>
+          <button
+            type="button"
+            onClick={() => openQuickCreate("PESSOAL", "PUBLICA")}
+            className="neo-pressable inline-flex h-14 items-center gap-2 border-4 border-neo-dark bg-neo-yellow px-4 text-left text-neo-dark shadow-[5px_5px_0_#0F172A]"
+          >
+            <Globe2 className="h-4 w-4 stroke-[2.8px]" />
+            <span className="font-heading text-lg uppercase leading-none">Publica</span>
+          </button>
 
-              <button
-                type="button"
-                onClick={() => openQuickCreate("PESSOAL", "PUBLICA")}
-                className="neo-pressable flex min-h-[112px] flex-col items-start justify-between border-4 border-neo-dark bg-neo-yellow px-4 py-4 text-left text-neo-dark shadow-[5px_5px_0_#0F172A]"
-              >
-                <Globe2 className="h-5 w-5 stroke-[2.8px]" />
-                <div>
-                  <p className="font-heading text-2xl uppercase leading-none">Publica</p>
-                  <p className="mt-2 font-body text-[11px] font-black uppercase tracking-[0.14em] text-neo-dark/70">
-                    Pessoal visivel para a casa
-                  </p>
-                </div>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => openQuickCreate("CASA")}
-                className="neo-pressable flex min-h-[112px] flex-col items-start justify-between border-4 border-neo-dark bg-neo-lime px-4 py-4 text-left text-neo-dark shadow-[5px_5px_0_#0F172A]"
-              >
-                <Home className="h-5 w-5 stroke-[2.8px]" />
-                <div>
-                  <p className="font-heading text-2xl uppercase leading-none">Da casa</p>
-                  <p className="mt-2 font-body text-[11px] font-black uppercase tracking-[0.14em] text-neo-dark/70">
-                    Combinado compartilhado
-                  </p>
-                </div>
-              </button>
-            </div>
-          </div>
-
-          <div className="grid gap-3 p-5 lg:p-6">
-            <div className="border-4 border-neo-dark bg-neo-bg px-4 py-4 shadow-[5px_5px_0_#0F172A]">
-              <p className="font-heading text-sm uppercase tracking-[0.22em] text-neo-pink">Como usar</p>
-              <p className="mt-3 font-body text-sm font-bold uppercase tracking-[0.12em] text-neo-dark/75">
-                Abra uma nota rapida, toque para editar, exclua quando terminar e arraste os cards para deixar o mural na ordem certa.
-              </p>
-            </div>
-
-            <div className="grid gap-3 sm:grid-cols-2">
-              <div className="border-4 border-neo-dark bg-white px-4 py-4 shadow-[5px_5px_0_#0F172A]">
-                <p className="font-heading text-xs uppercase tracking-[0.22em] text-neo-pink">Visibilidade</p>
-                <p className="mt-3 font-body text-sm font-black uppercase tracking-[0.12em] text-neo-dark/75">
-                  Privada, publica ou da casa
-                </p>
-              </div>
-              <div className="border-4 border-neo-dark bg-white px-4 py-4 shadow-[5px_5px_0_#0F172A]">
-                <p className="font-heading text-xs uppercase tracking-[0.22em] text-neo-pink">Ordem</p>
-                <p className="mt-3 font-body text-sm font-black uppercase tracking-[0.12em] text-neo-dark/75">
-                  Arraste no desktop ou use subir e descer no mobile
-                </p>
-              </div>
-            </div>
-          </div>
+          <button
+            type="button"
+            onClick={() => openQuickCreate("CASA")}
+            className="neo-pressable inline-flex h-14 items-center gap-2 border-4 border-neo-dark bg-neo-lime px-4 text-left text-neo-dark shadow-[5px_5px_0_#0F172A]"
+          >
+            <Home className="h-4 w-4 stroke-[2.8px]" />
+            <span className="font-heading text-lg uppercase leading-none">Da casa</span>
+          </button>
         </div>
       </Card>
 
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-        <div className="space-y-1.5">
-          <p className="font-heading text-[10px] uppercase tracking-[0.22em] text-neo-pink sm:text-sm sm:tracking-[0.28em]">
-            Mural da casa
-          </p>
-          <p className="max-w-3xl font-body text-sm font-bold uppercase tracking-[0.12em] text-neo-dark/75 sm:text-base sm:tracking-wide">
-            Veja tudo em uma grade unica. O foco aqui e criar rapido, ler facil, editar quando precisar e reorganizar sem atrito.
-          </p>
-        </div>
+      <div className="flex flex-col gap-3 sm:flex-row sm:justify-end">
         <Button className="w-full sm:w-auto" onClick={openCreateModal}>
           <Plus className="mr-2 h-4 w-4 stroke-[3px]" />
           Nova anotacao
