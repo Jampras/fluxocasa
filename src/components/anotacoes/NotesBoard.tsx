@@ -104,17 +104,6 @@ export function NotesBoard({ initialSnapshot }: NotesBoardProps) {
     setIsModalOpen(true);
   }
 
-  function openQuickCreate(scope: ScopeFormValue, visibility: VisibilityFormValue = "PRIVADA") {
-    setEditingNote(null);
-    setForm({
-      ...EMPTY_FORM,
-      escopo: scope,
-      visibilidade: scope === "CASA" ? "PUBLICA" : visibility
-    });
-    setError(null);
-    setIsModalOpen(true);
-  }
-
   function openEditModal(note: NoteRecord) {
     setEditingNote(note);
     setForm(mapNoteToForm(note));
@@ -295,37 +284,6 @@ export function NotesBoard({ initialSnapshot }: NotesBoardProps) {
     <section className="space-y-5 sm:space-y-6">
       {feedback ? <ActionFeedback tone="success" message={feedback} /> : null}
       {error && !isModalOpen ? <ActionFeedback tone="error" message={error} /> : null}
-
-      <Card className="bg-white p-4 sm:p-5">
-        <div className="flex flex-wrap gap-2 sm:gap-3">
-          <button
-            type="button"
-            onClick={() => openQuickCreate("PESSOAL", "PRIVADA")}
-            className="neo-pressable inline-flex h-14 items-center gap-2 border-4 border-neo-dark bg-[#ffdbe8] px-4 text-left text-neo-dark shadow-[5px_5px_0_#0F172A]"
-          >
-            <Lock className="h-4 w-4 stroke-[2.8px]" />
-            <span className="font-heading text-lg uppercase leading-none">Privada</span>
-          </button>
-
-          <button
-            type="button"
-            onClick={() => openQuickCreate("PESSOAL", "PUBLICA")}
-            className="neo-pressable inline-flex h-14 items-center gap-2 border-4 border-neo-dark bg-neo-yellow px-4 text-left text-neo-dark shadow-[5px_5px_0_#0F172A]"
-          >
-            <Globe2 className="h-4 w-4 stroke-[2.8px]" />
-            <span className="font-heading text-lg uppercase leading-none">Publica</span>
-          </button>
-
-          <button
-            type="button"
-            onClick={() => openQuickCreate("CASA")}
-            className="neo-pressable inline-flex h-14 items-center gap-2 border-4 border-neo-dark bg-neo-lime px-4 text-left text-neo-dark shadow-[5px_5px_0_#0F172A]"
-          >
-            <Home className="h-4 w-4 stroke-[2.8px]" />
-            <span className="font-heading text-lg uppercase leading-none">Da casa</span>
-          </button>
-        </div>
-      </Card>
 
       <div className="flex flex-col gap-3 sm:flex-row sm:justify-end">
         <Button className="w-full sm:w-auto" onClick={openCreateModal}>
