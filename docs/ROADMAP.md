@@ -27,7 +27,6 @@ Este roadmap reflete o estado atual depois da estabilizacao principal do produto
 ## Proxima leva recomendada
 
 - trocar o reorder por botoes nas anotacoes mobile por gestos touch
-- adicionar filtros salvos ou busca persistente em `Anotacoes`
 - pagina dedicada de auditoria da casa com filtros
 - refinar estados vazios e skeletons por secao, nao so loading global
 - endurecer a CSP para reduzir dependencia de `unsafe-inline`

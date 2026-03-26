@@ -40,7 +40,7 @@ Tela de mural unico:
 - notas pessoais privadas
 - notas pessoais publicas
 - notas da casa
-- filtros por busca, tag, visibilidade e escopo
+- criar, editar, excluir e reordenar
 - reorder manual
 - atualizacao automatica do mural
 

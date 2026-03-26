@@ -489,7 +489,7 @@ export function NotesBoard({ initialSnapshot }: NotesBoardProps) {
                     type="text"
                     value={form.titulo}
                     onChange={(event) => setForm((current) => ({ ...current, titulo: event.target.value }))}
-                    className="border-4 border-neo-dark bg-white px-4 py-3 font-body text-base font-bold text-neo-dark outline-none focus:bg-neo-yellow"
+                    className="neo-input-surface border-4 border-neo-dark px-4 py-3 font-body text-base font-bold text-neo-dark outline-none focus:bg-neo-yellow"
                     placeholder="Ex.: feira do sabado"
                   />
                 </label>
@@ -500,7 +500,7 @@ export function NotesBoard({ initialSnapshot }: NotesBoardProps) {
                     value={form.conteudo}
                     onChange={(event) => setForm((current) => ({ ...current, conteudo: event.target.value }))}
                     rows={5}
-                    className="min-h-[150px] border-4 border-neo-dark bg-white px-4 py-3 font-body text-base font-bold text-neo-dark outline-none focus:bg-neo-cyan"
+                    className="neo-input-surface min-h-[150px] border-4 border-neo-dark px-4 py-3 font-body text-base font-bold text-neo-dark outline-none focus:bg-neo-cyan"
                     placeholder="Escreva o lembrete, recado ou combinado."
                   />
                 </label>
@@ -511,7 +511,7 @@ export function NotesBoard({ initialSnapshot }: NotesBoardProps) {
                     type="text"
                     value={form.tag}
                     onChange={(event) => setForm((current) => ({ ...current, tag: event.target.value }))}
-                    className="border-4 border-neo-dark bg-white px-4 py-3 font-body text-base font-bold text-neo-dark outline-none focus:bg-neo-lime"
+                    className="neo-input-surface border-4 border-neo-dark px-4 py-3 font-body text-base font-bold text-neo-dark outline-none focus:bg-neo-lime"
                     placeholder="Ex.: compras, tarefas, recados"
                   />
                 </label>

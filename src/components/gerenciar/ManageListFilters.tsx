@@ -58,7 +58,7 @@ export function ManageListFilters({
             value={searchValue}
             onChange={(event) => onSearchChange(event.target.value)}
             placeholder={searchPlaceholder}
-            className="h-12 rounded-none border-[3px] border-neo-dark bg-neo-bg px-4 text-sm text-neo-dark outline-none transition-colors placeholder:text-neo-dark/35 focus:bg-white sm:border-4"
+            className="neo-input-surface h-12 rounded-none border-[3px] border-neo-dark px-4 text-sm text-neo-dark outline-none transition-colors placeholder:text-neo-dark/35 sm:border-4"
           />
         </label>
 
@@ -68,7 +68,7 @@ export function ManageListFilters({
             id={filterId}
             value={filterValue}
             onChange={(event) => onFilterChange(event.target.value)}
-            className="h-12 rounded-none border-[3px] border-neo-dark bg-neo-bg px-4 text-sm text-neo-dark outline-none transition-colors focus:bg-white sm:border-4"
+            className="neo-input-surface h-12 rounded-none border-[3px] border-neo-dark px-4 text-sm text-neo-dark outline-none transition-colors sm:border-4"
           >
             {filterOptions.map((option) => (
               <option key={option.value} value={option.value}>
@@ -85,7 +85,7 @@ export function ManageListFilters({
               id={sortId}
               value={sortValue}
               onChange={(event) => onSortChange(event.target.value)}
-              className="h-12 rounded-none border-[3px] border-neo-dark bg-neo-bg px-4 text-sm text-neo-dark outline-none transition-colors focus:bg-white sm:border-4"
+              className="neo-input-surface h-12 rounded-none border-[3px] border-neo-dark px-4 text-sm text-neo-dark outline-none transition-colors sm:border-4"
             >
               {sortOptions.map((option) => (
                 <option key={option.value} value={option.value}>

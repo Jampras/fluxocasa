@@ -239,6 +239,18 @@ textarea:focus-visible {
   animation: neo-action-pending 1s ease-in-out infinite;
 }
 
+.neo-input-surface {
+  background: #faecd2;
+  transition:
+    background-color 140ms ease,
+    box-shadow 140ms ease,
+    transform 140ms ease;
+}
+
+.neo-input-surface:focus {
+  background: #fff4e4;
+}
+
 @media (min-width: 768px) and (max-height: 780px) {
   .compact-desktop-tight {
     gap: 0.75rem !important;

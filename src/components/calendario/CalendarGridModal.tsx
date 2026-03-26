@@ -479,7 +479,7 @@ export function CalendarGridModal({
                       <input
                         name="titulo"
                         placeholder={addMode === "income" ? "Salario" : "Aluguel"}
-                        className="h-12 rounded-none border-4 border-neo-dark bg-neo-bg px-4 text-sm text-neo-dark outline-none"
+                        className="neo-input-surface h-12 rounded-none border-4 border-neo-dark px-4 text-sm text-neo-dark outline-none"
                         required
                       />
                     </label>
@@ -490,7 +490,7 @@ export function CalendarGridModal({
                         <select
                           name="categoria"
                           defaultValue="SALARIO"
-                          className="h-12 rounded-none border-4 border-neo-dark bg-neo-bg px-4 text-sm text-neo-dark"
+                          className="neo-input-surface h-12 rounded-none border-4 border-neo-dark px-4 text-sm text-neo-dark"
                         >
                           <option value="SALARIO">Salario</option>
                           <option value="EXTRA">Renda extra</option>
@@ -503,7 +503,7 @@ export function CalendarGridModal({
                           <input
                             name="categoria"
                             placeholder={addMode === "house-bill" ? "Moradia" : "Financeiro"}
-                            className="h-12 rounded-none border-4 border-neo-dark bg-neo-bg px-4 text-sm text-neo-dark outline-none"
+                            className="neo-input-surface h-12 rounded-none border-4 border-neo-dark px-4 text-sm text-neo-dark outline-none"
                             required
                           />
                         </label>
@@ -512,7 +512,7 @@ export function CalendarGridModal({
                           <input
                             name="observacao"
                             placeholder="Opcional"
-                            className="h-12 rounded-none border-4 border-neo-dark bg-neo-bg px-4 text-sm text-neo-dark outline-none"
+                            className="neo-input-surface h-12 rounded-none border-4 border-neo-dark px-4 text-sm text-neo-dark outline-none"
                           />
                         </label>
                       </>
@@ -526,7 +526,7 @@ export function CalendarGridModal({
                         min="0.01"
                         step="0.01"
                         placeholder="0,00"
-                        className="h-12 rounded-none border-4 border-neo-dark bg-neo-bg px-4 text-sm text-neo-dark outline-none"
+                        className="neo-input-surface h-12 rounded-none border-4 border-neo-dark px-4 text-sm text-neo-dark outline-none"
                         required
                       />
                     </label>
@@ -536,7 +536,7 @@ export function CalendarGridModal({
                       <input
                         value={selectedCell.isoDate}
                         readOnly
-                        className="h-12 rounded-none border-4 border-neo-dark bg-neo-bg px-4 text-sm text-neo-dark/70 outline-none"
+                        className="neo-input-surface h-12 rounded-none border-4 border-neo-dark px-4 text-sm text-neo-dark/70 outline-none"
                       />
                     </label>
 
@@ -546,7 +546,7 @@ export function CalendarGridModal({
                         <select
                           name="status"
                           defaultValue="PREVISTO"
-                          className="h-12 rounded-none border-4 border-neo-dark bg-neo-bg px-4 text-sm text-neo-dark"
+                          className="neo-input-surface h-12 rounded-none border-4 border-neo-dark px-4 text-sm text-neo-dark"
                         >
                           <option value="PREVISTO">Previsto</option>
                           <option value="RECEBIDO">Recebido</option>

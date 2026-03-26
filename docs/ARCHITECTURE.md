@@ -157,6 +157,7 @@ Toda mutacao relevante segue este pipeline:
 - CRUD via API protegida
 - reorder por `posicao`
 - drag-and-drop no desktop e fallback por botoes no mobile
+- permissoes de edicao, exclusao e reorder centralizadas por dono da anotacao
 
 ### Dashboard e analytics
 

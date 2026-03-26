@@ -520,7 +520,7 @@ export function HouseActions({ contributions, bills }: HouseActionsProps) {
                       id={`bill-status-${bill.id}`}
                       name="status"
                       defaultValue={uiStatusToApi(bill.status)}
-                      className="h-12 rounded-none border-4 border-neo-dark bg-neo-bg px-4 text-sm text-neo-dark"
+                      className="neo-input-surface h-12 rounded-none border-4 border-neo-dark px-4 text-sm text-neo-dark"
                     >
                       <option value="PENDENTE">Pendente</option>
                       <option value="PAGA">Paga</option>

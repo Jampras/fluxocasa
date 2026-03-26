@@ -38,7 +38,7 @@ export function RecurrenceFields({
           onChange={(event) => {
             setFrequency(event.target.value as ApiRecurrence);
           }}
-          className="h-12 rounded-none border-4 border-neo-dark bg-neo-bg px-4 text-sm text-neo-dark"
+          className="neo-input-surface h-12 rounded-none border-4 border-neo-dark px-4 text-sm text-neo-dark"
         >
           {Object.entries(recurrenceLabels).map(([value, label]) => (
             <option key={value} value={value}>

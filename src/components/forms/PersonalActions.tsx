@@ -344,7 +344,7 @@ export function PersonalActions({
                 id="categoriaRenda"
                 name="categoriaRenda"
                 defaultValue="SALARIO"
-                className="h-12 rounded-none border-4 border-neo-dark bg-neo-bg px-4 text-sm text-neo-dark"
+                  className="neo-input-surface h-12 rounded-none border-4 border-neo-dark px-4 text-sm text-neo-dark"
               >
                 <option value="SALARIO">Salario</option>
                 <option value="EXTRA">Renda extra</option>
@@ -358,7 +358,7 @@ export function PersonalActions({
                 id="statusRenda"
                 name="statusRenda"
                 defaultValue="PREVISTO"
-                className="h-12 rounded-none border-4 border-neo-dark bg-neo-bg px-4 text-sm text-neo-dark"
+                  className="neo-input-surface h-12 rounded-none border-4 border-neo-dark px-4 text-sm text-neo-dark"
               >
                 <option value="PREVISTO">Previsto</option>
                 <option value="RECEBIDO">Recebido</option>
@@ -609,7 +609,7 @@ export function PersonalActions({
                     id={`income-category-${income.id}`}
                     name="categoria"
                     defaultValue={income.categoryLabel === "Salario" ? "SALARIO" : "EXTRA"}
-                    className="h-12 rounded-none border-4 border-neo-dark bg-neo-bg px-4 text-sm text-neo-dark"
+                      className="neo-input-surface h-12 rounded-none border-4 border-neo-dark px-4 text-sm text-neo-dark"
                   >
                     <option value="SALARIO">Salario</option>
                     <option value="EXTRA">Renda extra</option>
@@ -636,7 +636,7 @@ export function PersonalActions({
                     id={`income-status-${income.id}`}
                     name="status"
                     defaultValue={income.status === "received" ? "RECEBIDO" : "PREVISTO"}
-                    className="h-12 rounded-none border-4 border-neo-dark bg-neo-bg px-4 text-sm text-neo-dark"
+                      className="neo-input-surface h-12 rounded-none border-4 border-neo-dark px-4 text-sm text-neo-dark"
                   >
                     <option value="PREVISTO">Previsto</option>
                     <option value="RECEBIDO">Recebido</option>
@@ -859,7 +859,7 @@ export function PersonalActions({
                     id={`pb-status-${bill.id}`}
                     name="status"
                     defaultValue={uiStatusToApi(bill.status)}
-                    className="h-12 rounded-none border-4 border-neo-dark bg-neo-bg px-4 text-sm text-neo-dark"
+                  className="neo-input-surface h-12 rounded-none border-4 border-neo-dark px-4 text-sm text-neo-dark"
                   >
                     <option value="PENDENTE">Pendente</option>
                     <option value="PAGA">Paga</option>

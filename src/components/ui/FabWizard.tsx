@@ -520,7 +520,7 @@ export function FabWizard() {
                           value={title}
                           onChange={(event) => setTitle(event.target.value)}
                           placeholder="Ex.: aluguel"
-                          className="border-4 border-neo-dark bg-neo-bg px-3 py-3 font-body text-lg font-bold outline-none focus:bg-neo-yellow sm:px-4 sm:py-4 sm:text-xl"
+                          className="neo-input-surface border-4 border-neo-dark px-3 py-3 font-body text-lg font-bold outline-none focus:bg-neo-yellow sm:px-4 sm:py-4 sm:text-xl"
                         />
                       </label>
 
@@ -533,7 +533,7 @@ export function FabWizard() {
                             value={value}
                             onChange={(event) => setValue(event.target.value)}
                             placeholder="0,00"
-                            className="border-4 border-neo-dark bg-neo-bg px-3 py-3 font-body text-2xl font-black outline-none focus:bg-neo-cyan sm:px-4 sm:py-4 sm:text-3xl"
+                            className="neo-input-surface border-4 border-neo-dark px-3 py-3 font-body text-2xl font-black outline-none focus:bg-neo-cyan sm:px-4 sm:py-4 sm:text-3xl"
                           />
                         </label>
 
@@ -545,7 +545,7 @@ export function FabWizard() {
                             type="date"
                             value={date}
                             onChange={(event) => setDate(event.target.value)}
-                            className="border-4 border-neo-dark bg-neo-bg px-3 py-3 font-body text-base font-bold outline-none focus:bg-neo-lime sm:px-4 sm:py-4 sm:text-xl"
+                            className="neo-input-surface border-4 border-neo-dark px-3 py-3 font-body text-base font-bold outline-none focus:bg-neo-lime sm:px-4 sm:py-4 sm:text-xl"
                           />
                         </label>
                       </div>
@@ -556,7 +556,7 @@ export function FabWizard() {
                           <select
                             value={incomeStatus}
                             onChange={(event) => setIncomeStatus(event.target.value as "PREVISTO" | "RECEBIDO")}
-                            className="border-4 border-neo-dark bg-neo-bg px-3 py-3 font-body text-base font-bold outline-none focus:bg-neo-yellow sm:px-4 sm:py-4 sm:text-xl"
+                            className="neo-input-surface border-4 border-neo-dark px-3 py-3 font-body text-base font-bold outline-none focus:bg-neo-yellow sm:px-4 sm:py-4 sm:text-xl"
                           >
                             <option value="PREVISTO">Previsto</option>
                             <option value="RECEBIDO">Recebido</option>

@@ -28,7 +28,7 @@ O projeto esta operando com os seguintes blocos:
 - onboarding de casa por criacao ou entrada por codigo de convite
 - painel principal com cards em carrossel, calendario interativo geral e historico resumido
 - tela `Gerenciar` com abas `Casa` e `Pessoal`
-- tela `Anotacoes` com mural unico, filtros, CRUD, reorder e sync automatica
+- tela `Anotacoes` com mural unico, CRUD, reorder e sync automatica
 - tela de configuracoes com perfil, casa, moradores e saida
 - CRUD de:
   - contribuicoes da casa
@@ -74,7 +74,8 @@ Experiencia por tela:
   - `Pessoal`
 - `Anotacoes`
   - mural unico
-  - filtros por busca, tag, escopo e visibilidade
+  - criacao, edicao, exclusao e reordenacao
+  - sync automatica do mural
   - criacao, edicao, exclusao e reordenacao
   - realtime do mural com RLS e publicacao dedicada
 
