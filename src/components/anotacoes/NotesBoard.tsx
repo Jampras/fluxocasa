@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useEffect, useMemo, useState } from "react";
+import { FormEvent, useEffect, useState } from "react";
 import {
   ArrowDown,
   ArrowUp,
@@ -86,11 +86,6 @@ export function NotesBoard({ initialSnapshot }: NotesBoardProps) {
   const [loading, setLoading] = useState(false);
   const [feedback, setFeedback] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [search, setSearch] = useState("");
-  const [visibilityFilter, setVisibilityFilter] = useState("all");
-  const [scopeFilter, setScopeFilter] = useState("all");
-  const [tagFilter, setTagFilter] = useState("all");
-  const [sortMode, setSortMode] = useState("manual");
   const [draggedNoteId, setDraggedNoteId] = useState<string | null>(null);
   const [dropTargetId, setDropTargetId] = useState<string | null>(null);
 
@@ -102,71 +97,20 @@ export function NotesBoard({ initialSnapshot }: NotesBoardProps) {
     };
   }, [isModalOpen]);
 
-  const summaryItems = useMemo(
-    () => [
-      {
-        label: "Anotacoes visiveis",
-        value: String(snapshot.noteCount),
-        accentClass: "bg-neo-cyan"
-      },
-      {
-        label: "Publicas da casa",
-        value: String(snapshot.visibleToHouseCount),
-        accentClass: "bg-neo-yellow"
-      },
-      {
-        label: "Privadas suas",
-        value: String(snapshot.privateCount),
-        accentClass: "bg-[#ffdbe8]"
-      }
-    ],
-    [snapshot]
-  );
-
-  const normalizedSearch = search.trim().toLowerCase();
-  const availableTags = useMemo(
-    () =>
-      Array.from(
-        new Set(
-          snapshot.notes
-            .map((note) => note.tag)
-            .filter((tag) => tag && tag !== "Casa" && tag !== "Pessoal")
-        )
-      ).sort((left, right) => left.localeCompare(right, "pt-BR")),
-    [snapshot.notes]
-  );
-
-  const filteredNotes = useMemo(() => {
-    const visibleNotes = snapshot.notes.filter((note) => {
-      const matchesSearch =
-        normalizedSearch.length === 0 ||
-        note.title.toLowerCase().includes(normalizedSearch) ||
-        note.content.toLowerCase().includes(normalizedSearch) ||
-        note.tag.toLowerCase().includes(normalizedSearch) ||
-        note.ownerName.toLowerCase().includes(normalizedSearch);
-      const matchesVisibility = visibilityFilter === "all" || note.visibility === visibilityFilter;
-      const matchesScope = scopeFilter === "all" || note.scope === scopeFilter;
-      const matchesTag = tagFilter === "all" || note.tag === tagFilter;
-
-      return matchesSearch && matchesVisibility && matchesScope && matchesTag;
-    });
-
-    return [...visibleNotes].sort((left, right) => {
-      if (sortMode === "latest") {
-        return new Date(right.updatedAt).getTime() - new Date(left.updatedAt).getTime();
-      }
-
-      if (sortMode === "oldest") {
-        return new Date(left.createdAt).getTime() - new Date(right.createdAt).getTime();
-      }
-
-      return 0;
-    });
-  }, [normalizedSearch, scopeFilter, snapshot.notes, sortMode, tagFilter, visibilityFilter]);
-
   function openCreateModal() {
     setEditingNote(null);
     setForm(EMPTY_FORM);
+    setError(null);
+    setIsModalOpen(true);
+  }
+
+  function openQuickCreate(scope: ScopeFormValue, visibility: VisibilityFormValue = "PRIVADA") {
+    setEditingNote(null);
+    setForm({
+      ...EMPTY_FORM,
+      escopo: scope,
+      visibilidade: scope === "CASA" ? "PUBLICA" : visibility
+    });
     setError(null);
     setIsModalOpen(true);
   }
@@ -352,24 +296,96 @@ export function NotesBoard({ initialSnapshot }: NotesBoardProps) {
       {feedback ? <ActionFeedback tone="success" message={feedback} /> : null}
       {error && !isModalOpen ? <ActionFeedback tone="error" message={error} /> : null}
 
-      <div className="grid gap-3 sm:grid-cols-3">
-        {summaryItems.map((item) => (
-          <Card key={item.label} className="bg-white p-4 sm:p-5">
-            <div className={`mb-4 border-[3px] border-neo-dark px-3 py-2 font-heading text-sm uppercase tracking-[0.18em] text-neo-dark sm:border-4 sm:text-base ${item.accentClass}`}>
-              {item.label}
+      <Card className="overflow-hidden bg-white p-0">
+        <div className="grid gap-0 lg:grid-cols-[minmax(0,1.15fr)_minmax(320px,0.85fr)]">
+          <div className="space-y-4 border-b-4 border-neo-dark p-5 lg:border-b-0 lg:border-r-4 lg:p-6">
+            <div className="space-y-1.5">
+              <p className="font-heading text-[10px] uppercase tracking-[0.22em] text-neo-pink sm:text-sm sm:tracking-[0.28em]">
+                Mural vivo
+              </p>
+              <p className="max-w-3xl font-body text-sm font-bold uppercase tracking-[0.12em] text-neo-dark/75 sm:text-base sm:tracking-wide">
+                Crie recados em segundos, arraste para reorganizar e acompanhe as mudancas sem recarregar a tela.
+              </p>
             </div>
-            <p className="font-heading text-4xl leading-none text-neo-dark sm:text-5xl">{item.value}</p>
-          </Card>
-        ))}
-      </div>
+
+            <div className="grid gap-3 sm:grid-cols-3">
+              <button
+                type="button"
+                onClick={() => openQuickCreate("PESSOAL", "PRIVADA")}
+                className="neo-pressable flex min-h-[112px] flex-col items-start justify-between border-4 border-neo-dark bg-[#ffdbe8] px-4 py-4 text-left text-neo-dark shadow-[5px_5px_0_#0F172A]"
+              >
+                <Lock className="h-5 w-5 stroke-[2.8px]" />
+                <div>
+                  <p className="font-heading text-2xl uppercase leading-none">Privada</p>
+                  <p className="mt-2 font-body text-[11px] font-black uppercase tracking-[0.14em] text-neo-dark/70">
+                    So voce ve
+                  </p>
+                </div>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => openQuickCreate("PESSOAL", "PUBLICA")}
+                className="neo-pressable flex min-h-[112px] flex-col items-start justify-between border-4 border-neo-dark bg-neo-yellow px-4 py-4 text-left text-neo-dark shadow-[5px_5px_0_#0F172A]"
+              >
+                <Globe2 className="h-5 w-5 stroke-[2.8px]" />
+                <div>
+                  <p className="font-heading text-2xl uppercase leading-none">Publica</p>
+                  <p className="mt-2 font-body text-[11px] font-black uppercase tracking-[0.14em] text-neo-dark/70">
+                    Pessoal visivel para a casa
+                  </p>
+                </div>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => openQuickCreate("CASA")}
+                className="neo-pressable flex min-h-[112px] flex-col items-start justify-between border-4 border-neo-dark bg-neo-lime px-4 py-4 text-left text-neo-dark shadow-[5px_5px_0_#0F172A]"
+              >
+                <Home className="h-5 w-5 stroke-[2.8px]" />
+                <div>
+                  <p className="font-heading text-2xl uppercase leading-none">Da casa</p>
+                  <p className="mt-2 font-body text-[11px] font-black uppercase tracking-[0.14em] text-neo-dark/70">
+                    Combinado compartilhado
+                  </p>
+                </div>
+              </button>
+            </div>
+          </div>
+
+          <div className="grid gap-3 p-5 lg:p-6">
+            <div className="border-4 border-neo-dark bg-neo-bg px-4 py-4 shadow-[5px_5px_0_#0F172A]">
+              <p className="font-heading text-sm uppercase tracking-[0.22em] text-neo-pink">Como usar</p>
+              <p className="mt-3 font-body text-sm font-bold uppercase tracking-[0.12em] text-neo-dark/75">
+                Abra uma nota rapida, toque para editar, exclua quando terminar e arraste os cards para deixar o mural na ordem certa.
+              </p>
+            </div>
+
+            <div className="grid gap-3 sm:grid-cols-2">
+              <div className="border-4 border-neo-dark bg-white px-4 py-4 shadow-[5px_5px_0_#0F172A]">
+                <p className="font-heading text-xs uppercase tracking-[0.22em] text-neo-pink">Visibilidade</p>
+                <p className="mt-3 font-body text-sm font-black uppercase tracking-[0.12em] text-neo-dark/75">
+                  Privada, publica ou da casa
+                </p>
+              </div>
+              <div className="border-4 border-neo-dark bg-white px-4 py-4 shadow-[5px_5px_0_#0F172A]">
+                <p className="font-heading text-xs uppercase tracking-[0.22em] text-neo-pink">Ordem</p>
+                <p className="mt-3 font-body text-sm font-black uppercase tracking-[0.12em] text-neo-dark/75">
+                  Arraste no desktop ou use subir e descer no mobile
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </Card>
 
       <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
         <div className="space-y-1.5">
           <p className="font-heading text-[10px] uppercase tracking-[0.22em] text-neo-pink sm:text-sm sm:tracking-[0.28em]">
-            Mural vivo
+            Mural da casa
           </p>
           <p className="max-w-3xl font-body text-sm font-bold uppercase tracking-[0.12em] text-neo-dark/75 sm:text-base sm:tracking-wide">
-            Registre notas privadas, notas pessoais publicas e combinados da casa em um mural unico.
+            Veja tudo em uma grade unica. O foco aqui e criar rapido, ler facil, editar quando precisar e reorganizar sem atrito.
           </p>
         </div>
         <Button className="w-full sm:w-auto" onClick={openCreateModal}>
@@ -377,77 +393,6 @@ export function NotesBoard({ initialSnapshot }: NotesBoardProps) {
           Nova anotacao
         </Button>
       </div>
-
-      <Card className="grid gap-3 bg-white p-3 sm:grid-cols-[minmax(0,1fr)_200px_180px_200px_180px] sm:p-4">
-        <label className="grid gap-2 text-xs font-bold uppercase tracking-[0.18em] text-neo-dark/70">
-          <span>Buscar</span>
-          <input
-            value={search}
-            onChange={(event) => setSearch(event.target.value)}
-            placeholder="Titulo, texto, tag ou pessoa"
-            className="h-12 rounded-none border-[3px] border-neo-dark bg-neo-bg px-4 text-sm text-neo-dark outline-none transition-colors placeholder:text-neo-dark/35 focus:bg-white sm:border-4"
-          />
-        </label>
-
-        <label className="grid gap-2 text-xs font-bold uppercase tracking-[0.18em] text-neo-dark/70">
-          <span>Visibilidade</span>
-          <select
-            value={visibilityFilter}
-            onChange={(event) => setVisibilityFilter(event.target.value)}
-            className="h-12 rounded-none border-[3px] border-neo-dark bg-neo-bg px-4 text-sm text-neo-dark outline-none transition-colors focus:bg-white sm:border-4"
-          >
-            <option value="all">Todas</option>
-            <option value="public">Publicas</option>
-            <option value="private">Privadas</option>
-          </select>
-        </label>
-
-        <label className="grid gap-2 text-xs font-bold uppercase tracking-[0.18em] text-neo-dark/70">
-          <span>Escopo</span>
-          <select
-            value={scopeFilter}
-            onChange={(event) => setScopeFilter(event.target.value)}
-            className="h-12 rounded-none border-[3px] border-neo-dark bg-neo-bg px-4 text-sm text-neo-dark outline-none transition-colors focus:bg-white sm:border-4"
-          >
-            <option value="all">Todos</option>
-            <option value="personal">Pessoal</option>
-            <option value="house">Casa</option>
-          </select>
-        </label>
-
-        <label className="grid gap-2 text-xs font-bold uppercase tracking-[0.18em] text-neo-dark/70">
-          <span>Tag</span>
-          <select
-            value={tagFilter}
-            onChange={(event) => setTagFilter(event.target.value)}
-            className="h-12 rounded-none border-[3px] border-neo-dark bg-neo-bg px-4 text-sm text-neo-dark outline-none transition-colors focus:bg-white sm:border-4"
-          >
-            <option value="all">Todas</option>
-            {availableTags.map((tag) => (
-              <option key={tag} value={tag}>
-                {tag}
-              </option>
-            ))}
-          </select>
-        </label>
-
-        <label className="grid gap-2 text-xs font-bold uppercase tracking-[0.18em] text-neo-dark/70">
-          <span>Ordem</span>
-          <select
-            value={sortMode}
-            onChange={(event) => setSortMode(event.target.value)}
-            className="h-12 rounded-none border-[3px] border-neo-dark bg-neo-bg px-4 text-sm text-neo-dark outline-none transition-colors focus:bg-white sm:border-4"
-          >
-            <option value="manual">Manual</option>
-            <option value="latest">Mais recentes</option>
-            <option value="oldest">Mais antigas</option>
-          </select>
-        </label>
-
-        <p className="sm:col-span-full text-xs font-semibold uppercase tracking-[0.16em] text-neo-dark/55">
-          {filteredNotes.length} de {snapshot.noteCount} anotacoes visiveis
-        </p>
-      </Card>
 
       {snapshot.notes.length === 0 ? (
         <Card className="border-dashed bg-white p-6 text-center sm:p-10">
@@ -459,18 +404,11 @@ export function NotesBoard({ initialSnapshot }: NotesBoardProps) {
             Crie a primeira anotacao para guardar recados pessoais, lembretes publicos ou combinados da casa.
           </p>
         </Card>
-      ) : filteredNotes.length === 0 ? (
-        <Card className="bg-white p-6 text-center sm:p-8">
-          <h2 className="font-heading text-3xl uppercase text-neo-dark">Nenhuma anotacao encontrada</h2>
-          <p className="mt-3 font-body text-sm font-bold uppercase tracking-[0.12em] text-neo-dark/70">
-            Ajuste os filtros ou crie uma nova anotacao no mural.
-          </p>
-        </Card>
       ) : (
         <div className="columns-1 gap-4 min-[520px]:columns-2 xl:columns-3">
-          {filteredNotes.map((note) => {
+          {snapshot.notes.map((note) => {
             const VisibilityIcon = getVisibilityIcon(note);
-            const canDrag = sortMode === "manual" && note.canEdit;
+            const canDrag = note.canEdit;
 
             return (
               <article
@@ -515,7 +453,7 @@ export function NotesBoard({ initialSnapshot }: NotesBoardProps) {
                         </span>
                         <span
                           className={`hidden md:inline-flex h-9 w-9 items-center justify-center border-[3px] border-neo-dark bg-white text-neo-dark sm:border-4 ${canDrag ? "cursor-grab" : "opacity-50"}`}
-                          title={canDrag ? "Arraste para reorganizar." : "Troque para ordem manual para arrastar."}
+                          title={canDrag ? "Arraste para reorganizar." : "Voce nao pode reorganizar esta anotacao."}
                         >
                           <GripVertical className="h-4 w-4 stroke-[2.8px]" />
                         </span>
@@ -556,8 +494,8 @@ export function NotesBoard({ initialSnapshot }: NotesBoardProps) {
                         variant="secondary"
                         className="h-11 px-3 text-xs md:hidden"
                         onClick={() => void handleMove(note.id, "up")}
-                        disabled={loading || sortMode !== "manual"}
-                        title={sortMode !== "manual" ? "Troque para ordem manual para reordenar." : "Mover para cima"}
+                        disabled={loading}
+                        title="Mover para cima"
                       >
                         <ArrowUp className="mr-1 h-4 w-4 stroke-[2.8px]" />
                         Subir
@@ -567,8 +505,8 @@ export function NotesBoard({ initialSnapshot }: NotesBoardProps) {
                         variant="secondary"
                         className="h-11 px-3 text-xs md:hidden"
                         onClick={() => void handleMove(note.id, "down")}
-                        disabled={loading || sortMode !== "manual"}
-                        title={sortMode !== "manual" ? "Troque para ordem manual para reordenar." : "Mover para baixo"}
+                        disabled={loading}
+                        title="Mover para baixo"
                       >
                         <ArrowDown className="mr-1 h-4 w-4 stroke-[2.8px]" />
                         Descer
