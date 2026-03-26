@@ -14,6 +14,16 @@ interface ResidentWithHouse {
   };
 }
 
+function canManageNote(
+  note: {
+    escopo: EscopoNota;
+    moradorId: string;
+  },
+  currentUserId: string
+) {
+  return note.moradorId === currentUserId;
+}
+
 function formatMonthLabel(date = new Date()) {
   return new Intl.DateTimeFormat("pt-BR", {
     month: "long",
@@ -81,7 +91,7 @@ function mapNote(
   currentUserId: string
 ): NoteRecord {
   const isHouse = note.escopo === EscopoNota.CASA;
-  const isOwner = note.moradorId === currentUserId;
+  const canManage = canManageNote(note, currentUserId);
 
   return {
     id: note.id,
@@ -102,8 +112,8 @@ function mapNote(
         : undefined,
     accentClass: isHouse ? "bg-neo-lime" : note.isPublica ? "bg-neo-yellow" : "bg-[#ffdbe8]",
     iconToneClass: isHouse ? "bg-[#d9ff90]" : note.isPublica ? "bg-[#fff2a8]" : "bg-[#ffc0d7]",
-    canEdit: isHouse ? true : isOwner,
-    canDelete: isHouse ? true : isOwner
+    canEdit: canManage,
+    canDelete: canManage
   };
 }
 
@@ -135,9 +145,6 @@ export async function getNotesBoardSnapshot(userId: string): Promise<NotesBoardS
   return {
     monthLabel: formatMonthLabel(),
     houseName: resident.casa.nome,
-    noteCount: mappedNotes.length,
-    visibleToHouseCount: mappedNotes.filter((note) => note.visibility === "public").length,
-    privateCount: mappedNotes.filter((note) => note.visibility === "private").length,
     notes: mappedNotes
   };
 }
@@ -185,8 +192,8 @@ async function getAuthorizedNote(userId: string, noteId: string) {
     throw new UserFacingError("Anotacao nao encontrada.", 404);
   }
 
-  if (note.escopo === EscopoNota.PESSOAL && note.moradorId !== userId) {
-    throw new UserFacingError("Voce nao pode editar esta anotacao.", 403);
+  if (!canManageNote(note, userId)) {
+    throw new UserFacingError("Voce nao pode alterar esta anotacao.", 403);
   }
 
   return { resident, note };

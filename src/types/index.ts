@@ -219,8 +219,5 @@ export interface NoteRecord {
 export interface NotesBoardSnapshot {
   monthLabel: string;
   houseName: string;
-  noteCount: number;
-  visibleToHouseCount: number;
-  privateCount: number;
   notes: NoteRecord[];
 }

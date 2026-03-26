@@ -15,7 +15,7 @@ const config: Config = {
           pink: "#FF2A85",
           lime: "#A6FF00",
           bg: "#FDFDFD",
-          cream: "#FFF2DC",
+          cream: "#F4DFC0",
           dark: "#0F172A",
         },
       },
