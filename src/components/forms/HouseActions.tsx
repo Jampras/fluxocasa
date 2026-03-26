@@ -233,7 +233,7 @@ export function HouseActions({ contributions, bills }: HouseActionsProps) {
       {feedback ? <ActionFeedback tone="success" message={feedback} /> : null}
       {error ? <ActionFeedback tone="error" message={error} /> : null}
 
-      <Card id="house-contribution" className="bg-neo-bg">
+      <Card id="house-contribution" className="neo-subsurface">
         <div className="space-y-4">
           <div className="flex items-center justify-between gap-4">
             <h3 className="text-2xl font-semibold text-neo-dark">Declarar contribuicao</h3>
@@ -319,7 +319,7 @@ export function HouseActions({ contributions, bills }: HouseActionsProps) {
         </div>
       </Card>
 
-      <Card id="house-create-bill" className="bg-neo-bg border-4 border-neo-dark ">
+      <Card id="house-create-bill" className="neo-subsurface border-4 border-neo-dark ">
         <div className="space-y-4">
           <h3 className="text-2xl font-semibold text-neo-dark">Adicionar conta da casa</h3>
           <form
@@ -357,7 +357,7 @@ export function HouseActions({ contributions, bills }: HouseActionsProps) {
         </div>
       </Card>
 
-      <Card id="house-manage-bills" className="bg-neo-bg">
+      <Card id="house-manage-bills" className="neo-subsurface">
         <div className="space-y-4">
           <h3 className="text-2xl font-semibold text-neo-dark">Gerenciar contas</h3>
           {billItems.length > 0 ? (
@@ -400,7 +400,7 @@ export function HouseActions({ contributions, bills }: HouseActionsProps) {
                 key={bill.id}
                 id={`house-bill-${bill.id}`}
                 open={isFocused(`house-bill-${bill.id}`) ? true : undefined}
-                className="rounded-none bg-neo-bg p-5"
+                className="neo-subsurface rounded-none p-5"
               >
                 <summary className="cursor-pointer list-none">
                   <div className="flex items-center justify-between gap-4">

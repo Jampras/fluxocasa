@@ -32,7 +32,7 @@ export function WaterfallChartPreview({
         </p>
       </div>
 
-      <div className="rounded-none border-[3px] border-neo-dark bg-neo-bg p-3 shadow-[4px_4px_0_#0F172A] sm:border-4 sm:p-4">
+      <div className="neo-subsurface rounded-none border-[3px] border-neo-dark p-3 shadow-[4px_4px_0_#0F172A] sm:border-4 sm:p-4">
         <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-neo-pink sm:text-xs sm:tracking-[0.22em]">Saldo projetado</p>
         <p className="mt-1.5 font-heading text-3xl uppercase text-neo-dark sm:mt-2 sm:text-4xl">
           {formatCurrency(finalBalance / 100)}

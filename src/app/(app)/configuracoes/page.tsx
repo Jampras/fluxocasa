@@ -22,7 +22,7 @@ export default async function ConfiguracoesPage() {
           </p>
           <h2 className="mt-2 font-heading text-3xl uppercase text-neo-dark sm:mt-3 sm:text-4xl">{user.nome}</h2>
           <div className="mt-4 grid gap-3 sm:mt-6 sm:gap-4 xl:mt-8">
-            <div className="border-[3px] border-neo-dark bg-neo-bg px-4 py-3 sm:border-4">
+              <div className="neo-subsurface border-[3px] border-neo-dark px-4 py-3 sm:border-4">
               <p className="font-body text-[10px] font-black uppercase tracking-[0.14em] text-neo-dark/60 sm:text-xs sm:tracking-[0.18em]">
                 E-mail
               </p>
@@ -30,7 +30,7 @@ export default async function ConfiguracoesPage() {
                 {user.email || "Nao informado"}
               </p>
             </div>
-            <div className="border-[3px] border-neo-dark bg-neo-bg px-4 py-3 sm:border-4">
+              <div className="neo-subsurface border-[3px] border-neo-dark px-4 py-3 sm:border-4">
               <p className="font-body text-[10px] font-black uppercase tracking-[0.14em] text-neo-dark/60 sm:text-xs sm:tracking-[0.18em]">
                 Papel atual
               </p>
@@ -38,7 +38,7 @@ export default async function ConfiguracoesPage() {
                 {snapshot.currentUserRole === "ADMIN" ? "Administrador" : "Morador"}
               </p>
             </div>
-            <div className="border-[3px] border-neo-dark bg-neo-bg px-4 py-3 sm:border-4">
+              <div className="neo-subsurface border-[3px] border-neo-dark px-4 py-3 sm:border-4">
               <p className="font-body text-[10px] font-black uppercase tracking-[0.14em] text-neo-dark/60 sm:text-xs sm:tracking-[0.18em]">
                 Ambiente
               </p>

@@ -312,7 +312,7 @@ export function PersonalActions({
       {feedback ? <ActionFeedback tone="success" message={feedback} /> : null}
       {error ? <ActionFeedback tone="error" message={error} /> : null}
 
-      <Card id="personal-create-income" className="bg-neo-bg">
+      <Card id="personal-create-income" className="neo-subsurface">
         <div className="space-y-4">
           <h3 className="text-2xl font-semibold text-neo-dark">Registrar renda</h3>
           <form
@@ -372,7 +372,7 @@ export function PersonalActions({
         </div>
       </Card>
 
-      <Card id="personal-create-bill" className="bg-neo-bg border-4 border-neo-dark ">
+      <Card id="personal-create-bill" className="neo-subsurface border-4 border-neo-dark ">
         <div className="space-y-4">
           <h3 className="text-2xl font-semibold text-neo-dark">Adicionar conta pessoal</h3>
           <form
@@ -410,7 +410,7 @@ export function PersonalActions({
         </div>
       </Card>
 
-      <Card id="personal-create-expense" className="bg-neo-bg">
+      <Card id="personal-create-expense" className="neo-subsurface">
         <div className="space-y-4">
           <h3 className="text-2xl font-semibold text-neo-dark">Registrar gasto</h3>
           <form
@@ -436,14 +436,14 @@ export function PersonalActions({
             <Input id="categoriaGasto" name="categoriaGasto" label="Categoria" placeholder="Alimentacao" />
             <Input id="valorGasto" name="valorGasto" label="Valor" type="number" step="0.01" />
             <Input id="gastoEm" name="gastoEm" label="Data" type="date" />
-            <Button disabled={loadingAction === "expense"} className="bg-neo-bg text-neo-dark hover:bg-neo-bg hover:bg-stone-700 hover:translate-x-1 hover:translate-y-1 h-14 rounded-none text-lg font-semibold mt-2 ">
+            <Button disabled={loadingAction === "expense"} className="bg-neo-cream text-neo-dark hover:bg-neo-yellow hover:translate-x-1 hover:translate-y-1 h-14 rounded-none text-lg font-semibold mt-2 ">
               {loadingAction === "expense" ? "Salvando..." : "+ Adicionar gasto"}
             </Button>
           </form>
         </div>
       </Card>
 
-      <Card id="personal-create-goal" className="bg-neo-bg border-4 border-neo-dark ">
+      <Card id="personal-create-goal" className="neo-subsurface border-4 border-neo-dark ">
         <div className="space-y-4">
           <h3 className="text-2xl font-semibold text-neo-dark">Definir meta de categoria</h3>
           <form
@@ -474,7 +474,7 @@ export function PersonalActions({
         </div>
       </Card>
 
-      <Card id="personal-manage-income" className="bg-neo-bg">
+      <Card id="personal-manage-income" className="neo-subsurface">
         <div className="space-y-4">
           <h3 className="text-2xl font-semibold text-neo-dark">Gerenciar renda</h3>
           {incomeItems.length > 0 ? (
@@ -515,7 +515,7 @@ export function PersonalActions({
               key={income.id}
               id={`income-${income.id}`}
               open={isFocused(`income-${income.id}`) ? true : undefined}
-              className="rounded-none bg-neo-bg p-5"
+              className="neo-subsurface rounded-none p-5"
             >
               <summary className="cursor-pointer list-none">
                 <div className="flex items-center justify-between gap-4">
@@ -704,7 +704,7 @@ export function PersonalActions({
         </div>
       </Card>
 
-      <Card id="personal-manage-bills" className="bg-neo-bg border-4 border-neo-dark ">
+      <Card id="personal-manage-bills" className="neo-subsurface border-4 border-neo-dark ">
         <div className="space-y-4">
           <h3 className="text-2xl font-semibold text-neo-dark">Gerenciar contas pessoais</h3>
           {personalBillItems.length > 0 ? (
@@ -746,7 +746,7 @@ export function PersonalActions({
               key={bill.id}
               id={`personal-bill-${bill.id}`}
               open={isFocused(`personal-bill-${bill.id}`) ? true : undefined}
-              className="rounded-none bg-neo-bg p-5"
+              className="neo-subsurface rounded-none p-5"
             >
               <summary className="cursor-pointer list-none">
                 <div className="flex items-center justify-between gap-4">
@@ -947,7 +947,7 @@ export function PersonalActions({
               key={expense.id}
               id={`expense-${expense.id}`}
               open={isFocused(`expense-${expense.id}`) ? true : undefined}
-              className="rounded-none bg-neo-bg p-4 shadow-[4px_4px_0_#0F172A] border border-white/80 transition-all hover:-translate-y-0.5 group"
+              className="neo-subsurface rounded-none p-4 shadow-[4px_4px_0_#0F172A] border border-white/80 transition-all hover:-translate-y-0.5 group"
             >
               <summary className="cursor-pointer list-none flex items-center justify-between gap-4 outline-none">
                 <div className="flex items-center gap-4">
@@ -1058,7 +1058,7 @@ export function PersonalActions({
         </div>
       </Card>
 
-      <Card id="personal-manage-goals" className="bg-neo-bg border-4 border-neo-dark ">
+      <Card id="personal-manage-goals" className="neo-subsurface border-4 border-neo-dark ">
         <div className="space-y-4">
           <h3 className="text-2xl font-semibold text-neo-dark">Gerenciar metas</h3>
           {goalItems.length === 0 ? <p className="text-sm text-neo-dark/60">Nenhuma meta registrada neste mes.</p> : null}
@@ -1067,7 +1067,7 @@ export function PersonalActions({
               key={goal.id}
               id={`goal-${goal.id}`}
               open={isFocused(`goal-${goal.id}`) ? true : undefined}
-              className="rounded-none bg-neo-bg p-5"
+              className="neo-subsurface rounded-none p-5"
             >
               <summary className="cursor-pointer list-none">
                 <div className="flex items-center justify-between gap-4">

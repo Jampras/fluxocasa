@@ -33,7 +33,7 @@ export function HouseBillsSection({
         {items.map((item) => (
           <div
             key={item.id}
-            className="flex flex-col gap-2 rounded-none border border-white/80 bg-neo-bg p-3 shadow-[4px_4px_0_#0F172A] transition-all hover:-translate-y-0.5 sm:p-4"
+            className="neo-subsurface flex flex-col gap-2 rounded-none border border-white/80 p-3 shadow-[4px_4px_0_#0F172A] transition-all hover:-translate-y-0.5 sm:p-4"
           >
             <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
               <div className="min-w-0">

@@ -361,7 +361,7 @@ export function FabWizard() {
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.96, y: 20 }}
               onClick={(event) => event.stopPropagation()}
-              className="flex max-h-[calc(100vh-0.75rem)] w-full max-w-4xl flex-col overflow-hidden border-4 border-neo-dark bg-neo-bg shadow-[10px_10px_0_#0F172A] sm:max-h-[calc(100vh-1.5rem)] md:max-h-[calc(100vh-3rem)]"
+            className="neo-subsurface flex max-h-[calc(100vh-0.75rem)] w-full max-w-4xl flex-col overflow-hidden border-4 border-neo-dark shadow-[10px_10px_0_#0F172A] sm:max-h-[calc(100vh-1.5rem)] md:max-h-[calc(100vh-3rem)]"
             >
               <div className="flex items-center justify-between border-b-4 border-neo-dark bg-neo-cream px-3 py-3 sm:px-5 sm:py-4">
                 <div>

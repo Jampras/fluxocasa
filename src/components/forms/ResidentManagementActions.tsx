@@ -78,7 +78,7 @@ export function ResidentManagementActions({
   }
 
   return (
-    <div className="mt-4 space-y-3 rounded-none bg-neo-bg border-4 border-neo-dark  p-4">
+      <div className="neo-subsurface mt-4 space-y-3 rounded-none border-4 border-neo-dark  p-4">
       <div className="flex flex-wrap gap-3">
         <Button
           type="button"

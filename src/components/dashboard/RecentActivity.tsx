@@ -16,7 +16,7 @@ export function RecentActivity({ items }: RecentActivityProps) {
       <div>
         <h2 className="text-2xl font-semibold text-neo-dark sm:text-3xl">Historico recente</h2>
       </div>
-      <Card className="overflow-hidden border-4 border-neo-dark bg-neo-bg p-0">
+      <Card className="neo-subsurface overflow-hidden border-4 border-neo-dark p-0">
         {items.length === 0 ? (
           <div className="px-4 py-4 text-sm text-neo-dark/60 sm:px-6 sm:py-5">
             As movimentacoes aparecerao aqui assim que voce registrar dados.

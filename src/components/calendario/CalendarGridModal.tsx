@@ -342,7 +342,7 @@ export function CalendarGridModal({
           onClick={closeModal}
         >
           <div
-            className="max-h-[92vh] w-full max-w-[1120px] overflow-hidden border-4 border-neo-dark bg-neo-bg shadow-[10px_10px_0_#0F172A] xl:max-w-[1080px] 2xl:max-w-[1160px]"
+            className="neo-subsurface max-h-[92vh] w-full max-w-[1120px] overflow-hidden border-4 border-neo-dark shadow-[10px_10px_0_#0F172A] xl:max-w-[1080px] 2xl:max-w-[1160px]"
             onClick={(event) => event.stopPropagation()}
           >
             <div className="flex items-start justify-between gap-4 border-b-4 border-neo-dark bg-neo-cream px-4 py-4 sm:px-5 xl:px-7 xl:py-5">
@@ -406,10 +406,10 @@ export function CalendarGridModal({
                       >
                         <div className="space-y-2">
                           <div className="flex flex-wrap items-center gap-2">
-                            <span className="border-[3px] border-neo-dark bg-neo-bg px-2 py-1 text-[10px] font-black uppercase tracking-[0.12em] text-neo-dark sm:border-4">
+                            <span className="neo-subsurface border-[3px] border-neo-dark px-2 py-1 text-[10px] font-black uppercase tracking-[0.12em] text-neo-dark sm:border-4">
                               {item.scope}
                             </span>
-                            <span className="border-[3px] border-neo-dark bg-neo-bg px-2 py-1 text-[10px] font-black uppercase tracking-[0.12em] text-neo-dark sm:border-4">
+                            <span className="neo-subsurface border-[3px] border-neo-dark px-2 py-1 text-[10px] font-black uppercase tracking-[0.12em] text-neo-dark sm:border-4">
                               {item.type}
                             </span>
                             <span className={`border-[3px] border-neo-dark px-2 py-1 text-[10px] font-black uppercase tracking-[0.12em] sm:border-4 ${getStatusClass(item)}`}>

@@ -64,7 +64,7 @@ export function PersonalHistorySection({
 
       <div className="mt-4 grid gap-3 sm:mt-5">
         {items.length === 0 ? (
-          <div className="border-[3px] border-neo-dark bg-neo-bg px-4 py-5 text-sm font-bold text-neo-dark/65 sm:border-4">
+          <div className="neo-subsurface border-[3px] border-neo-dark px-4 py-5 text-sm font-bold text-neo-dark/65 sm:border-4">
             Nenhum movimento concluido no historico pessoal ainda.
           </div>
         ) : null}
@@ -72,7 +72,7 @@ export function PersonalHistorySection({
         {items.map((item) => (
           <div
             key={item.id}
-            className="flex flex-col gap-3 border-[3px] border-neo-dark bg-neo-bg px-4 py-4 shadow-[4px_4px_0_#0F172A] sm:border-4 sm:flex-row sm:items-start sm:justify-between"
+              className="neo-subsurface flex flex-col gap-3 border-[3px] border-neo-dark px-4 py-4 shadow-[4px_4px_0_#0F172A] sm:border-4 sm:flex-row sm:items-start sm:justify-between"
           >
             <div className="space-y-1">
               <div className="flex flex-wrap items-center gap-2">

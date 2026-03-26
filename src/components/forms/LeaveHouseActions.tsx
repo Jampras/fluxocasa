@@ -53,7 +53,7 @@ export function LeaveHouseActions({ isAdmin, residentCount }: LeaveHouseActionsP
   }
 
   return (
-    <div className="space-y-3 rounded-none border-4 border-neo-dark bg-neo-bg p-4 sm:p-5">
+    <div className="neo-subsurface space-y-3 rounded-none border-4 border-neo-dark p-4 sm:p-5">
       <div className="space-y-1">
         <h3 className="text-xl font-bold text-neo-dark sm:text-2xl">
           {isAdmin && residentCount === 1 ? "Encerrar casa" : "Sair da casa"}

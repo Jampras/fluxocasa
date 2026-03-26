@@ -33,8 +33,8 @@ export function ResidentsPanel({ snapshot }: ResidentsPanelProps) {
                 <Card 
                   key={resident.id} 
                   className={isMe 
-                    ? "bg-neo-bg border-4 border-neo-dark rounded-none p-4 flex flex-col transition-all xl:min-h-[190px]" 
-                    : "bg-neo-bg border-4 border-neo-dark rounded-none p-4 flex flex-col hover:-translate-y-1 hover:shadow-[4px_4px_0_#0F172A] active:scale-95 transition-all text-neo-dark xl:min-h-[190px]"
+                    ? "neo-subsurface border-4 border-neo-dark rounded-none p-4 flex flex-col transition-all xl:min-h-[190px]" 
+                    : "neo-subsurface border-4 border-neo-dark rounded-none p-4 flex flex-col hover:-translate-y-1 hover:shadow-[4px_4px_0_#0F172A] active:scale-95 transition-all text-neo-dark xl:min-h-[190px]"
                   }
                 >
                   <div className="flex items-center gap-3 sm:gap-5">
@@ -68,7 +68,7 @@ export function ResidentsPanel({ snapshot }: ResidentsPanelProps) {
             })}
           </div>
 
-          <Card id="config-historico" className="rounded-none border-4 border-neo-dark bg-neo-bg p-4 sm:p-5 xl:p-6">
+          <Card id="config-historico" className="neo-subsurface rounded-none border-4 border-neo-dark p-4 sm:p-5 xl:p-6">
             <div className="space-y-4">
               <div>
                 <h3 className="text-2xl font-bold text-neo-dark">Historico da casa</h3>
