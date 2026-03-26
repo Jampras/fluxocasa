@@ -93,6 +93,8 @@ function mapNote(
     visibilityLabel: isHouse ? "Da casa" : note.isPublica ? "Pessoal publica" : "Pessoal privada",
     scopeLabel: isHouse ? "Casa" : "Pessoal",
     ownerName: note.morador.nome,
+    createdAt: note.criadaEm.toISOString(),
+    updatedAt: note.atualizadaEm.toISOString(),
     createdAtLabel: formatNoteDate(note.criadaEm),
     updatedAtLabel:
       note.atualizadaEm.getTime() > note.criadaEm.getTime() + 60_000
@@ -224,4 +226,35 @@ export async function deleteNote(userId: string, noteId: string) {
   await prisma.nota.delete({
     where: { id: note.id }
   });
+}
+
+export async function moveNote(userId: string, noteId: string, direction: "up" | "down") {
+  const { note } = await getAuthorizedNote(userId, noteId);
+
+  const sibling = await prisma.nota.findFirst({
+    where: {
+      casaId: note.casaId,
+      ...(direction === "up"
+        ? { posicao: { lt: note.posicao } }
+        : { posicao: { gt: note.posicao } })
+    },
+    orderBy: {
+      posicao: direction === "up" ? "desc" : "asc"
+    }
+  });
+
+  if (!sibling) {
+    return;
+  }
+
+  await prisma.$transaction([
+    prisma.nota.update({
+      where: { id: note.id },
+      data: { posicao: sibling.posicao }
+    }),
+    prisma.nota.update({
+      where: { id: sibling.id },
+      data: { posicao: note.posicao }
+    })
+  ]);
 }

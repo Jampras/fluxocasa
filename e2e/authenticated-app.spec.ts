@@ -46,6 +46,63 @@ test.describe("Authenticated App", () => {
     await expect(page.getByText("Nova anotacao")).toBeVisible();
   });
 
+  test("authenticated user can create, edit and delete a note", async ({ page }) => {
+    const noteTitle = `Nota E2E ${Date.now()}`;
+    const updatedTitle = `${noteTitle} editada`;
+
+    await createE2ESession(page);
+    const createResponse = await page.request.post("/api/anotacoes", {
+      headers: sameOriginApiHeaders(),
+      data: {
+        titulo: noteTitle,
+        conteudo: "Primeira versao da anotacao.",
+        tag: "Checklist",
+        escopo: "PESSOAL",
+        isPublica: true
+      }
+    });
+
+    expect(createResponse.ok()).toBeTruthy();
+
+    await page.goto("/anotacoes", { waitUntil: "domcontentloaded" });
+    await expect(page.getByText(noteTitle)).toBeVisible({ timeout: 10000 });
+
+    const noteCard = page.locator("article").filter({ hasText: noteTitle }).first();
+    await expect(noteCard.getByText("Checklist")).toBeVisible();
+    const boardResponse = await page.request.get("/api/anotacoes", {
+      headers: sameOriginApiHeaders()
+    });
+    expect(boardResponse.ok()).toBeTruthy();
+    const board = (await boardResponse.json()) as { notes: Array<{ id: string; title: string }> };
+    const createdNote = board.notes.find((note) => note.title === noteTitle);
+
+    expect(createdNote?.id).toBeTruthy();
+
+    const updateResponse = await page.request.put(`/api/anotacoes/${createdNote!.id}`, {
+      headers: sameOriginApiHeaders(),
+      data: {
+        titulo: updatedTitle,
+        conteudo: "Texto atualizado da anotacao.",
+        tag: "Checklist",
+        escopo: "PESSOAL",
+        isPublica: true
+      }
+    });
+
+    expect(updateResponse.ok()).toBeTruthy();
+
+    await page.reload({ waitUntil: "domcontentloaded" });
+    await expect(page.getByText(updatedTitle)).toBeVisible({ timeout: 10000 });
+    const deleteResponse = await page.request.delete(`/api/anotacoes/${createdNote!.id}`, {
+      headers: sameOriginApiHeaders(),
+      data: {}
+    });
+    expect(deleteResponse.ok()).toBeTruthy();
+
+    await page.reload({ waitUntil: "domcontentloaded" });
+    await expect(page.getByText(updatedTitle)).toHaveCount(0, { timeout: 10000 });
+  });
+
   test("authenticated user can access settings", async ({ page }) => {
     await createE2ESession(page);
     await page.goto("/configuracoes", { waitUntil: "domcontentloaded" });

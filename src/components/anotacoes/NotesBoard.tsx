@@ -1,7 +1,7 @@
 "use client";
 
 import { FormEvent, useEffect, useMemo, useState } from "react";
-import { Globe2, Home, Lock, Pencil, Plus, StickyNote, Trash2, X } from "lucide-react";
+import { ArrowDown, ArrowUp, Globe2, Home, Lock, Pencil, Plus, StickyNote, Trash2, X } from "lucide-react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { ActionFeedback } from "@/components/ui/ActionFeedback";
@@ -73,6 +73,11 @@ export function NotesBoard({ initialSnapshot }: NotesBoardProps) {
   const [loading, setLoading] = useState(false);
   const [feedback, setFeedback] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [search, setSearch] = useState("");
+  const [visibilityFilter, setVisibilityFilter] = useState("all");
+  const [scopeFilter, setScopeFilter] = useState("all");
+  const [tagFilter, setTagFilter] = useState("all");
+  const [sortMode, setSortMode] = useState("manual");
 
   useEffect(() => {
     document.body.classList.toggle("wizard-open", isModalOpen);
@@ -103,6 +108,47 @@ export function NotesBoard({ initialSnapshot }: NotesBoardProps) {
     [snapshot]
   );
 
+  const normalizedSearch = search.trim().toLowerCase();
+  const availableTags = useMemo(
+    () =>
+      Array.from(
+        new Set(
+          snapshot.notes
+            .map((note) => note.tag)
+            .filter((tag) => tag && tag !== "Casa" && tag !== "Pessoal")
+        )
+      ).sort((left, right) => left.localeCompare(right, "pt-BR")),
+    [snapshot.notes]
+  );
+
+  const filteredNotes = useMemo(() => {
+    const visibleNotes = snapshot.notes.filter((note) => {
+      const matchesSearch =
+        normalizedSearch.length === 0 ||
+        note.title.toLowerCase().includes(normalizedSearch) ||
+        note.content.toLowerCase().includes(normalizedSearch) ||
+        note.tag.toLowerCase().includes(normalizedSearch) ||
+        note.ownerName.toLowerCase().includes(normalizedSearch);
+      const matchesVisibility = visibilityFilter === "all" || note.visibility === visibilityFilter;
+      const matchesScope = scopeFilter === "all" || note.scope === scopeFilter;
+      const matchesTag = tagFilter === "all" || note.tag === tagFilter;
+
+      return matchesSearch && matchesVisibility && matchesScope && matchesTag;
+    });
+
+    return [...visibleNotes].sort((left, right) => {
+      if (sortMode === "latest") {
+        return new Date(right.updatedAt).getTime() - new Date(left.updatedAt).getTime();
+      }
+
+      if (sortMode === "oldest") {
+        return new Date(left.createdAt).getTime() - new Date(right.createdAt).getTime();
+      }
+
+      return 0;
+    });
+  }, [normalizedSearch, scopeFilter, snapshot.notes, sortMode, tagFilter, visibilityFilter]);
+
   function openCreateModal() {
     setEditingNote(null);
     setForm(EMPTY_FORM);
@@ -125,14 +171,9 @@ export function NotesBoard({ initialSnapshot }: NotesBoardProps) {
     setLoading(false);
   }
 
-  async function refreshBoard(options?: { showMessage?: string; clearFocus?: boolean }) {
+  async function syncBoard(options?: { clearFocus?: boolean }) {
     const nextSnapshot = await requestJson<NotesBoardSnapshot>("/api/anotacoes");
     setSnapshot(nextSnapshot);
-
-    if (options?.showMessage) {
-      setFeedback(options.showMessage);
-    }
-
     refreshCurrentView(router, pathname, searchParams, {
       clearFocus: options?.clearFocus,
       delayMs: 120
@@ -163,10 +204,9 @@ export function NotesBoard({ initialSnapshot }: NotesBoardProps) {
         });
       }
 
-      await refreshBoard({
-        showMessage: editingNote ? "Anotacao atualizada." : "Anotacao criada."
-      });
       closeModal();
+      setFeedback(editingNote ? "Anotacao atualizada." : "Anotacao criada.");
+      void syncBoard();
     } catch (submissionError) {
       setError(submissionError instanceof Error ? submissionError.message : "Nao foi possivel salvar a anotacao.");
     } finally {
@@ -184,15 +224,69 @@ export function NotesBoard({ initialSnapshot }: NotesBoardProps) {
         method: "DELETE",
         body: JSON.stringify({})
       });
-      await refreshBoard({
-        showMessage: "Anotacao removida."
-      });
+      setFeedback("Anotacao removida.");
+      void syncBoard();
     } catch (submissionError) {
       setError(submissionError instanceof Error ? submissionError.message : "Nao foi possivel remover a anotacao.");
     } finally {
       setLoading(false);
     }
   }
+
+  async function handleMove(noteId: string, direction: "up" | "down") {
+    setLoading(true);
+    setError(null);
+    setFeedback(null);
+
+    try {
+      await requestJson("/api/anotacoes/reordenar", {
+        method: "PATCH",
+        body: JSON.stringify({ noteId, direction })
+      });
+      setFeedback("Ordem atualizada.");
+      void syncBoard();
+    } catch (submissionError) {
+      setError(submissionError instanceof Error ? submissionError.message : "Nao foi possivel mover a anotacao.");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  useEffect(() => {
+    let cancelled = false;
+
+    const syncBoard = async () => {
+      try {
+        const nextSnapshot = await requestJson<NotesBoardSnapshot>("/api/anotacoes");
+
+        if (!cancelled) {
+          setSnapshot(nextSnapshot);
+        }
+      } catch {
+        // Ignore transient sync failures; local mutations already refresh the mural.
+      }
+    };
+
+    const intervalHandle = window.setInterval(() => {
+      void syncBoard();
+    }, 8000);
+
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === "visible") {
+        void syncBoard();
+      }
+    };
+
+    window.addEventListener("focus", handleVisibilityChange);
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+
+    return () => {
+      cancelled = true;
+      window.clearInterval(intervalHandle);
+      window.removeEventListener("focus", handleVisibilityChange);
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+    };
+  }, []);
 
   return (
     <section className="space-y-5 sm:space-y-6">
@@ -225,6 +319,77 @@ export function NotesBoard({ initialSnapshot }: NotesBoardProps) {
         </Button>
       </div>
 
+      <Card className="grid gap-3 bg-white p-3 sm:grid-cols-[minmax(0,1fr)_200px_180px_200px_180px] sm:p-4">
+        <label className="grid gap-2 text-xs font-bold uppercase tracking-[0.18em] text-neo-dark/70">
+          <span>Buscar</span>
+          <input
+            value={search}
+            onChange={(event) => setSearch(event.target.value)}
+            placeholder="Titulo, texto, tag ou pessoa"
+            className="h-12 rounded-none border-[3px] border-neo-dark bg-neo-bg px-4 text-sm text-neo-dark outline-none transition-colors placeholder:text-neo-dark/35 focus:bg-white sm:border-4"
+          />
+        </label>
+
+        <label className="grid gap-2 text-xs font-bold uppercase tracking-[0.18em] text-neo-dark/70">
+          <span>Visibilidade</span>
+          <select
+            value={visibilityFilter}
+            onChange={(event) => setVisibilityFilter(event.target.value)}
+            className="h-12 rounded-none border-[3px] border-neo-dark bg-neo-bg px-4 text-sm text-neo-dark outline-none transition-colors focus:bg-white sm:border-4"
+          >
+            <option value="all">Todas</option>
+            <option value="public">Publicas</option>
+            <option value="private">Privadas</option>
+          </select>
+        </label>
+
+        <label className="grid gap-2 text-xs font-bold uppercase tracking-[0.18em] text-neo-dark/70">
+          <span>Escopo</span>
+          <select
+            value={scopeFilter}
+            onChange={(event) => setScopeFilter(event.target.value)}
+            className="h-12 rounded-none border-[3px] border-neo-dark bg-neo-bg px-4 text-sm text-neo-dark outline-none transition-colors focus:bg-white sm:border-4"
+          >
+            <option value="all">Todos</option>
+            <option value="personal">Pessoal</option>
+            <option value="house">Casa</option>
+          </select>
+        </label>
+
+        <label className="grid gap-2 text-xs font-bold uppercase tracking-[0.18em] text-neo-dark/70">
+          <span>Tag</span>
+          <select
+            value={tagFilter}
+            onChange={(event) => setTagFilter(event.target.value)}
+            className="h-12 rounded-none border-[3px] border-neo-dark bg-neo-bg px-4 text-sm text-neo-dark outline-none transition-colors focus:bg-white sm:border-4"
+          >
+            <option value="all">Todas</option>
+            {availableTags.map((tag) => (
+              <option key={tag} value={tag}>
+                {tag}
+              </option>
+            ))}
+          </select>
+        </label>
+
+        <label className="grid gap-2 text-xs font-bold uppercase tracking-[0.18em] text-neo-dark/70">
+          <span>Ordem</span>
+          <select
+            value={sortMode}
+            onChange={(event) => setSortMode(event.target.value)}
+            className="h-12 rounded-none border-[3px] border-neo-dark bg-neo-bg px-4 text-sm text-neo-dark outline-none transition-colors focus:bg-white sm:border-4"
+          >
+            <option value="manual">Manual</option>
+            <option value="latest">Mais recentes</option>
+            <option value="oldest">Mais antigas</option>
+          </select>
+        </label>
+
+        <p className="sm:col-span-full text-xs font-semibold uppercase tracking-[0.16em] text-neo-dark/55">
+          {filteredNotes.length} de {snapshot.noteCount} anotacoes visiveis
+        </p>
+      </Card>
+
       {snapshot.notes.length === 0 ? (
         <Card className="border-dashed bg-white p-6 text-center sm:p-10">
           <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center border-4 border-neo-dark bg-neo-yellow shadow-[4px_4px_0_#0F172A]">
@@ -235,9 +400,16 @@ export function NotesBoard({ initialSnapshot }: NotesBoardProps) {
             Crie a primeira anotacao para guardar recados pessoais, lembretes publicos ou combinados da casa.
           </p>
         </Card>
+      ) : filteredNotes.length === 0 ? (
+        <Card className="bg-white p-6 text-center sm:p-8">
+          <h2 className="font-heading text-3xl uppercase text-neo-dark">Nenhuma anotacao encontrada</h2>
+          <p className="mt-3 font-body text-sm font-bold uppercase tracking-[0.12em] text-neo-dark/70">
+            Ajuste os filtros ou crie uma nova anotacao no mural.
+          </p>
+        </Card>
       ) : (
         <div className="columns-1 gap-4 min-[520px]:columns-2 xl:columns-3">
-          {snapshot.notes.map((note) => {
+          {filteredNotes.map((note) => {
             const VisibilityIcon = getVisibilityIcon(note);
 
             return (
@@ -287,6 +459,28 @@ export function NotesBoard({ initialSnapshot }: NotesBoardProps) {
 
                   {note.canEdit || note.canDelete ? (
                     <div className="flex flex-wrap gap-2 pt-1">
+                      <Button
+                        type="button"
+                        variant="secondary"
+                        className="h-11 px-3 text-xs"
+                        onClick={() => void handleMove(note.id, "up")}
+                        disabled={loading || sortMode !== "manual"}
+                        title={sortMode !== "manual" ? "Troque para ordem manual para reordenar." : "Mover para cima"}
+                      >
+                        <ArrowUp className="mr-1 h-4 w-4 stroke-[2.8px]" />
+                        Subir
+                      </Button>
+                      <Button
+                        type="button"
+                        variant="secondary"
+                        className="h-11 px-3 text-xs"
+                        onClick={() => void handleMove(note.id, "down")}
+                        disabled={loading || sortMode !== "manual"}
+                        title={sortMode !== "manual" ? "Troque para ordem manual para reordenar." : "Mover para baixo"}
+                      >
+                        <ArrowDown className="mr-1 h-4 w-4 stroke-[2.8px]" />
+                        Descer
+                      </Button>
                       {note.canEdit ? (
                         <Button
                           type="button"

@@ -206,6 +206,8 @@ export interface NoteRecord {
   visibilityLabel: string;
   scopeLabel: string;
   ownerName: string;
+  createdAt: string;
+  updatedAt: string;
   createdAtLabel: string;
   updatedAtLabel?: string;
   accentClass: string;
