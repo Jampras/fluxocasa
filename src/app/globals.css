@@ -35,6 +35,40 @@
   }
 }
 
+@keyframes neo-tab-active {
+  0%, 100% {
+    box-shadow: 6px 6px 0 #0F172A;
+    transform: translateY(-4px);
+  }
+  50% {
+    box-shadow: 8px 8px 0 #0F172A;
+    transform: translateY(-6px);
+  }
+}
+
+@keyframes neo-action-success {
+  0% {
+    transform: scale(0.94) rotate(-1deg);
+  }
+  70% {
+    transform: scale(1.06) rotate(1deg);
+  }
+  100% {
+    transform: scale(1) rotate(0);
+  }
+}
+
+@keyframes neo-action-pending {
+  0%, 100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  50% {
+    opacity: 0.78;
+    transform: translateY(-1px);
+  }
+}
+
 html {
   scroll-behavior: smooth;
 }
@@ -185,6 +219,18 @@ textarea:focus-visible {
 .neo-shimmer {
   background-size: 200% 200%;
   animation: neo-shimmer 3s linear infinite;
+}
+
+.neo-tab-active {
+  animation: neo-tab-active 1.8s ease-in-out infinite;
+}
+
+.neo-action-success {
+  animation: neo-action-success 220ms ease-out;
+}
+
+.neo-action-pending {
+  animation: neo-action-pending 1s ease-in-out infinite;
 }
 
 @media (min-width: 768px) and (max-height: 780px) {

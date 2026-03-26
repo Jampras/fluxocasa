@@ -54,7 +54,7 @@ export function ManageTabs({ currentTab }: { currentTab: ManageTab }) {
             }}
             className={twMerge(
               "neo-pressable flex min-h-[78px] flex-col justify-center border-[3px] border-neo-dark bg-white px-3 py-2.5 text-center shadow-[4px_4px_0_#0F172A] sm:min-h-[96px] sm:border-4 sm:px-4 sm:py-3.5 sm:shadow-[5px_5px_0_#0F172A]",
-              active ? "bg-neo-yellow -translate-y-1" : "hover:bg-neo-cyan"
+              active ? "neo-tab-active bg-neo-yellow -translate-y-1" : "hover:bg-neo-cyan"
             )}
           >
             <p className="font-heading text-lg uppercase leading-none text-neo-dark sm:text-2xl">{tab.label}</p>

@@ -54,7 +54,9 @@ export function MarkHouseBillPaidButton({
         void handleClick();
       }}
       className={cx(
-        "mt-2 text-xs font-semibold uppercase tracking-[0.18em]",
+        "mt-2 inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.18em]",
+        pending && "neo-action-pending",
+        status === "success" && "neo-action-success",
         status === "success"
           ? "text-emerald-700"
           : status === "error"
@@ -67,7 +69,7 @@ export function MarkHouseBillPaidButton({
       {pending
         ? "Processando..."
         : status === "success"
-          ? "Conta paga"
+          ? "Conta paga!"
           : status === "error"
             ? "Tentar de novo"
             : "Marcar como paga"}

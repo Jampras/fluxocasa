@@ -40,7 +40,7 @@ export function Navbar() {
                     className={twMerge(
                       "neo-pressable flex min-h-[60px] w-full flex-col items-center justify-center gap-1 border-[3px] border-neo-dark bg-white px-2 py-2",
                       active
-                        ? "-translate-y-1 bg-neo-yellow shadow-[4px_4px_0_#0F172A]"
+                        ? "neo-tab-active -translate-y-1 bg-neo-yellow shadow-[4px_4px_0_#0F172A]"
                         : "hover:bg-neo-cyan shadow-[4px_4px_0_#0F172A]"
                     )}
                   >
@@ -75,7 +75,7 @@ export function Navbar() {
                   className={twMerge(
                     "neo-pressable flex items-center gap-3 border-4 border-neo-dark px-4 py-3 font-heading text-lg uppercase lg:px-5 lg:text-xl xl:gap-4 xl:px-6 xl:py-4 xl:text-2xl",
                     active 
-                      ? "bg-neo-yellow shadow-[6px_6px_0_#0F172A] -translate-y-1 text-neo-dark" 
+                      ? "neo-tab-active bg-neo-yellow shadow-[6px_6px_0_#0F172A] -translate-y-1 text-neo-dark" 
                       : "bg-white text-neo-dark hover:bg-neo-cyan shadow-[4px_4px_0_#0F172A]"
                   )}
                 >
