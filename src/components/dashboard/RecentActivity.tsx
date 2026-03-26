@@ -13,14 +13,8 @@ interface RecentActivityProps {
 export function RecentActivity({ items }: RecentActivityProps) {
   return (
     <section className="space-y-3 sm:space-y-4">
-      <div className="flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
-        <div>
-          <h2 className="text-2xl font-semibold text-neo-dark sm:text-3xl">Historico recente</h2>
-          <p className="text-xs text-neo-dark/70 sm:text-sm">Revise suas ultimas movimentacoes registradas.</p>
-        </div>
-        <span className="text-xs font-semibold uppercase tracking-[0.12em] text-neo-dark sm:text-sm sm:normal-case sm:tracking-normal">
-          Ultimos registros
-        </span>
+      <div>
+        <h2 className="text-2xl font-semibold text-neo-dark sm:text-3xl">Historico recente</h2>
       </div>
       <Card className="overflow-hidden border-4 border-neo-dark bg-neo-bg p-0">
         {items.length === 0 ? (

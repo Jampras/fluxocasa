@@ -34,13 +34,13 @@ export function InteractiveCalendarSection({
   view,
   actionHref,
   title = "Calendario interativo",
-  description = "Recebimentos, contas e gastos distribuidos por data na visao geral.",
+  description,
   actionLabel = "Gerenciar"
 }: {
   view: InteractiveCalendarView;
   actionHref: Route;
   title?: string;
-  description?: string;
+  description?: string | null;
   actionLabel?: string;
 }) {
   const { monthLabel, pendingCount, urgentCount, incomingCount, calendarCells, fallbackEvents, todayEvents, todayKey, spotlightDate, activeScope } = view;
@@ -66,9 +66,11 @@ export function InteractiveCalendarSection({
                 {actionLabel}
               </Link>
             </div>
-            <p className="font-body text-sm font-bold uppercase tracking-[0.12em] text-neo-dark/70 sm:text-base sm:tracking-wide">
-              {description}
-            </p>
+            {description ? (
+              <p className="font-body text-sm font-bold uppercase tracking-[0.12em] text-neo-dark/70 sm:text-base sm:tracking-wide">
+                {description}
+              </p>
+            ) : null}
           </div>
 
           <div className="grid grid-cols-3 gap-3 xl:h-full">
@@ -88,7 +90,7 @@ export function InteractiveCalendarSection({
             </div>
             <div className="border-[3px] border-neo-dark bg-white px-3 py-3 shadow-[4px_4px_0_#0F172A] sm:border-4 sm:px-4 sm:py-4 xl:flex xl:flex-col xl:justify-between xl:px-5 xl:py-5">
               <p className="font-heading text-[9px] uppercase tracking-[0.14em] text-neo-pink sm:text-[10px]">
-                Sinais
+                Alertas
               </p>
               <p className="mt-2 font-heading text-3xl uppercase text-neo-dark sm:text-4xl">
                 {urgentCount}/{incomingCount}
@@ -138,7 +140,7 @@ export function InteractiveCalendarSection({
         <div className="mt-4 grid gap-3 sm:mt-5 sm:gap-4 xl:grid-cols-2">
           {fallbackEvents.length === 0 ? (
             <div className="border-[3px] border-neo-dark bg-white px-4 py-5 text-sm font-bold text-neo-dark/65 sm:border-4">
-              Nenhum evento neste periodo. Use o botao gerenciar para registrar uma conta, recebimento ou gasto.
+              Nenhum evento neste periodo.
             </div>
           ) : (
             fallbackEvents.map((item) => (

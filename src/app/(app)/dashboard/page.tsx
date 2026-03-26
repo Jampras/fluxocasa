@@ -41,52 +41,41 @@ export default async function DashboardPage({
     <div className="min-h-screen w-full space-y-6 pb-16 sm:space-y-8 sm:pb-20">
       <AppHeader monthLabel={snapshot.monthLabel} userName={user.nome} />
 
-      <div className="space-y-4 lg:space-y-5">
-        <div className="max-w-3xl space-y-1.5 sm:space-y-2">
-          <p className="font-heading text-[10px] uppercase tracking-[0.2em] text-neo-pink sm:text-sm sm:tracking-[0.3em]">
-            Painel principal
-          </p>
-          <p className="font-body text-sm font-bold uppercase tracking-[0.12em] text-neo-dark/75 sm:text-base sm:tracking-wide">
-            Cards, calendario interativo e historico geral em uma tela so.
-          </p>
-        </div>
-
-        <DashboardMetricCarousel
-          items={[
-            {
-              label: "Caixa da casa",
-              value: formatCurrency(snapshot.houseCash),
-              description: "Saldo compartilhado projetado.",
-              accentClass: "bg-neo-cyan"
-            },
-            {
-              label: "Carteira pessoal",
-              value: formatCurrency(snapshot.privateWallet),
-              description: "Margem disponivel no seu fluxo privado.",
-              accentClass: "bg-neo-yellow"
-            },
-            {
-              label: "Pendencias",
-              value: String(snapshot.pendingBills),
-              description: "Contas da casa aguardando acao.",
-              accentClass: "bg-white"
-            },
-            {
-              label: "Anotacoes",
-              value: String(snapshot.notesCount),
-              description: "Cards visiveis no mural da casa e no seu fluxo.",
-              accentClass: "bg-neo-lime"
-            }
-          ]}
-        />
-      </div>
+      <DashboardMetricCarousel
+        items={[
+          {
+            label: "Caixa da casa",
+            value: formatCurrency(snapshot.houseCash),
+            description: "Compartilhado",
+            accentClass: "bg-neo-cyan"
+          },
+          {
+            label: "Carteira pessoal",
+            value: formatCurrency(snapshot.privateWallet),
+            description: "Privado",
+            accentClass: "bg-neo-yellow"
+          },
+          {
+            label: "Pendencias",
+            value: String(snapshot.pendingBills),
+            description: "Aguardando",
+            accentClass: "bg-white"
+          },
+          {
+            label: "Anotacoes",
+            value: String(snapshot.notesCount),
+            description: "No mural",
+            accentClass: "bg-neo-lime"
+          }
+        ]}
+      />
 
       <InteractiveCalendarSection
         view={calendarView}
         actionHref="/gerenciar"
-        title="Calendario interativo"
-        description="Visao geral consolidada com contas, recebimentos e gastos do mes."
-        actionLabel="Gerenciar"
+        title="Calendario"
+        description={null}
+        actionLabel="Abrir"
       />
 
       <RecentActivity items={snapshot.activity} />

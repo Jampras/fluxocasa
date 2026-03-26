@@ -71,10 +71,7 @@ export function DashboardMetricCarousel({ items }: { items: DashboardMetricItem[
 
   return (
     <div className="relative">
-      <div className="compact-desktop-tight mb-3 flex items-center justify-between gap-3 xl:mb-4">
-        <p className="font-body text-[11px] font-bold uppercase tracking-[0.12em] text-neo-dark/60 sm:text-sm sm:tracking-[0.16em]">
-          Deslize no touch ou use as setas no desktop.
-        </p>
+      <div className="compact-desktop-tight mb-3 flex items-center justify-end gap-3 xl:mb-4">
         <div className="hidden items-center gap-2 md:flex">
           <button
             type="button"
@@ -105,20 +102,22 @@ export function DashboardMetricCarousel({ items }: { items: DashboardMetricItem[
           {items.map((item) => (
             <NeoCard
               key={item.label}
-              className="min-h-[220px] min-w-[88%] snap-start overflow-hidden bg-white p-0 sm:min-h-[236px] sm:min-w-[68%] lg:min-h-[250px] lg:min-w-[calc(50%-10px)] xl:min-h-[270px] xl:min-w-[calc(50%-10px)] 2xl:min-h-[300px]"
+              className="min-h-[210px] min-w-[88%] snap-start overflow-hidden bg-white p-0 sm:min-h-[224px] sm:min-w-[68%] lg:min-h-[236px] lg:min-w-[calc(50%-10px)] xl:min-h-[248px] xl:min-w-[calc(50%-10px)] 2xl:min-h-[272px]"
             >
               <div className={`border-b-[3px] border-neo-dark px-3 py-2 sm:border-b-4 sm:px-4 sm:py-3 xl:px-5 xl:py-4 ${item.accentClass}`}>
                 <p className="font-heading text-[10px] uppercase tracking-[0.14em] text-neo-dark sm:text-sm sm:tracking-[0.22em] xl:text-base">
                   {item.label}
                 </p>
               </div>
-              <div className="flex h-[calc(100%-56px)] flex-col justify-between space-y-3 p-4 sm:p-5 xl:p-6">
-                <h2 className="font-heading text-[2.5rem] uppercase leading-none text-neo-dark sm:text-[3rem] xl:text-[3.6rem] 2xl:text-[4rem]">
+              <div className="flex h-[calc(100%-56px)] flex-col justify-between space-y-2 p-4 sm:p-4 xl:p-5">
+                <h2 className="font-heading text-[2.5rem] uppercase leading-none text-neo-dark sm:text-[2.9rem] xl:text-[3.3rem] 2xl:text-[3.7rem]">
                   {item.value}
                 </h2>
-                <p className="max-w-[18rem] font-body text-[11px] font-bold uppercase tracking-[0.08em] text-neo-dark/65 sm:text-sm sm:tracking-[0.12em] xl:max-w-[20rem] xl:text-[0.95rem]">
-                  {item.description}
-                </p>
+                {item.description ? (
+                  <p className="max-w-[18rem] font-body text-[11px] font-bold uppercase tracking-[0.08em] text-neo-dark/65 sm:text-sm sm:tracking-[0.12em] xl:max-w-[20rem] xl:text-[0.95rem]">
+                    {item.description}
+                  </p>
+                ) : null}
               </div>
             </NeoCard>
           ))}

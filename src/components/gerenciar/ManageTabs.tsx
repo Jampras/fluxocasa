@@ -8,9 +8,9 @@ import { twMerge } from "tailwind-merge";
 
 type ManageTab = "casa" | "pessoal";
 
-const MANAGE_TABS: Array<{ id: ManageTab; label: string; description: string }> = [
-  { id: "casa", label: "Casa", description: "Contas e contribuicoes" },
-  { id: "pessoal", label: "Pessoal", description: "Renda, contas e metas" }
+const MANAGE_TABS: Array<{ id: ManageTab; label: string }> = [
+  { id: "casa", label: "Casa" },
+  { id: "pessoal", label: "Pessoal" }
 ];
 
 export function ManageTabs({ currentTab }: { currentTab: ManageTab }) {
@@ -53,14 +53,11 @@ export function ManageTabs({ currentTab }: { currentTab: ManageTab }) {
               void router.prefetch(href);
             }}
             className={twMerge(
-              "neo-pressable flex min-h-[78px] flex-col justify-center border-[3px] border-neo-dark bg-white px-3 py-2.5 text-center shadow-[4px_4px_0_#0F172A] sm:min-h-[96px] sm:border-4 sm:px-4 sm:py-3.5 sm:shadow-[5px_5px_0_#0F172A]",
+              "neo-pressable flex min-h-[58px] items-center justify-center border-[3px] border-neo-dark bg-white px-3 py-2.5 text-center shadow-[4px_4px_0_#0F172A] sm:min-h-[72px] sm:border-4 sm:px-4 sm:py-3 sm:shadow-[5px_5px_0_#0F172A]",
               active ? "neo-tab-active bg-neo-yellow -translate-y-1" : "hover:bg-neo-cyan"
             )}
           >
             <p className="font-heading text-lg uppercase leading-none text-neo-dark sm:text-2xl">{tab.label}</p>
-            <p className="mt-1 font-body text-[9px] font-bold uppercase tracking-[0.08em] text-neo-dark/65 sm:text-xs sm:tracking-[0.16em]">
-              {tab.description}
-            </p>
           </Link>
         );
       })}

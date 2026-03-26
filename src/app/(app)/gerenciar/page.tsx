@@ -35,20 +35,10 @@ export default async function GerenciarPage({
 
     return (
       <div className="min-h-screen w-full space-y-6 pb-16 sm:space-y-8 sm:pb-20">
-        <AppHeader monthLabel={snapshot.monthLabel} title="Gerenciar" eyebrow="Painel operacional" />
+        <AppHeader monthLabel={snapshot.monthLabel} title="Gerenciar" />
         <ManageTabs currentTab={activeTab} />
 
-        <div className="space-y-1.5 sm:space-y-2">
-          <p className="font-heading text-[10px] uppercase tracking-[0.2em] text-neo-pink sm:text-sm sm:tracking-[0.3em]">
-            Fluxo pessoal
-          </p>
-          <p className="font-body text-sm font-bold uppercase tracking-[0.12em] text-neo-dark/75 sm:text-base sm:tracking-wide">
-            Cadastre, edite e acompanhe renda, contas, gastos, metas e historico pessoal.
-          </p>
-        </div>
-
         <ManageSectionNav
-          title="Atalhos do fluxo pessoal"
           items={[
             { id: "personal-overview", label: "Resumo" },
             { id: "personal-create-income", label: "Renda" },
@@ -82,20 +72,10 @@ export default async function GerenciarPage({
 
   return (
     <div className="min-h-screen w-full space-y-6 pb-16 sm:space-y-8 sm:pb-20">
-      <AppHeader monthLabel={snapshot.monthLabel} title="Gerenciar" eyebrow="Painel operacional" />
+      <AppHeader monthLabel={snapshot.monthLabel} title="Gerenciar" />
       <ManageTabs currentTab={activeTab} />
 
-      <div className="space-y-1.5 sm:space-y-2">
-        <p className="font-heading text-[10px] uppercase tracking-[0.2em] text-neo-pink sm:text-sm sm:tracking-[0.3em]">
-          Fluxo da casa
-        </p>
-        <p className="font-body text-sm font-bold uppercase tracking-[0.12em] text-neo-dark/75 sm:text-base sm:tracking-wide">
-          Centralize contribuicoes, contas, historico e manutencao do caixa compartilhado.
-        </p>
-      </div>
-
       <ManageSectionNav
-        title="Atalhos do fluxo da casa"
         items={[
           { id: "house-overview", label: "Resumo" },
           { id: "house-contribution", label: "Contribuicao" },
