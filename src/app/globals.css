@@ -96,13 +96,13 @@ html, body {
 }
 
 body {
-  position: relative;
   background:
     radial-gradient(circle at 12% 14%, rgba(255, 55, 145, 0.22), transparent 0 18%),
     radial-gradient(circle at 88% 12%, rgba(34, 211, 238, 0.2), transparent 0 16%),
     radial-gradient(circle at 84% 82%, rgba(183, 255, 53, 0.2), transparent 0 18%),
     radial-gradient(circle at 16% 84%, rgba(255, 222, 89, 0.2), transparent 0 16%),
     linear-gradient(180deg, #fff7de 0%, #fff5ef 38%, #fff8f7 100%);
+  background-attachment: fixed;
   color: #0F172A;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -123,9 +123,8 @@ body.wizard-open .mobile-app-navbar {
 /* Pop-art dotted texture background */
 body::before {
   content: "";
-  position: absolute;
+  position: fixed;
   inset: 0;
-  min-height: 100%;
   pointer-events: none;
   background:
     radial-gradient(circle, rgba(15, 23, 42, 0.14) 1.5px, transparent 1.5px),
@@ -139,9 +138,8 @@ body::before {
 
 body::after {
   content: "";
-  position: absolute;
+  position: fixed;
   inset: 0;
-  min-height: 100%;
   pointer-events: none;
   background:
     radial-gradient(circle at 8% 22%, rgba(255, 255, 255, 0.46) 0 8%, transparent 8% 100%),
