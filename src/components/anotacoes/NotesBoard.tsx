@@ -1,7 +1,19 @@
 "use client";
 
 import { FormEvent, useEffect, useMemo, useState } from "react";
-import { ArrowDown, ArrowUp, Globe2, Home, Lock, Pencil, Plus, StickyNote, Trash2, X } from "lucide-react";
+import {
+  ArrowDown,
+  ArrowUp,
+  Globe2,
+  GripVertical,
+  Home,
+  Lock,
+  Pencil,
+  Plus,
+  StickyNote,
+  Trash2,
+  X
+} from "lucide-react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { ActionFeedback } from "@/components/ui/ActionFeedback";
@@ -9,6 +21,7 @@ import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { requestJson } from "@/lib/client-api";
 import { refreshCurrentView } from "@/lib/app-refresh";
+import { getSupabaseBrowserClient } from "@/lib/supabase/browser";
 import type { NoteRecord, NotesBoardSnapshot } from "@/types";
 
 interface NotesBoardProps {
@@ -78,6 +91,8 @@ export function NotesBoard({ initialSnapshot }: NotesBoardProps) {
   const [scopeFilter, setScopeFilter] = useState("all");
   const [tagFilter, setTagFilter] = useState("all");
   const [sortMode, setSortMode] = useState("manual");
+  const [draggedNoteId, setDraggedNoteId] = useState<string | null>(null);
+  const [dropTargetId, setDropTargetId] = useState<string | null>(null);
 
   useEffect(() => {
     document.body.classList.toggle("wizard-open", isModalOpen);
@@ -252,10 +267,38 @@ export function NotesBoard({ initialSnapshot }: NotesBoardProps) {
     }
   }
 
+  async function handleDropMove(noteId: string, targetNoteId: string) {
+    if (noteId === targetNoteId) {
+      setDraggedNoteId(null);
+      setDropTargetId(null);
+      return;
+    }
+
+    setLoading(true);
+    setError(null);
+    setFeedback(null);
+
+    try {
+      await requestJson("/api/anotacoes/reordenar", {
+        method: "PATCH",
+        body: JSON.stringify({ noteId, targetNoteId })
+      });
+      setFeedback("Ordem atualizada.");
+      void syncBoard();
+    } catch (submissionError) {
+      setError(submissionError instanceof Error ? submissionError.message : "Nao foi possivel mover a anotacao.");
+    } finally {
+      setDraggedNoteId(null);
+      setDropTargetId(null);
+      setLoading(false);
+    }
+  }
+
   useEffect(() => {
     let cancelled = false;
+    const supabase = getSupabaseBrowserClient();
 
-    const syncBoard = async () => {
+    const syncFromServer = async () => {
       try {
         const nextSnapshot = await requestJson<NotesBoardSnapshot>("/api/anotacoes");
 
@@ -267,24 +310,40 @@ export function NotesBoard({ initialSnapshot }: NotesBoardProps) {
       }
     };
 
-    const intervalHandle = window.setInterval(() => {
-      void syncBoard();
-    }, 8000);
-
     const handleVisibilityChange = () => {
       if (document.visibilityState === "visible") {
-        void syncBoard();
+        void syncFromServer();
       }
     };
 
     window.addEventListener("focus", handleVisibilityChange);
     document.addEventListener("visibilitychange", handleVisibilityChange);
 
+    if (!supabase) {
+      const intervalHandle = window.setInterval(() => {
+        void syncFromServer();
+      }, 8000);
+
+      return () => {
+        cancelled = true;
+        window.clearInterval(intervalHandle);
+        window.removeEventListener("focus", handleVisibilityChange);
+        document.removeEventListener("visibilitychange", handleVisibilityChange);
+      };
+    }
+
+    const channel = supabase
+      .channel("notes-realtime")
+      .on("postgres_changes", { event: "*", schema: "public", table: "Nota" }, () => {
+        void syncFromServer();
+      })
+      .subscribe();
+
     return () => {
       cancelled = true;
-      window.clearInterval(intervalHandle);
       window.removeEventListener("focus", handleVisibilityChange);
       document.removeEventListener("visibilitychange", handleVisibilityChange);
+      void supabase.removeChannel(channel);
     };
   }, []);
 
@@ -411,11 +470,38 @@ export function NotesBoard({ initialSnapshot }: NotesBoardProps) {
         <div className="columns-1 gap-4 min-[520px]:columns-2 xl:columns-3">
           {filteredNotes.map((note) => {
             const VisibilityIcon = getVisibilityIcon(note);
+            const canDrag = sortMode === "manual" && note.canEdit;
 
             return (
               <article
                 key={note.id}
-                className="mb-4 break-inside-avoid rounded-none border-[3px] border-neo-dark bg-white shadow-[4px_4px_0_#0F172A] sm:border-4 sm:shadow-[6px_6px_0_#0F172A]"
+                draggable={canDrag}
+                onDragStart={() => {
+                  if (canDrag) {
+                    setDraggedNoteId(note.id);
+                    setDropTargetId(note.id);
+                  }
+                }}
+                onDragOver={(event) => {
+                  if (draggedNoteId && draggedNoteId !== note.id) {
+                    event.preventDefault();
+                    setDropTargetId(note.id);
+                  }
+                }}
+                onDrop={(event) => {
+                  event.preventDefault();
+
+                  if (draggedNoteId && draggedNoteId !== note.id) {
+                    void handleDropMove(draggedNoteId, note.id);
+                  }
+                }}
+                onDragEnd={() => {
+                  setDraggedNoteId(null);
+                  setDropTargetId(null);
+                }}
+                className={`mb-4 break-inside-avoid rounded-none border-[3px] border-neo-dark bg-white shadow-[4px_4px_0_#0F172A] transition-transform sm:border-4 sm:shadow-[6px_6px_0_#0F172A] ${
+                  draggedNoteId === note.id ? "opacity-60" : ""
+                } ${dropTargetId === note.id && draggedNoteId !== note.id ? "-translate-y-1 ring-4 ring-neo-cyan/60" : ""}`}
               >
                 <div className={`border-b-[3px] border-neo-dark px-4 py-3 sm:border-b-4 sm:px-5 ${note.accentClass}`}>
                   <div className="flex items-start justify-between gap-3">
@@ -426,6 +512,12 @@ export function NotesBoard({ initialSnapshot }: NotesBoardProps) {
                         </span>
                         <span className={`inline-flex h-9 w-9 items-center justify-center border-[3px] border-neo-dark text-neo-dark sm:border-4 ${note.iconToneClass}`}>
                           <VisibilityIcon className="h-4 w-4 stroke-[2.8px]" />
+                        </span>
+                        <span
+                          className={`hidden md:inline-flex h-9 w-9 items-center justify-center border-[3px] border-neo-dark bg-white text-neo-dark sm:border-4 ${canDrag ? "cursor-grab" : "opacity-50"}`}
+                          title={canDrag ? "Arraste para reorganizar." : "Troque para ordem manual para arrastar."}
+                        >
+                          <GripVertical className="h-4 w-4 stroke-[2.8px]" />
                         </span>
                       </div>
                       <h3 className="font-heading text-3xl uppercase leading-[0.94] text-neo-dark sm:text-[2.2rem]">
@@ -462,7 +554,7 @@ export function NotesBoard({ initialSnapshot }: NotesBoardProps) {
                       <Button
                         type="button"
                         variant="secondary"
-                        className="h-11 px-3 text-xs"
+                        className="h-11 px-3 text-xs md:hidden"
                         onClick={() => void handleMove(note.id, "up")}
                         disabled={loading || sortMode !== "manual"}
                         title={sortMode !== "manual" ? "Troque para ordem manual para reordenar." : "Mover para cima"}
@@ -473,7 +565,7 @@ export function NotesBoard({ initialSnapshot }: NotesBoardProps) {
                       <Button
                         type="button"
                         variant="secondary"
-                        className="h-11 px-3 text-xs"
+                        className="h-11 px-3 text-xs md:hidden"
                         onClick={() => void handleMove(note.id, "down")}
                         disabled={loading || sortMode !== "manual"}
                         title={sortMode !== "manual" ? "Troque para ordem manual para reordenar." : "Mover para baixo"}

@@ -31,12 +31,13 @@ O sistema cobre:
 
 - login Google em ambiente com Supabase
 - onboarding de casa
-- painel, gerenciar, metas e configuracoes
+- painel, gerenciar, anotacoes e configuracoes
 - CRUD completo dos registros financeiros principais
 - recorrencia
 - saude financeira
 - auditoria da casa
 - gestao de moradores
+- mural de anotacoes com realtime seguro e reorder
 
 ## Arquivos para Ler Primeiro
 
@@ -65,7 +66,9 @@ Ao mexer em funcionalidade:
 - `revalidateAppViews()` agora trabalha com presets granulares por dominio
 - o painel, o gerenciar e o historico recente usam navegacao por item com `focus`
 - `/calendario`, `/casa` e `/pessoal` sao apenas redirecionamentos legados
+- `/metas` e apenas redirecionamento legado para `/anotacoes`
 - a suite E2E cria sessao assinada localmente, sem expor rotas de teste no build
+- o realtime de anotacoes depende de `scripts/notes_realtime_rls.sql` aplicado no Supabase/Postgres
 
 ## Ambientes
 
@@ -93,4 +96,4 @@ npm run test:integration
 
 - nao assumir que `build` tolera execucoes concorrentes mexendo em `.next`
 - manter `NEXT_PUBLIC_APP_URL` coerente com o ambiente publicado
-- o gargalo principal restante de UX/performance hoje esta em `Metas`, por causa dos graficos e do escopo consolidado
+- o gargalo principal restante de UX/performance hoje esta em leituras consolidadas e graficos mais pesados

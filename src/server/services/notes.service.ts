@@ -258,3 +258,27 @@ export async function moveNote(userId: string, noteId: string, direction: "up" |
     })
   ]);
 }
+
+export async function moveNoteToTarget(userId: string, noteId: string, targetNoteId: string) {
+  if (noteId === targetNoteId) {
+    return;
+  }
+
+  const { note } = await getAuthorizedNote(userId, noteId);
+  const { note: targetNote } = await getAuthorizedNote(userId, targetNoteId);
+
+  if (note.casaId !== targetNote.casaId) {
+    throw new UserFacingError("Nao foi possivel mover a anotacao.", 400);
+  }
+
+  await prisma.$transaction([
+    prisma.nota.update({
+      where: { id: note.id },
+      data: { posicao: targetNote.posicao }
+    }),
+    prisma.nota.update({
+      where: { id: targetNote.id },
+      data: { posicao: note.posicao }
+    })
+  ]);
+}

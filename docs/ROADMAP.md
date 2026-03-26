@@ -9,7 +9,7 @@ Este roadmap reflete o estado atual depois da estabilizacao principal do produto
 - onboarding de casa
 - painel com cards em carrossel, calendario interativo e historico resumido
 - gerenciar com abas `Casa` e `Pessoal`
-- metas por escopo
+- anotacoes com mural unico
 - configuracoes centrais
 - recorrencia de contas e rendas
 - saude financeira calculada
@@ -22,15 +22,15 @@ Este roadmap reflete o estado atual depois da estabilizacao principal do produto
 - revalidacao granular das views
 - prefetch e loading para troca de guias
 - wizard mobile refinado com ocultacao da navbar inferior
+- notes board com drag-and-drop no desktop, fallback mobile e realtime seguro
 
 ## Proxima leva recomendada
 
-- reduzir o custo de dados em `Metas`, principalmente no escopo `Geral`
-- adicionar filtros e busca nas listas de contas, rendas e gastos
-- adicionar ordenacao por status, vencimento e categoria
-- refinar estados vazios e skeletons por secao, nao so loading global
-- feedback mais explicito depois de salvar, excluir e marcar status
+- trocar o reorder por botoes nas anotacoes mobile por gestos touch
+- adicionar filtros salvos ou busca persistente em `Anotacoes`
 - pagina dedicada de auditoria da casa com filtros
+- refinar estados vazios e skeletons por secao, nao so loading global
+- endurecer a CSP para reduzir dependencia de `unsafe-inline`
 
 ## Fase seguinte
 
@@ -40,6 +40,7 @@ Este roadmap reflete o estado atual depois da estabilizacao principal do produto
 - importacao de dados
 - observabilidade com tracing e captura estruturada de erro
 - dashboards historicos por periodo maior que o mes atual
+- realtime adicional em outros modulos alem de anotacoes
 
 ## Divida Tecnica Residual
 

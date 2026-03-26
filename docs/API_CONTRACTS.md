@@ -231,7 +231,7 @@ Rotas complementares:
 - `PUT /api/pessoal/gastos/:id`
 - `DELETE /api/pessoal/gastos/:id`
 
-### Metas
+### Metas pessoais
 
 `POST /api/pessoal/metas`
 
@@ -250,6 +250,94 @@ Rotas complementares:
 
 - `PUT /api/pessoal/metas/:id`
 - `DELETE /api/pessoal/metas/:id`
+
+Observacao:
+
+- metas continuam existindo como dado operacional dentro de `Gerenciar > Pessoal`
+- a rota legada de pagina `/metas` redireciona para `/anotacoes`
+
+## Anotacoes
+
+### `GET /api/anotacoes`
+
+Retorna o snapshot atual do mural:
+
+- contagem total
+- contagem de publicas visiveis
+- contagem de privadas do usuario
+- lista de notas visiveis para o morador autenticado
+
+Regras de visibilidade:
+
+- `CASA`: todos da casa veem
+- `PESSOAL` + `isPublica=true`: todos da casa veem
+- `PESSOAL` + `isPublica=false`: so o dono ve
+
+### `POST /api/anotacoes`
+
+Cria uma anotacao.
+
+Body:
+
+```json
+{
+  "titulo": "Comprar detergente",
+  "conteudo": "Ver preco no atacado",
+  "tag": "Compras",
+  "escopo": "PESSOAL",
+  "isPublica": false
+}
+```
+
+Resposta:
+
+- `201`
+
+### `PUT /api/anotacoes/:id`
+
+Atualiza anotacao existente.
+
+Regras:
+
+- nota pessoal privada/publica: so o dono edita
+- nota da casa: qualquer morador da casa pode editar
+
+### `DELETE /api/anotacoes/:id`
+
+Remove anotacao existente.
+
+Regras:
+
+- nota pessoal privada/publica: so o dono remove
+- nota da casa: qualquer morador da casa pode remover
+
+### `PATCH /api/anotacoes/reordenar`
+
+Atualiza a ordem visual do mural.
+
+Body suportado:
+
+```json
+{
+  "noteId": "nota-origem",
+  "direction": "up"
+}
+```
+
+ou
+
+```json
+{
+  "noteId": "nota-origem",
+  "targetNoteId": "nota-destino"
+}
+```
+
+Observacoes:
+
+- `direction` atende fallback mobile
+- `targetNoteId` atende drag-and-drop no desktop
+- o mural tambem sincroniza por realtime seguro no Supabase
 
 ## Moradores
 

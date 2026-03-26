@@ -33,15 +33,16 @@ Ali ficam:
 - manutencao das listas
 - gestao cotidiana do fluxo
 
-### Metas
+### Anotacoes
 
-Tela de acompanhamento por escopo:
+Tela de mural unico:
 
-- panorama consolidado
-- metas pessoais
-- saude da casa
-- graficos de distribuicao
-- waterfall de fluxo
+- notas pessoais privadas
+- notas pessoais publicas
+- notas da casa
+- filtros por busca, tag, visibilidade e escopo
+- reorder manual
+- atualizacao automatica do mural
 
 ### Configuracoes
 
@@ -87,6 +88,16 @@ Central de configuracao do produto:
 - metas por categoria
 - editar e remover todos esses itens
 - historico pessoal dentro de `Gerenciar > Pessoal`
+- anotacoes pessoais privadas e publicas dentro do mural
+
+### Anotacoes
+
+- criar nota
+- editar nota
+- excluir nota
+- reordenar notas
+- sincronizar mural em tempo real
+- distinguir nota privada, publica e da casa
 
 ## Regras de Negocio Relevantes
 
@@ -99,6 +110,7 @@ Central de configuracao do produto:
 - renda futura nao entra como recebida por padrao
 - itens recorrentes permanecem no fluxo ate serem encerrados
 - o wizard de lancamento e modal global e se adapta ao contexto atual
+- o mural de anotacoes respeita visibilidade por backend e por RLS no realtime
 
 ## Recorrencia Atual
 
@@ -127,4 +139,4 @@ O projeto ja esta organizado para uso real com:
 - banco PostgreSQL / Supabase
 - testes automatizados
 - fluxos principais cobrindo casa e pessoal
-- navegacao principal estabilizada em `Painel / Gerenciar / Metas / Configuracoes`
+- navegacao principal estabilizada em `Painel / Gerenciar / Anotacoes / Configuracoes`

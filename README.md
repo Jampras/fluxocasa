@@ -28,7 +28,7 @@ O projeto esta operando com os seguintes blocos:
 - onboarding de casa por criacao ou entrada por codigo de convite
 - painel principal com cards em carrossel, calendario interativo geral e historico resumido
 - tela `Gerenciar` com abas `Casa` e `Pessoal`
-- tela de metas e graficos por escopo
+- tela `Anotacoes` com mural unico, filtros, CRUD, reorder e sync automatica
 - tela de configuracoes com perfil, casa, moradores e saida
 - CRUD de:
   - contribuicoes da casa
@@ -47,6 +47,9 @@ O projeto esta operando com os seguintes blocos:
   - conta pessoal paga
   - renda recebida
 - historico recente com acoes contextuais
+- anotacoes pessoais privadas, pessoais publicas e da casa
+- reorder manual das anotacoes com drag-and-drop no desktop e fallback mobile
+- atualizacao automatica do mural por canal realtime seguro no Supabase com fallback local
 - auditoria da casa para eventos administrativos
 - cobertura automatizada de fluxos autenticados e nao autenticados
 - wizard global de lancamentos com modal adaptado para mobile
@@ -57,7 +60,7 @@ Navegacao principal:
 
 - `Painel` em `/dashboard`
 - `Gerenciar` em `/gerenciar`
-- `Metas` em `/metas`
+- `Anotacoes` em `/anotacoes`
 - `Configuracoes` em `/configuracoes`
 
 Experiencia por tela:
@@ -69,10 +72,11 @@ Experiencia por tela:
 - `Gerenciar`
   - `Casa`
   - `Pessoal`
-- `Metas`
-  - `Geral`
-  - `Pessoal`
-  - `Casa`
+- `Anotacoes`
+  - mural unico
+  - filtros por busca, tag, escopo e visibilidade
+  - criacao, edicao, exclusao e reordenacao
+  - realtime do mural com RLS e publicacao dedicada
 
 Rotas legadas:
 
@@ -155,7 +159,7 @@ Observacao:
 - `src/components`
   - UI compartilhada
   - formularios
-  - blocos de dashboard, gerenciamento, metas e configuracoes
+  - blocos de dashboard, gerenciamento, anotacoes e configuracoes
 - `src/config`
   - rotas
   - navegacao
@@ -186,6 +190,8 @@ Observacao:
   - testes Playwright
 - `docs`
   - documentacao complementar
+- `scripts/notes_realtime_rls.sql`
+  - SQL auxiliar para habilitar RLS e realtime seguro das anotacoes no Supabase
 
 ## Testes
 

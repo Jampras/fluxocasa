@@ -55,6 +55,12 @@ Responsabilidades:
 - manter a camada de entrada fina
 - encapsular a orquestracao entre domnios
 
+Services atuais com papel mais forte:
+
+- `calendar.service.ts`
+- `metas.service.ts`
+- `notes.service.ts`
+
 ### Repositories
 
 - `src/server/repositories`
@@ -73,6 +79,19 @@ Repositorios principais:
 - `residents.repository.ts`
 - `_shared.ts`
 - `_recurrence.ts`
+
+### Realtime e sincronizacao
+
+O produto usa duas estrategias de sincronizacao:
+
+- revalidacao granular server-side para mudancas de dominio
+- realtime seguro para `Anotacoes`
+
+No mural de anotacoes:
+
+- a UI escuta mudancas da tabela `Nota` via Supabase Realtime
+- o acesso ao canal depende de RLS aplicado diretamente no banco
+- quando o cliente realtime nao esta disponivel, a tela faz sincronizacao periodica e ao voltar foco
 
 ### Persistencia
 
@@ -126,9 +145,18 @@ Toda mutacao relevante segue este pipeline:
 - contas pessoais
 - gastos
 - metas
+- anotacoes pessoais privadas e publicas
 - recebimento previsto x recebido
 - recorrencia
 - status de urgencia
+
+### Anotacoes
+
+- mural unico em `/anotacoes`
+- visibilidade `privada`, `pessoal publica` e `da casa`
+- CRUD via API protegida
+- reorder por `posicao`
+- drag-and-drop no desktop e fallback por botoes no mobile
 
 ### Dashboard e analytics
 
@@ -150,6 +178,7 @@ Entidades centrais:
 - `Transacao`
 - `Contribuicao`
 - `MetaOrcamento`
+- `Nota`
 - `CicloMensal`
 - `AuditoriaCasa`
 
@@ -159,6 +188,7 @@ Enums principais:
 - `TipoTransacao`
 - `FrequenciaTransacao`
 - `StatusTransacao`
+- `EscopoNota`
 
 ## Regras importantes
 
@@ -169,6 +199,7 @@ Enums principais:
 - itens recorrentes geram ocorrencias do ciclo atual
 - calendario e atividade recente apontam para o item exato, nao apenas para a secao
 - `/calendario`, `/casa` e `/pessoal` sobrevivem apenas como rotas legadas de redirecionamento
+- `/metas` sobrevive apenas como redirecionamento legado para `/anotacoes`
 
 ## Performance e consistencia
 
@@ -182,6 +213,7 @@ A arquitetura atual ja incorpora alguns ajustes importantes:
 - prefetch de navegacao principal e tabs
 - script de build com limpeza de `.next`
 - E2E autenticado com sessao isolada sem rotas de teste publicadas
+- mural de anotacoes com realtime seguro por RLS e publicacao dedicada no Supabase
 
 ## Como evoluir sem quebrar o padrao
 
