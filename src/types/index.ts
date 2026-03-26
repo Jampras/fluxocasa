@@ -3,6 +3,8 @@ export type Tone = "emerald" | "zinc" | "amber" | "slate" | "danger" | "success"
 export type BillStatus = "pending" | "paid" | "warning";
 export type RecurrenceType = "single" | "monthly" | "installment" | "fixed";
 export type IncomeStatus = "scheduled" | "received";
+export type NoteScope = "personal" | "house";
+export type NoteVisibility = "private" | "public";
 
 export type ResidentRole = "ADMIN" | "MEMBER";
 
@@ -146,7 +148,7 @@ export interface DashboardSnapshot {
   houseCash: number;
   pendingBills: number;
   privateWallet: number;
-  goalsHit: string;
+  notesCount: number;
   activity: ActivityItem[];
   insight: {
     title: string;
@@ -192,4 +194,31 @@ export interface ResidentsSnapshot {
   canManageResidents: boolean;
   residents: Resident[];
   auditLog: HouseAuditEvent[];
+}
+
+export interface NoteRecord {
+  id: string;
+  title: string;
+  content: string;
+  tag: string;
+  scope: NoteScope;
+  visibility: NoteVisibility;
+  visibilityLabel: string;
+  scopeLabel: string;
+  ownerName: string;
+  createdAtLabel: string;
+  updatedAtLabel?: string;
+  accentClass: string;
+  iconToneClass: string;
+  canEdit: boolean;
+  canDelete: boolean;
+}
+
+export interface NotesBoardSnapshot {
+  monthLabel: string;
+  houseName: string;
+  noteCount: number;
+  visibleToHouseCount: number;
+  privateCount: number;
+  notes: NoteRecord[];
 }

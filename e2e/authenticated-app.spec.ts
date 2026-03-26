@@ -39,10 +39,11 @@ test.describe("Authenticated App", () => {
     await expect(page.getByText("Calendario interativo", { exact: true })).toBeVisible({ timeout: 30000 });
   });
 
-  test("authenticated user can access the goals view", async ({ page }) => {
+  test("authenticated user can access the notes view", async ({ page }) => {
     await createE2ESession(page);
-    await page.goto("/metas", { waitUntil: "domcontentloaded" });
-    await expect(page.getByText("Saldo pessoal")).toBeVisible();
+    await page.goto("/anotacoes", { waitUntil: "domcontentloaded" });
+    await expect(page.getByText("Mural vivo")).toBeVisible();
+    await expect(page.getByText("Nova anotacao")).toBeVisible();
   });
 
   test("authenticated user can access settings", async ({ page }) => {

@@ -5,22 +5,22 @@ import { ROUTES } from "@/config/routes";
 const REVALIDATION_PRESETS = {
   dashboard: [ROUTES.dashboard],
   gerenciar: [ROUTES.gerenciar],
-  metas: [ROUTES.metas],
+  anotacoes: [ROUTES.anotacoes],
   configuracoes: [ROUTES.configuracoes, ROUTES.moradores],
-  personal: [ROUTES.dashboard, ROUTES.gerenciar, ROUTES.metas],
-  house: [ROUTES.dashboard, ROUTES.gerenciar, ROUTES.metas],
-  settings: [ROUTES.dashboard, ROUTES.gerenciar, ROUTES.configuracoes, ROUTES.moradores],
+  personal: [ROUTES.dashboard, ROUTES.gerenciar],
+  house: [ROUTES.dashboard, ROUTES.gerenciar],
+  settings: [ROUTES.dashboard, ROUTES.gerenciar, ROUTES.anotacoes, ROUTES.configuracoes, ROUTES.moradores],
   membership: [
     ROUTES.dashboard,
     ROUTES.gerenciar,
-    ROUTES.metas,
+    ROUTES.anotacoes,
     ROUTES.configuracoes,
     ROUTES.moradores
   ],
   all: [
     ROUTES.dashboard,
     ROUTES.gerenciar,
-    ROUTES.metas,
+    ROUTES.anotacoes,
     ROUTES.configuracoes,
     ROUTES.moradores
   ]

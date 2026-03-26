@@ -19,6 +19,7 @@ model Casa {
   moradores             Morador[]
   contribuicoes         Contribuicao[]
   transacoes            Transacao[]
+  anotacoes             Nota[]
   ciclosMensais         CicloMensal[]
   auditorias            AuditoriaCasa[]
 }
@@ -40,6 +41,7 @@ model Morador {
   contribuicoes      Contribuicao[]
   transacoes         Transacao[]
   metas              MetaOrcamento[]
+  anotacoes          Nota[]
   auditoriasComoAtor AuditoriaCasa[]  @relation("AuditoriaCasaAtor")
   auditoriasComoAlvo AuditoriaCasa[]  @relation("AuditoriaCasaAlvo")
 
@@ -66,6 +68,11 @@ enum FrequenciaTransacao {
 enum StatusTransacao {
   PENDENTE
   CONCLUIDA
+}
+
+enum EscopoNota {
+  PESSOAL
+  CASA
 }
 
 model Transacao {
@@ -155,6 +162,27 @@ model AuditoriaCasa {
   @@index([casaId, criadoEm])
   @@index([atorMoradorId])
   @@index([alvoMoradorId])
+}
+
+model Nota {
+  id         String     @id @default(cuid())
+  titulo     String
+  conteudo   String?
+  tag        String?
+  escopo     EscopoNota
+  isPublica  Boolean    @default(false)
+  posicao    Int        @default(0)
+  casaId     String
+  moradorId  String
+  criadaEm   DateTime   @default(now())
+  atualizadaEm DateTime @updatedAt
+
+  casa       Casa       @relation(fields: [casaId], references: [id], onDelete: Cascade)
+  morador    Morador    @relation(fields: [moradorId], references: [id], onDelete: Cascade)
+
+  @@index([casaId, posicao])
+  @@index([casaId, escopo, criadaEm])
+  @@index([moradorId, escopo, isPublica, criadaEm])
 }
 
 model RateLimitBucket {

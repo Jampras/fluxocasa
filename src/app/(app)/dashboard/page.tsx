@@ -72,9 +72,9 @@ export default async function DashboardPage({
               accentClass: "bg-white"
             },
             {
-              label: "Metas ativas",
-              value: String(snapshot.goalsHit),
-              description: "Categorias dentro do limite mensal.",
+              label: "Anotacoes",
+              value: String(snapshot.notesCount),
+              description: "Cards visiveis no mural da casa e no seu fluxo.",
               accentClass: "bg-neo-lime"
             }
           ]}

@@ -1,4 +1,4 @@
-import { EscopoTransacao, StatusTransacao, TipoTransacao } from "@prisma/client";
+import { EscopoNota, EscopoTransacao, StatusTransacao, TipoTransacao } from "@prisma/client";
 
 import { prisma } from "@/lib/prisma";
 import { ROUTES } from "@/config/routes";
@@ -37,7 +37,7 @@ async function getDashboardData(userId: string) {
     throw new UserFacingError("Usuario nao encontrado.", 404);
   }
 
-  const [cycle, houseBills, personalTransactions, currentContribution, goals] = await Promise.all([
+  const [cycle, houseBills, personalTransactions, currentContribution, goals, notesCount] = await Promise.all([
     resident.casaId ? ensureCurrentCycle(resident.casaId, month, year) : Promise.resolve(null),
     resident.casaId
       ? prisma.transacao.findMany({
@@ -99,7 +99,19 @@ async function getDashboardData(userId: string) {
         ano: year
       },
       orderBy: { categoria: "asc" }
-    })
+    }),
+    resident.casaId
+      ? prisma.nota.count({
+          where: {
+            casaId: resident.casaId,
+            OR: [
+              { escopo: EscopoNota.CASA },
+              { moradorId: userId },
+              { escopo: EscopoNota.PESSOAL, isPublica: true }
+            ]
+          }
+        })
+      : Promise.resolve(0)
   ]);
 
   return {
@@ -107,7 +119,8 @@ async function getDashboardData(userId: string) {
     houseBills,
     personalTransactions,
     currentContribution,
-    goals
+    goals,
+    notesCount
   };
 }
 
@@ -221,7 +234,7 @@ function buildRecentActivityFromData({
 
 export const dashboardRepository = {
   async getDashboardSnapshot(userId: string): Promise<DashboardSnapshot> {
-    const { houseBills, personalTransactions, currentContribution, goals, cycle } =
+    const { houseBills, personalTransactions, currentContribution, goals, cycle, notesCount } =
       await getDashboardData(userId);
 
     const incomes = personalTransactions.filter((item) => item.tipo === TipoTransacao.RECEITA);
@@ -310,7 +323,7 @@ export const dashboardRepository = {
       houseCash: cycle?.endingBalance ?? 0,
       pendingBills: houseBills.filter((item) => item.status !== StatusTransacao.CONCLUIDA).length,
       privateWallet: toCurrencyValue(privateWalletCents),
-      goalsHit: `${goalsHit}/${goals.length || 0}`,
+      notesCount,
       activity: buildRecentActivityFromData({ houseBills, personalTransactions }),
       insight
     };

@@ -17,6 +17,7 @@ import {
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { EscopoTransacao, TipoTransacao } from "@prisma/client";
 
+import { ROUTES } from "@/config/routes";
 import { NeoButton } from "@/components/ui/NeoButton";
 import { NeoCard } from "@/components/ui/NeoCard";
 import { refreshCurrentView } from "@/lib/app-refresh";
@@ -81,6 +82,7 @@ export function FabWizard() {
   const pathname = usePathname();
   const router = useRouter();
   const searchParams = useSearchParams();
+  const hideWizard = pathname.startsWith(ROUTES.anotacoes);
 
   const inferredScope = getInitialScope(pathname, searchParams);
   const [isOpen, setIsOpen] = useState(false);
@@ -189,6 +191,10 @@ export function FabWizard() {
   );
 
   const categoryOptions = tipo === TipoTransacao.RECEITA ? receitaCategories : despesaCategories;
+
+  if (hideWizard) {
+    return null;
+  }
 
   function resetState() {
     setSelectedScope(inferredScope);
