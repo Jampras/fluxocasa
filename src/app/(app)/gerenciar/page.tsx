@@ -8,12 +8,10 @@ import { ManageSectionNav } from "@/components/gerenciar/ManageSectionNav";
 import { ManageTabs } from "@/components/gerenciar/ManageTabs";
 import { PersonalHistorySection } from "@/components/gerenciar/PersonalHistorySection";
 import { AppHeader } from "@/components/layout/AppHeader";
-import { BudgetGoals } from "@/components/pessoal/BudgetGoals";
 import { PersonalOverview } from "@/components/pessoal/PersonalOverview";
 import { requireCurrentResident } from "@/server/auth/user";
 import { getHouseSnapshot } from "@/server/services/house.service";
 import { getPersonalSnapshot } from "@/server/services/personal.service";
-import { getResidentsSnapshot } from "@/server/services/residents.service";
 
 type ManageTab = "casa" | "pessoal";
 
@@ -40,18 +38,15 @@ export default async function GerenciarPage({
 
         <ManageSectionNav
           items={[
-            { id: "personal-overview", label: "Resumo" },
             { id: "personal-create-income", label: "Renda" },
             { id: "personal-create-bill", label: "Contas" },
             { id: "personal-create-expense", label: "Gastos" },
-            { id: "personal-create-goal", label: "Metas" },
             { id: "personal-history", label: "Historico" }
           ]}
         />
 
-        <div id="personal-overview" className="grid gap-4 sm:gap-6 xl:grid-cols-[0.9fr_1.1fr]">
+        <div id="personal-overview">
           <PersonalOverview snapshot={snapshot} />
-          <BudgetGoals bills={snapshot.weeklyBills} goals={snapshot.goals} />
         </div>
 
         <PersonalActions
@@ -68,7 +63,7 @@ export default async function GerenciarPage({
     );
   }
 
-  const [snapshot, residents] = await Promise.all([getHouseSnapshot(user.id), getResidentsSnapshot(user.id)]);
+  const snapshot = await getHouseSnapshot(user.id);
 
   return (
     <div className="min-h-screen w-full space-y-6 pb-16 sm:space-y-8 sm:pb-20">
@@ -77,7 +72,6 @@ export default async function GerenciarPage({
 
       <ManageSectionNav
         items={[
-          { id: "house-overview", label: "Resumo" },
           { id: "house-contribution", label: "Contribuicao" },
           { id: "house-create-bill", label: "Nova conta" },
           { id: "house-manage-bills", label: "Pendencias" },
@@ -94,7 +88,7 @@ export default async function GerenciarPage({
       </div>
       <HouseBillsSection title="Contas Pendentes" items={snapshot.pendingBills} elevated allowMarkAsPaid />
       <div id="house-history">
-        <HouseHistorySection paidBills={snapshot.paidBills} auditLog={residents.auditLog} />
+        <HouseHistorySection paidBills={snapshot.paidBills} />
       </div>
     </div>
   );
