@@ -18,10 +18,13 @@ interface BadgeProps extends HTMLAttributes<HTMLSpanElement> {
 }
 
 export function Badge({ className, tone = "primary", ...props }: BadgeProps) {
+  const animatedTone = tone === "danger" || tone === "success" || tone === "amber";
+
   return (
     <span
       className={cx(
         "inline-flex items-center border-[3px] border-neo-dark px-2.5 py-1 text-[10px] font-heading font-bold uppercase tracking-[0.16em] shadow-[2px_2px_0_#0F172A] sm:border-4 sm:px-3 sm:text-xs sm:tracking-[0.18em]",
+        animatedTone && "neo-badge-pulse",
         toneMap[tone],
         className
       )}

@@ -17,12 +17,23 @@ interface ProgressBarProps {
 }
 
 export function ProgressBar({ spent, limit, tone = "emerald" }: ProgressBarProps) {
+  const value = progressValue(spent, limit);
+
   return (
-    <div className="h-3 w-full rounded-full bg-dopamine-bg/75">
+    <div className="space-y-2">
+      <div className="flex items-center justify-between text-[10px] font-black uppercase tracking-[0.14em] text-neo-dark/60 sm:text-xs">
+        <span>Progresso</span>
+        <span>{Math.round(value)}%</span>
+      </div>
       <div
-        className={cx("h-full rounded-full bg-gradient-to-r transition-all", fills[tone])}
-        style={{ width: `${progressValue(spent, limit)}%` }}
-      />
+        className="relative h-4 w-full overflow-hidden rounded-none border-[3px] border-neo-dark bg-white sm:border-4"
+      >
+        <div
+          className={cx("neo-shimmer h-full bg-gradient-to-r transition-all", fills[tone])}
+          style={{ width: `${value}%` }}
+        />
+        <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(135deg,transparent_0_38%,rgba(255,255,255,0.25)_38%_50%,transparent_50%_100%)] opacity-70" />
+      </div>
     </div>
   );
 }
