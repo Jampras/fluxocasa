@@ -239,6 +239,10 @@ textarea:focus-visible {
   animation: neo-action-pending 1s ease-in-out infinite;
 }
 
+.neo-subsurface {
+  background: #f7e7cd;
+}
+
 .neo-input-surface {
   background: #faecd2;
   transition:
