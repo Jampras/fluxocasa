@@ -26,7 +26,7 @@ export function HouseOverview({ snapshot }: HouseOverviewProps) {
             <p className="max-w-xs text-xs text-neo-dark/80 sm:text-sm">Saldo livre.</p>
           </div>
 
-          <div className="grid gap-4 border-t border-white/20 pt-4 sm:grid-cols-2 sm:gap-6 sm:pt-6">
+          <div className="grid gap-4 border-t border-neo-dark/15 pt-4 sm:grid-cols-2 sm:gap-6 sm:pt-6">
             <div>
               <p className="text-[9px] font-bold uppercase tracking-[0.16em] text-neo-dark/80 sm:text-[10px] sm:tracking-[0.2em]">
                 Total declarado

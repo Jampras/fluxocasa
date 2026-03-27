@@ -40,7 +40,7 @@ function getCellTone(cell: CalendarCell) {
 
 function getStatusClass(item: CalendarItem) {
   if (item.status === "Urgente") {
-    return "bg-neo-pink text-white";
+    return "bg-neo-pink text-neo-dark";
   }
 
   if (item.status === "Recebido" || item.status === "Paga" || item.status === "Registrado") {
@@ -557,7 +557,7 @@ export function CalendarGridModal({
                     <RecurrenceFields key={`${addMode}-${selectedCell.isoDate}`} installmentsLabel="Parcelas" />
 
                     {error ? (
-                      <div className="border-4 border-neo-dark bg-neo-pink px-4 py-3 text-sm font-bold text-white">
+                      <div className="border-4 border-neo-dark bg-neo-pink px-4 py-3 text-sm font-bold text-neo-dark">
                         {error}
                       </div>
                     ) : null}

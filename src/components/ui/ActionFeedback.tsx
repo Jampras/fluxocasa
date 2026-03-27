@@ -15,7 +15,7 @@ export function ActionFeedback({
         "neo-pop-in rounded-none border-[3px] px-3 py-2 text-sm font-black uppercase tracking-[0.08em] shadow-[4px_4px_0_#0F172A] sm:border-4 sm:px-4 sm:py-3",
         tone === "success"
           ? "border-emerald-900 bg-[linear-gradient(135deg,#b7ff35_0%,#f7ffbc_100%)] text-emerald-950"
-          : "border-rose-900 bg-[linear-gradient(135deg,#ff2a85_0%,#ffd1e6_100%)] text-rose-950",
+          : "border-rose-900 bg-[linear-gradient(135deg,#ff2a85_0%,#f7c8d9_100%)] text-neo-dark",
         className
       )}
     >

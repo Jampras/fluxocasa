@@ -78,7 +78,7 @@ export function PersonalHistorySection({
               <div className="flex flex-wrap items-center gap-2">
                 <span
                   className={`border-[3px] border-neo-dark px-2 py-1 text-[10px] font-black uppercase tracking-[0.12em] sm:border-4 ${
-                    item.tone === "income" ? "bg-neo-lime text-neo-dark" : "bg-neo-pink text-white"
+                    item.tone === "income" ? "bg-neo-lime text-neo-dark" : "bg-neo-pink text-neo-dark"
                   }`}
                 >
                   {item.tone === "income" ? "Recebido" : "Saida"}

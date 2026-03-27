@@ -58,7 +58,7 @@ export function WaterfallChartPreview({
                 <div key={step.id} className="relative flex h-full items-center justify-center">
                   <div
                     className={`absolute w-full max-w-[72px] border-[3px] border-neo-dark shadow-[3px_3px_0_#0F172A] sm:max-w-[80px] sm:border-4 sm:shadow-[4px_4px_0_#0F172A] md:max-w-[88px] ${
-                      positive ? "bottom-1/2 bg-neo-lime text-neo-dark" : "top-1/2 bg-neo-pink text-white"
+                      positive ? "bottom-1/2 bg-neo-lime text-neo-dark" : "top-1/2 bg-neo-pink text-neo-dark"
                     }`}
                     style={{ height }}
                   />

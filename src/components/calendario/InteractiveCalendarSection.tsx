@@ -16,7 +16,7 @@ function formatWeekdayLabel(value: string) {
 
 function getStatusClass(status: string, type: string) {
   if (status === "Urgente") {
-    return "bg-neo-pink text-white";
+    return "bg-neo-pink text-neo-dark";
   }
 
   if (status === "Recebido" || status === "Paga" || status === "Registrado") {
@@ -146,7 +146,7 @@ export function InteractiveCalendarSection({
             fallbackEvents.map((item) => (
               <div
                 key={item.id}
-                className="grid gap-3 border-[3px] border-neo-dark bg-neo-bg px-3 py-3 shadow-[4px_4px_0_#0F172A] sm:border-4 sm:px-4 sm:py-4 lg:grid-cols-[1fr_auto]"
+                className="neo-subsurface grid gap-3 border-[3px] border-neo-dark px-3 py-3 shadow-[4px_4px_0_#0F172A] sm:border-4 sm:px-4 sm:py-4 lg:grid-cols-[1fr_auto]"
               >
                 <div className="space-y-2">
                   <div className="flex flex-wrap items-center gap-2">
