@@ -1,3 +1,4 @@
+import Image from "next/image";
 import { ShieldCheck } from "lucide-react";
 
 import { LeaveHouseActions } from "@/components/forms/LeaveHouseActions";
@@ -12,6 +13,10 @@ interface ResidentsPanelProps {
 
 export function ResidentsPanel({ snapshot }: ResidentsPanelProps) {
   const sortedResidents = [...snapshot.residents].sort((a, b) => (a.isCurrentUser === b.isCurrentUser ? 0 : a.isCurrentUser ? -1 : 1));
+
+  function isAvatarUrl(value: string) {
+    return /^https?:\/\//i.test(value);
+  }
 
   return (
     <section className="grid gap-4 animate-fade-in-up pb-10 xl:gap-6">
@@ -38,9 +43,20 @@ export function ResidentsPanel({ snapshot }: ResidentsPanelProps) {
                   }
                 >
                   <div className="flex items-center gap-3 sm:gap-5">
-                    <div className="grid h-14 w-14 shrink-0 place-items-center rounded-none border-[3px] border-neo-dark bg-neo-bg text-2xl font-bold sm:h-[4rem] sm:w-[4rem] sm:border-4 sm:text-3xl" style={{ color: "#fafaf9" }}>
-                      {resident.avatar}
-                    </div>
+                    {isAvatarUrl(resident.avatar) ? (
+                      <Image
+                        src={resident.avatar}
+                        alt={`Avatar de ${resident.name}`}
+                        width={64}
+                        height={64}
+                        unoptimized
+                        className="h-14 w-14 shrink-0 rounded-none border-[3px] border-neo-dark object-cover sm:h-[4rem] sm:w-[4rem] sm:border-4"
+                      />
+                    ) : (
+                      <div className="grid h-14 w-14 shrink-0 place-items-center rounded-none border-[3px] border-neo-dark bg-neo-cyan text-2xl font-bold text-neo-dark sm:h-[4rem] sm:w-[4rem] sm:border-4 sm:text-3xl">
+                        {resident.avatar}
+                      </div>
+                    )}
                     <div className="flex-1 space-y-1">
                       <p className="text-lg font-bold tracking-tight text-neo-dark sm:text-xl">
                         {resident.name}

@@ -230,8 +230,8 @@ export function HouseActions({ contributions, bills }: HouseActionsProps) {
 
   return (
     <div className="grid gap-6">
-      {feedback ? <ActionFeedback tone="success" message={feedback} /> : null}
-      {error ? <ActionFeedback tone="error" message={error} /> : null}
+      {feedback ? <ActionFeedback tone="success" message={feedback} onDismiss={() => setFeedback(null)} /> : null}
+      {error ? <ActionFeedback tone="error" message={error} onDismiss={() => setError(null)} /> : null}
 
       <Card id="house-contribution" className="neo-subsurface">
         <div className="space-y-4">

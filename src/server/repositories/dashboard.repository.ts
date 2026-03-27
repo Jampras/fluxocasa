@@ -152,6 +152,9 @@ function buildRecentActivityFromData({
   const personalBills = personalTransactions.filter(
     (item) => item.tipo === TipoTransacao.DESPESA && item.status === StatusTransacao.PENDENTE
   );
+  const completedPersonalExpenses = personalTransactions.filter(
+    (item) => item.tipo === TipoTransacao.DESPESA && item.status === StatusTransacao.CONCLUIDA
+  );
 
   const items = [
     ...incomes.map((income) => {
@@ -200,6 +203,20 @@ function buildRecentActivityFromData({
         sortDate: bill.dataVencimento.getTime()
       };
     }),
+    ...completedPersonalExpenses.map((expense) => ({
+      id: `expense-${expense.id}`,
+      title: expense.titulo,
+      subtitle: `Saida - ${expense.categoria}`,
+      amount: toCurrencyValue(expense.valorCentavos),
+      dateLabel: formatActivityDate(expense.dataPagamento ?? expense.dataVencimento, "Lancado em"),
+      badge: {
+        label: "Registrado",
+        tone: "slate" as const
+      },
+      detailsHref: buildDashboardItemHref("pessoal", `expense-${expense.id}`),
+      detailsLabel: "Editar",
+      sortDate: (expense.dataPagamento ?? expense.dataVencimento).getTime()
+    })),
     ...houseBills.map((bill) => {
       const uiStatus = toBillStatus(bill.status, bill.dataVencimento);
       const tone: ActivityItem["badge"]["tone"] =

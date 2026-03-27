@@ -1,11 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { refreshCurrentView } from "@/lib/app-refresh";
 import { requestJson } from "@/lib/client-api";
 import { Button } from "@/components/ui/Button";
+import { ActionFeedback } from "@/components/ui/ActionFeedback";
 
 interface InviteCodeActionsProps {
   inviteCode: string;
@@ -19,6 +20,19 @@ export function InviteCodeActions({ inviteCode, canRotate }: InviteCodeActionsPr
   const [error, setError] = useState<string | null>(null);
   const [feedback, setFeedback] = useState<string | null>(null);
   const [loading, setLoading] = useState<"copy" | "rotate" | null>(null);
+
+  useEffect(() => {
+    if (!error && !feedback) {
+      return;
+    }
+
+    const handle = window.setTimeout(() => {
+      setError(null);
+      setFeedback(null);
+    }, 3200);
+
+    return () => window.clearTimeout(handle);
+  }, [error, feedback]);
 
   function refresh() {
     refreshCurrentView(router, pathname, searchParams);
@@ -76,8 +90,20 @@ export function InviteCodeActions({ inviteCode, canRotate }: InviteCodeActionsPr
           </Button>
         ) : null}
       </div>
-      {feedback ? <p className="text-sm font-medium text-emerald-700">{feedback}</p> : null}
-      {error ? <p className="text-sm font-medium text-rose-600">{error}</p> : null}
+      {feedback ? (
+        <ActionFeedback
+          tone="success"
+          message={feedback}
+          onDismiss={() => setFeedback(null)}
+        />
+      ) : null}
+      {error ? (
+        <ActionFeedback
+          tone="error"
+          message={error}
+          onDismiss={() => setError(null)}
+        />
+      ) : null}
       {!canRotate ? (
         <p className="text-sm text-neo-dark/55">Apenas administradores podem regenerar o codigo de convite.</p>
       ) : null}

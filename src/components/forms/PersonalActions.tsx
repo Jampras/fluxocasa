@@ -309,8 +309,8 @@ export function PersonalActions({
 
   return (
     <div className="grid gap-6">
-      {feedback ? <ActionFeedback tone="success" message={feedback} /> : null}
-      {error ? <ActionFeedback tone="error" message={error} /> : null}
+      {feedback ? <ActionFeedback tone="success" message={feedback} onDismiss={() => setFeedback(null)} /> : null}
+      {error ? <ActionFeedback tone="error" message={error} onDismiss={() => setError(null)} /> : null}
 
       <Card id="personal-create-income" className="neo-subsurface">
         <div className="space-y-4">

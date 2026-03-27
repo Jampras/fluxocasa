@@ -46,7 +46,7 @@ export function GoogleAuthButton() {
           ? "REDIRECIONANDO..."
           : "ENTRAR COM GOOGLE"}
       </NeoButton>
-      {error ? <div className="bg-neo-pink text-white font-bold p-3 border-4 border-neo-dark text-center">{error}</div> : null}
+      {error ? <div className="bg-neo-pink text-neo-dark font-bold p-3 border-4 border-neo-dark text-center">{error}</div> : null}
     </div>
   );
 }

@@ -1,7 +1,10 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
-  <rect width="64" height="64" fill="#FFF7F8"/>
-  <rect x="8" y="8" width="48" height="48" fill="#D9FF00" stroke="#0F172A" stroke-width="4"/>
-  <rect x="14" y="14" width="36" height="18" fill="#22D3EE" stroke="#0F172A" stroke-width="4"/>
-  <rect x="14" y="36" width="16" height="14" fill="#FF5EA8" stroke="#0F172A" stroke-width="4"/>
-  <rect x="34" y="36" width="16" height="14" fill="#FFE45C" stroke="#0F172A" stroke-width="4"/>
+  <rect width="64" height="64" rx="8" fill="#F6D8E0"/>
+  <rect x="8" y="10" width="48" height="44" fill="#FFF2DD" stroke="#0F172A" stroke-width="4"/>
+  <path d="M20 28L32 18L44 28V46H20V28Z" fill="#22D3EE" stroke="#0F172A" stroke-width="4" stroke-linejoin="bevel"/>
+  <rect x="27" y="34" width="10" height="12" fill="#FFE45C" stroke="#0F172A" stroke-width="4"/>
+  <path d="M14 18H50" stroke="#0F172A" stroke-width="4"/>
+  <circle cx="48" cy="16" r="6" fill="#FF5EA8" stroke="#0F172A" stroke-width="4"/>
+  <path d="M45.5 16H50.5" stroke="#FFF2DD" stroke-width="3" stroke-linecap="round"/>
+  <path d="M48 13.5V18.5" stroke="#FFF2DD" stroke-width="3" stroke-linecap="round"/>
 </svg>
