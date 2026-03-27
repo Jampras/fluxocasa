@@ -97,6 +97,7 @@ function mapNote(
     id: note.id,
     title: note.titulo,
     content: note.conteudo?.trim() ?? "",
+    ownerId: note.moradorId,
     tag: note.tag?.trim() || (isHouse ? "Casa" : "Pessoal"),
     scope: isHouse ? "house" : "personal",
     visibility: isHouse || note.isPublica ? "public" : "private",
@@ -145,6 +146,7 @@ export async function getNotesBoardSnapshot(userId: string): Promise<NotesBoardS
   return {
     monthLabel: formatMonthLabel(),
     houseName: resident.casa.nome,
+    currentUserId: userId,
     notes: mappedNotes
   };
 }

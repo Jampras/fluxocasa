@@ -24,10 +24,10 @@ export function HouseBillsSection({
   allowMarkAsPaid = false
 }: HouseBillsSectionProps) {
   return (
-    <Card className="mt-6 border-none bg-transparent p-0 sm:mt-8">
-      <h3 className="mb-3 pl-1 text-xl font-bold text-neo-dark sm:mb-4 sm:pl-2 sm:text-2xl">{title}</h3>
+    <Card className="neo-subsurface mt-6 p-4 sm:mt-8 sm:p-5">
+      <h3 className="mb-3 text-xl font-bold text-neo-dark sm:mb-4 sm:text-2xl">{title}</h3>
       {items.length === 0 ? (
-        <p className="pl-1 text-sm text-neo-pink sm:pl-2">Nenhum registro encontrado para este periodo.</p>
+        <p className="text-sm text-neo-pink">Nenhum registro encontrado para este periodo.</p>
       ) : null}
       <div className="grid gap-3">
         {items.map((item) => (

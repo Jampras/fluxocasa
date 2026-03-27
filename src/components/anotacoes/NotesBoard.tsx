@@ -4,6 +4,7 @@ import { FormEvent, useEffect, useState } from "react";
 import {
   ArrowDown,
   ArrowUp,
+  Expand,
   Globe2,
   GripVertical,
   Home,
@@ -47,6 +48,16 @@ const EMPTY_FORM: NoteFormState = {
   visibilidade: "PRIVADA"
 };
 
+function getPreview(content: string) {
+  const compact = content.replace(/\s+/g, " ").trim();
+
+  if (compact.length <= 180) {
+    return compact;
+  }
+
+  return `${compact.slice(0, 177).trimEnd()}...`;
+}
+
 function getVisibilityIcon(note: NoteRecord) {
   if (note.scope === "house") {
     return Home;
@@ -81,6 +92,7 @@ export function NotesBoard({ initialSnapshot }: NotesBoardProps) {
   const searchParams = useSearchParams();
   const [snapshot, setSnapshot] = useState(initialSnapshot);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [viewingNote, setViewingNote] = useState<NoteRecord | null>(null);
   const [editingNote, setEditingNote] = useState<NoteRecord | null>(null);
   const [form, setForm] = useState<NoteFormState>(EMPTY_FORM);
   const [loading, setLoading] = useState(false);
@@ -90,12 +102,25 @@ export function NotesBoard({ initialSnapshot }: NotesBoardProps) {
   const [dropTargetId, setDropTargetId] = useState<string | null>(null);
 
   useEffect(() => {
-    document.body.classList.toggle("wizard-open", isModalOpen);
+    document.body.classList.toggle("wizard-open", isModalOpen || !!viewingNote);
 
     return () => {
       document.body.classList.remove("wizard-open");
     };
-  }, [isModalOpen]);
+  }, [isModalOpen, viewingNote]);
+
+  useEffect(() => {
+    if (!feedback && !error) {
+      return;
+    }
+
+    const timeout = window.setTimeout(() => {
+      setFeedback(null);
+      setError(null);
+    }, 3200);
+
+    return () => window.clearTimeout(timeout);
+  }, [feedback, error]);
 
   function openCreateModal() {
     setEditingNote(null);
@@ -105,14 +130,21 @@ export function NotesBoard({ initialSnapshot }: NotesBoardProps) {
   }
 
   function openEditModal(note: NoteRecord) {
+    setViewingNote(null);
     setEditingNote(note);
     setForm(mapNoteToForm(note));
     setError(null);
     setIsModalOpen(true);
   }
 
+  function openViewModal(note: NoteRecord) {
+    setViewingNote(note);
+    setError(null);
+  }
+
   function closeModal() {
     setIsModalOpen(false);
+    setViewingNote(null);
     setEditingNote(null);
     setForm(EMPTY_FORM);
     setError(null);
@@ -282,8 +314,8 @@ export function NotesBoard({ initialSnapshot }: NotesBoardProps) {
 
   return (
     <section className="space-y-5 sm:space-y-6">
-      {feedback ? <ActionFeedback tone="success" message={feedback} /> : null}
-      {error && !isModalOpen ? <ActionFeedback tone="error" message={error} /> : null}
+      {feedback ? <ActionFeedback tone="success" message={feedback} onDismiss={() => setFeedback(null)} /> : null}
+      {error && !isModalOpen ? <ActionFeedback tone="error" message={error} onDismiss={() => setError(null)} /> : null}
 
       <div className="flex flex-col gap-3 sm:flex-row sm:justify-end">
         <Button className="w-full sm:w-auto" onClick={openCreateModal}>
@@ -303,10 +335,12 @@ export function NotesBoard({ initialSnapshot }: NotesBoardProps) {
           </p>
         </Card>
       ) : (
-        <div className="columns-1 gap-4 min-[520px]:columns-2 xl:columns-3">
+        <div className="grid grid-cols-2 gap-3 xl:grid-cols-3 xl:gap-4">
           {snapshot.notes.map((note) => {
             const VisibilityIcon = getVisibilityIcon(note);
-            const canDrag = note.canEdit;
+            const canManage = note.canEdit || note.canDelete || note.ownerId === snapshot.currentUserId;
+            const canDrag = canManage;
+            const preview = getPreview(note.content);
 
             return (
               <article
@@ -335,7 +369,7 @@ export function NotesBoard({ initialSnapshot }: NotesBoardProps) {
                   setDraggedNoteId(null);
                   setDropTargetId(null);
                 }}
-                className={`mb-4 break-inside-avoid rounded-none border-[3px] border-neo-dark bg-neo-cream shadow-[4px_4px_0_#0F172A] transition-transform sm:border-4 sm:shadow-[6px_6px_0_#0F172A] ${
+                className={`break-inside-avoid rounded-none border-[3px] border-neo-dark bg-neo-cream shadow-[4px_4px_0_#0F172A] transition-transform sm:border-4 sm:shadow-[6px_6px_0_#0F172A] ${
                   draggedNoteId === note.id ? "opacity-60" : ""
                 } ${dropTargetId === note.id && draggedNoteId !== note.id ? "-translate-y-1 ring-4 ring-neo-cyan/60" : ""}`}
               >
@@ -351,7 +385,7 @@ export function NotesBoard({ initialSnapshot }: NotesBoardProps) {
                         </span>
                         <span
                           className={`hidden md:inline-flex h-9 w-9 items-center justify-center border-[3px] border-neo-dark bg-neo-cream text-neo-dark sm:border-4 ${canDrag ? "cursor-grab" : "opacity-50"}`}
-                          title={canDrag ? "Arraste para reorganizar." : "Voce nao pode reorganizar esta anotacao."}
+                          title={canDrag ? "Arrastar" : "Sem permissao para reordenar"}
                         >
                           <GripVertical className="h-4 w-4 stroke-[2.8px]" />
                         </span>
@@ -376,8 +410,8 @@ export function NotesBoard({ initialSnapshot }: NotesBoardProps) {
                     </span>
                   </div>
 
-                  <p className="whitespace-pre-wrap font-body text-sm font-bold leading-6 text-neo-dark/80 sm:text-[15px]">
-                    {note.content || "Sem texto adicional."}
+                  <p className="min-h-[5.5rem] break-words font-body text-sm font-bold leading-6 text-neo-dark/80 sm:text-[15px]">
+                    {preview || "Sem texto adicional."}
                   </p>
 
                   <div className="space-y-1 text-[10px] font-black uppercase tracking-[0.16em] text-neo-dark/65">
@@ -385,7 +419,17 @@ export function NotesBoard({ initialSnapshot }: NotesBoardProps) {
                     {note.updatedAtLabel ? <p>{note.updatedAtLabel}</p> : null}
                   </div>
 
-                  {note.canEdit || note.canDelete ? (
+                  <div className="flex flex-wrap gap-2 pt-1">
+                    <Button
+                      type="button"
+                      variant="secondary"
+                      className="h-11 px-3 text-xs"
+                      onClick={() => openViewModal(note)}
+                    >
+                      <Expand className="mr-2 h-4 w-4 stroke-[2.8px]" />
+                      Abrir
+                    </Button>
+                  {canManage ? (
                     <div className="flex flex-wrap gap-2 pt-1">
                       <Button
                         type="button"
@@ -409,7 +453,7 @@ export function NotesBoard({ initialSnapshot }: NotesBoardProps) {
                         <ArrowDown className="mr-1 h-4 w-4 stroke-[2.8px]" />
                         Descer
                       </Button>
-                      {note.canEdit ? (
+                      {canManage ? (
                         <Button
                           type="button"
                           variant="secondary"
@@ -420,11 +464,11 @@ export function NotesBoard({ initialSnapshot }: NotesBoardProps) {
                           Editar
                         </Button>
                       ) : null}
-                      {note.canDelete ? (
+                      {canManage ? (
                         <Button
                           type="button"
                           variant="ghost"
-                          className="h-11 bg-neo-pink px-4 text-xs text-white"
+                          className="h-11 bg-neo-pink px-4 text-xs text-neo-dark"
                           onClick={() => void handleDelete(note)}
                           disabled={loading}
                         >
@@ -434,6 +478,7 @@ export function NotesBoard({ initialSnapshot }: NotesBoardProps) {
                       ) : null}
                     </div>
                   ) : null}
+                  </div>
                 </div>
               </article>
             );
@@ -441,7 +486,7 @@ export function NotesBoard({ initialSnapshot }: NotesBoardProps) {
         </div>
       )}
 
-      {!isModalOpen ? (
+      {!isModalOpen && !viewingNote ? (
         <button
           type="button"
           onClick={openCreateModal}
@@ -451,6 +496,55 @@ export function NotesBoard({ initialSnapshot }: NotesBoardProps) {
         >
           <Plus className="h-9 w-9 stroke-[3.2px]" />
         </button>
+        ) : null}
+
+      {viewingNote ? (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-neo-dark/45 px-3 py-3 backdrop-blur-[2px] sm:px-4 sm:py-6"
+          onClick={closeModal}
+        >
+          <div
+            className="neo-subsurface flex max-h-[calc(100vh-1rem)] w-full max-w-3xl flex-col overflow-hidden border-4 border-neo-dark shadow-[10px_10px_0_#0F172A]"
+            onClick={(event) => event.stopPropagation()}
+          >
+            <div className={`flex items-start justify-between gap-4 border-b-4 border-neo-dark px-4 py-3 sm:px-5 sm:py-4 ${viewingNote.accentClass}`}>
+              <div className="min-w-0 space-y-2">
+                <div className="flex flex-wrap items-center gap-2">
+                  <span className="inline-flex items-center gap-2 border-[3px] border-neo-dark bg-neo-cream px-2.5 py-1 font-body text-[10px] font-black uppercase tracking-[0.16em] text-neo-dark sm:border-4">
+                    {viewingNote.tag}
+                  </span>
+                  <span className="inline-flex border-[3px] border-neo-dark bg-neo-cream px-2.5 py-1 font-body text-[10px] font-black uppercase tracking-[0.14em] text-neo-dark sm:border-4">
+                    {viewingNote.visibilityLabel}
+                  </span>
+                </div>
+                <h3 className="font-heading text-[2rem] uppercase leading-[0.95] text-neo-dark sm:text-[2.4rem]">
+                  {viewingNote.title}
+                </h3>
+                <p className="text-[10px] font-black uppercase tracking-[0.16em] text-neo-dark/65 sm:text-xs">
+                  {viewingNote.createdAtLabel}
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={closeModal}
+                className="neo-pressable flex h-11 w-11 items-center justify-center border-4 border-neo-dark bg-neo-yellow text-neo-dark shadow-[4px_4px_0_#0F172A]"
+                aria-label="Fechar"
+              >
+                <X className="h-5 w-5 stroke-[3px]" />
+              </button>
+            </div>
+
+            <div className="space-y-4 overflow-y-auto p-4 sm:p-6">
+              <p className="whitespace-pre-wrap break-words font-body text-sm font-bold leading-6 text-neo-dark/80 sm:text-base">
+                {viewingNote.content || "Sem texto adicional."}
+              </p>
+              <div className="space-y-1 text-[10px] font-black uppercase tracking-[0.16em] text-neo-dark/65">
+                <p>Criada por {viewingNote.ownerName}</p>
+                {viewingNote.updatedAtLabel ? <p>{viewingNote.updatedAtLabel}</p> : null}
+              </div>
+            </div>
+          </div>
+        </div>
       ) : null}
 
       {isModalOpen ? (
@@ -459,7 +553,7 @@ export function NotesBoard({ initialSnapshot }: NotesBoardProps) {
           onClick={closeModal}
         >
           <div
-            className="flex max-h-[calc(100vh-1rem)] w-full max-w-3xl flex-col overflow-hidden border-4 border-neo-dark bg-neo-bg shadow-[10px_10px_0_#0F172A]"
+            className="neo-subsurface flex max-h-[calc(100vh-1rem)] w-full max-w-3xl flex-col overflow-hidden border-4 border-neo-dark shadow-[10px_10px_0_#0F172A]"
             onClick={(event) => event.stopPropagation()}
           >
             <div className="flex items-center justify-between border-b-4 border-neo-dark bg-neo-cream px-4 py-3 sm:px-5 sm:py-4">
@@ -468,7 +562,7 @@ export function NotesBoard({ initialSnapshot }: NotesBoardProps) {
                   {editingNote ? "Editar anotacao" : "Nova anotacao"}
                 </p>
                 <p className="font-body text-[10px] font-bold uppercase tracking-[0.1em] text-neo-dark/70 sm:text-sm sm:tracking-wide">
-                  Salve recados privados, publicos ou combinados da casa.
+                  {editingNote ? "Atualize a anotacao." : "Crie uma nova anotacao."}
                 </p>
               </div>
               <button
@@ -562,13 +656,13 @@ export function NotesBoard({ initialSnapshot }: NotesBoardProps) {
                   ) : (
                     <Card className="bg-neo-cream p-4">
                       <p className="font-body text-xs font-black uppercase tracking-[0.14em] text-neo-dark/70">
-                        Notas da casa sao sempre publicas para todos os moradores.
+                        Visivel para todos da casa.
                       </p>
                     </Card>
                   )}
                 </div>
 
-                {error ? <ActionFeedback tone="error" message={error} /> : null}
+                {error ? <ActionFeedback tone="error" message={error} onDismiss={() => setError(null)} /> : null}
               </div>
 
               <div className="mt-5 flex flex-col gap-3 border-t-4 border-neo-dark pt-4 sm:mt-6 sm:flex-row sm:justify-end">

@@ -11,16 +11,19 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
   { className, label, id, ...props },
   ref
 ) {
+  const isNumber = props.type === "number";
+
   return (
-    <label className="grid gap-2 text-xs font-bold uppercase tracking-wider text-dopamine-dark/70" htmlFor={id}>
+    <label className="grid gap-2 text-sm font-medium text-neo-dark/75" htmlFor={id}>
       <span>{label}</span>
       <input
         ref={ref}
         id={id}
         className={cx(
-          "neo-input-surface h-14 rounded-2xl border-2 border-dopamine-pink/30 px-4 text-base font-bold text-dopamine-dark outline-none placeholder:text-dopamine-pink/40 focus:border-dopamine-pink focus:shadow-[0_0_0_4px_rgba(255,135,177,0.15)] transition-all",
+          "neo-input-surface h-12 rounded-none border-4 border-neo-dark px-4 text-sm font-bold text-neo-dark outline-none transition-all placeholder:text-neo-dark/35 focus:bg-neo-yellow",
           className
         )}
+        min={isNumber && props.min == null ? "0.01" : props.min}
         {...props}
       />
     </label>

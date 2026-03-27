@@ -200,6 +200,7 @@ export interface NoteRecord {
   id: string;
   title: string;
   content: string;
+  ownerId: string;
   tag: string;
   scope: NoteScope;
   visibility: NoteVisibility;
@@ -219,5 +220,6 @@ export interface NoteRecord {
 export interface NotesBoardSnapshot {
   monthLabel: string;
   houseName: string;
+  currentUserId: string;
   notes: NoteRecord[];
 }

@@ -11,7 +11,7 @@ interface ContributionsListProps {
 
 export function ContributionsList({ items }: ContributionsListProps) {
   return (
-    <Card className="bg-transparent  border-none p-0 mt-8">
+    <Card className="neo-subsurface mt-8 p-4 sm:p-5">
       <div className="mb-4 flex items-center justify-between pl-2">
         <h3 className="text-2xl font-bold text-neo-dark">Contribuicoes</h3>
         <Badge className="bg-neo-cream text-neo-dark border-none font-bold text-xs">{items.length} moradores</Badge>

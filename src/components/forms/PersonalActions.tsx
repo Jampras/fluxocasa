@@ -906,9 +906,9 @@ export function PersonalActions({
         </div>
       </Card>
 
-      <Card id="personal-expense-history" className="bg-transparent  border-none p-0 mt-8">
+      <Card id="personal-expense-history" className="neo-subsurface mt-8 p-4 sm:p-5">
         <div className="space-y-4">
-          <h3 className="text-2xl font-bold text-neo-dark pl-2">Historico de gastos</h3>
+          <h3 className="text-2xl font-bold text-neo-dark">Historico de gastos</h3>
           {expenseItems.length > 0 ? (
             <ManageListFilters
               searchId="personal-expense-search"
@@ -937,9 +937,9 @@ export function PersonalActions({
               resultLabel={`${filteredExpenses.length} de ${expenseItems.length} gastos visiveis`}
             />
           ) : null}
-          {expenseItems.length === 0 ? <p className="text-sm text-neo-pink pl-2">Nenhum gasto registrado neste mes.</p> : null}
+          {expenseItems.length === 0 ? <p className="text-sm text-neo-pink">Nenhum gasto registrado neste mes.</p> : null}
           {expenseItems.length > 0 && filteredExpenses.length === 0 ? (
-            <p className="text-sm text-neo-dark/60 pl-2">Nenhum gasto encontrado com esse filtro.</p>
+            <p className="text-sm text-neo-dark/60">Nenhum gasto encontrado com esse filtro.</p>
           ) : null}
           <div className="grid gap-3">
           {filteredExpenses.map((expense) => (
