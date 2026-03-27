@@ -20,7 +20,9 @@ export default async function ConfiguracoesPage() {
           <p className="font-heading text-[10px] uppercase tracking-[0.18em] text-neo-pink sm:text-sm sm:tracking-[0.28em]">
             Perfil
           </p>
-          <h2 className="mt-2 font-heading text-3xl uppercase text-neo-dark sm:mt-3 sm:text-4xl">{user.nome}</h2>
+          <h2 className="mt-2 font-heading text-[2.2rem] uppercase leading-[0.95] text-neo-dark sm:mt-3 sm:text-[2.7rem]">
+            {user.nome}
+          </h2>
           <div className="mt-4 grid gap-3 sm:mt-6 sm:gap-4 xl:mt-8">
               <div className="neo-subsurface border-[3px] border-neo-dark px-4 py-3 sm:border-4">
               <p className="font-body text-[10px] font-black uppercase tracking-[0.14em] text-neo-dark/60 sm:text-xs sm:tracking-[0.18em]">
@@ -51,7 +53,7 @@ export default async function ConfiguracoesPage() {
           <p className="font-heading text-[10px] uppercase tracking-[0.18em] text-neo-pink sm:text-sm sm:tracking-[0.28em]">
             Configuracoes gerais
           </p>
-          <h2 className="mt-2 font-heading text-3xl uppercase text-neo-dark sm:mt-3 sm:text-4xl">
+          <h2 className="mt-2 font-heading text-[2.2rem] uppercase leading-[0.95] text-neo-dark sm:mt-3 sm:text-[2.7rem]">
             Gerencie sua casa e seus acessos
           </h2>
           <div className="mt-4 grid gap-3 md:grid-cols-3 sm:mt-6 sm:gap-4 xl:mt-8">
@@ -59,13 +61,13 @@ export default async function ConfiguracoesPage() {
               <p className="font-body text-[10px] font-black uppercase tracking-[0.14em] text-neo-dark/60 sm:text-xs sm:tracking-[0.18em]">
                 Convite ativo
               </p>
-              <p className="mt-1 font-heading text-2xl uppercase text-neo-dark sm:text-3xl">{snapshot.inviteCode}</p>
+              <p className="mt-1 font-heading text-[1.8rem] uppercase text-neo-dark sm:text-[2.2rem]">{snapshot.inviteCode}</p>
             </div>
             <div className="border-[3px] border-neo-dark bg-neo-cyan px-4 py-3 sm:border-4">
               <p className="font-body text-[10px] font-black uppercase tracking-[0.14em] text-neo-dark/60 sm:text-xs sm:tracking-[0.18em]">
                 Moradores
               </p>
-              <p className="mt-1 font-heading text-2xl uppercase text-neo-dark sm:text-3xl">
+              <p className="mt-1 font-heading text-[1.8rem] uppercase text-neo-dark sm:text-[2.2rem]">
                 {snapshot.residents.length}
               </p>
             </div>

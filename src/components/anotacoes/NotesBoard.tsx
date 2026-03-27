@@ -297,7 +297,7 @@ export function NotesBoard({ initialSnapshot }: NotesBoardProps) {
           <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center border-4 border-neo-dark bg-neo-yellow shadow-[4px_4px_0_#0F172A]">
             <StickyNote className="h-8 w-8 stroke-[2.8px] text-neo-dark" />
           </div>
-          <h2 className="font-heading text-3xl uppercase text-neo-dark">Seu mural esta vazio</h2>
+          <h2 className="font-heading text-[2.2rem] uppercase leading-[0.95] text-neo-dark sm:text-[2.6rem]">Seu mural esta vazio</h2>
           <p className="mx-auto mt-3 max-w-xl font-body text-sm font-bold uppercase tracking-[0.12em] text-neo-dark/70 sm:text-base">
             Crie a primeira anotacao para guardar recados pessoais, lembretes publicos ou combinados da casa.
           </p>
@@ -356,7 +356,7 @@ export function NotesBoard({ initialSnapshot }: NotesBoardProps) {
                           <GripVertical className="h-4 w-4 stroke-[2.8px]" />
                         </span>
                       </div>
-                      <h3 className="font-heading text-3xl uppercase leading-[0.94] text-neo-dark sm:text-[2.2rem]">
+                      <h3 className="font-heading text-[2rem] uppercase leading-[0.94] text-neo-dark sm:text-[2.1rem]">
                         {note.title}
                       </h3>
                     </div>
@@ -484,7 +484,7 @@ export function NotesBoard({ initialSnapshot }: NotesBoardProps) {
             <form className="min-h-0 flex-1 overflow-y-auto p-4 sm:p-6" onSubmit={handleSubmit}>
               <div className="grid gap-4">
                 <label className="grid gap-2">
-                  <span className="font-heading text-lg uppercase text-neo-dark sm:text-xl">Titulo</span>
+                  <span className="font-heading text-base uppercase text-neo-dark sm:text-lg">Titulo</span>
                   <input
                     type="text"
                     value={form.titulo}
@@ -495,7 +495,7 @@ export function NotesBoard({ initialSnapshot }: NotesBoardProps) {
                 </label>
 
                 <label className="grid gap-2">
-                  <span className="font-heading text-lg uppercase text-neo-dark sm:text-xl">Texto</span>
+                  <span className="font-heading text-base uppercase text-neo-dark sm:text-lg">Texto</span>
                   <textarea
                     value={form.conteudo}
                     onChange={(event) => setForm((current) => ({ ...current, conteudo: event.target.value }))}
@@ -506,7 +506,7 @@ export function NotesBoard({ initialSnapshot }: NotesBoardProps) {
                 </label>
 
                 <label className="grid gap-2">
-                  <span className="font-heading text-lg uppercase text-neo-dark sm:text-xl">Tag</span>
+                  <span className="font-heading text-base uppercase text-neo-dark sm:text-lg">Tag</span>
                   <input
                     type="text"
                     value={form.tag}
@@ -518,7 +518,7 @@ export function NotesBoard({ initialSnapshot }: NotesBoardProps) {
 
                 <div className="grid gap-3 md:grid-cols-2">
                   <div className="grid gap-2">
-                    <span className="font-heading text-lg uppercase text-neo-dark sm:text-xl">Tipo</span>
+                    <span className="font-heading text-base uppercase text-neo-dark sm:text-lg">Tipo</span>
                     <div className="grid grid-cols-2 gap-2">
                       <button
                         type="button"
@@ -541,7 +541,7 @@ export function NotesBoard({ initialSnapshot }: NotesBoardProps) {
 
                   {form.escopo === "PESSOAL" ? (
                     <div className="grid gap-2">
-                      <span className="font-heading text-lg uppercase text-neo-dark sm:text-xl">Visibilidade</span>
+                    <span className="font-heading text-base uppercase text-neo-dark sm:text-lg">Visibilidade</span>
                       <div className="grid grid-cols-2 gap-2">
                         <button
                           type="button"

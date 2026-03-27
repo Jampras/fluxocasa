@@ -57,7 +57,7 @@ export function ManageTabs({ currentTab }: { currentTab: ManageTab }) {
               active ? "neo-tab-active bg-neo-yellow -translate-y-1" : "hover:bg-neo-cyan"
             )}
           >
-            <p className="font-heading text-lg uppercase leading-none text-neo-dark sm:text-2xl">{tab.label}</p>
+            <p className="font-heading text-base uppercase leading-none text-neo-dark sm:text-xl xl:text-[1.4rem]">{tab.label}</p>
           </Link>
         );
       })}

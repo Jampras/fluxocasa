@@ -105,16 +105,16 @@ export function DashboardMetricCarousel({ items }: { items: DashboardMetricItem[
                 className="min-h-[210px] min-w-[88%] snap-start overflow-hidden bg-neo-cream p-0 sm:min-h-[224px] sm:min-w-[68%] lg:min-h-[236px] lg:min-w-[calc(50%-10px)] xl:min-h-[248px] xl:min-w-[calc(50%-10px)] 2xl:min-h-[272px]"
             >
               <div className={`border-b-[3px] border-neo-dark px-3 py-2 sm:border-b-4 sm:px-4 sm:py-3 xl:px-5 xl:py-4 ${item.accentClass}`}>
-                <p className="font-heading text-[10px] uppercase tracking-[0.14em] text-neo-dark sm:text-sm sm:tracking-[0.22em] xl:text-base">
+                <p className="font-heading text-[10px] uppercase tracking-[0.14em] text-neo-dark sm:text-xs sm:tracking-[0.2em] xl:text-sm">
                   {item.label}
                 </p>
               </div>
               <div className="flex h-[calc(100%-56px)] flex-col justify-between space-y-2 p-4 sm:p-4 xl:p-5">
-                <h2 className="font-heading text-[2.5rem] uppercase leading-none text-neo-dark sm:text-[2.9rem] xl:text-[3.3rem] 2xl:text-[3.7rem]">
+                <h2 className="font-heading text-[2.35rem] uppercase leading-none text-neo-dark sm:text-[2.7rem] xl:text-[3.05rem] 2xl:text-[3.35rem]">
                   {item.value}
                 </h2>
                 {item.description ? (
-                  <p className="max-w-[18rem] font-body text-[11px] font-bold uppercase tracking-[0.08em] text-neo-dark/65 sm:text-sm sm:tracking-[0.12em] xl:max-w-[20rem] xl:text-[0.95rem]">
+                  <p className="max-w-[18rem] font-body text-[10px] font-bold uppercase tracking-[0.1em] text-neo-dark/65 sm:text-xs sm:tracking-[0.14em] xl:max-w-[20rem] xl:text-[0.88rem]">
                     {item.description}
                   </p>
                 ) : null}
