@@ -1,3 +1,4 @@
+import Image from "next/image";
 import { CheckCircle2, Clock3 } from "lucide-react";
 
 import { Card } from "@/components/ui/Card";
@@ -10,6 +11,10 @@ interface ContributionsListProps {
 }
 
 export function ContributionsList({ items }: ContributionsListProps) {
+  function isAvatarUrl(value: string) {
+    return /^https?:\/\//i.test(value);
+  }
+
   return (
     <Card className="neo-subsurface mt-8 p-4 sm:p-5">
       <div className="mb-4 flex items-center justify-between pl-2">
@@ -23,9 +28,20 @@ export function ContributionsList({ items }: ContributionsListProps) {
             key={item.id}
             className="neo-subsurface flex items-center gap-4 rounded-none p-4 shadow-[4px_4px_0_#0F172A] border border-neo-dark/15 transition-all hover:-translate-y-0.5"
           >
-            <div className="grid h-[3rem] w-[3rem] shrink-0 place-items-center rounded-full bg-neo-cream/70 font-bold text-neo-yellow text-lg mix-blend-multiply">
-              {item.avatar}
-            </div>
+            {isAvatarUrl(item.avatar) ? (
+              <Image
+                src={item.avatar}
+                alt={`Avatar de ${item.residentName}`}
+                width={48}
+                height={48}
+                unoptimized
+                className="h-[3rem] w-[3rem] shrink-0 rounded-full border-[3px] border-neo-dark object-cover"
+              />
+            ) : (
+              <div className="grid h-[3rem] w-[3rem] shrink-0 place-items-center rounded-full border-[3px] border-neo-dark bg-neo-cyan font-bold text-neo-dark text-lg">
+                {item.avatar}
+              </div>
+            )}
             <div className="flex-1 space-y-2">
               <div className="flex items-center justify-between gap-4">
                 <div>

@@ -273,8 +273,14 @@ export async function moveNoteToTarget(userId: string, noteId: string, targetNot
     return;
   }
 
-  const { note } = await getAuthorizedNote(userId, noteId);
-  const { note: targetNote } = await getAuthorizedNote(userId, targetNoteId);
+  const { resident, note } = await getAuthorizedNote(userId, noteId);
+  const targetNote = await prisma.nota.findUnique({
+    where: { id: targetNoteId }
+  });
+
+  if (!targetNote || targetNote.casaId !== resident.casa.id) {
+    throw new UserFacingError("Anotacao nao encontrada.", 404);
+  }
 
   if (note.casaId !== targetNote.casaId) {
     throw new UserFacingError("Nao foi possivel mover a anotacao.", 400);

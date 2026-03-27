@@ -243,42 +243,6 @@ export function FabWizard() {
     setStep("details");
   }
 
-  function goBack() {
-    if (step === "details") {
-      setStep("category");
-      return;
-    }
-
-    if (step === "category") {
-      if (currentScope === EscopoTransacao.CASA) {
-        if (inferredScope) {
-          closeWizard();
-          return;
-        }
-
-        setSelectedScope(null);
-        setStep("scope");
-        return;
-      }
-
-      setStep("type");
-      return;
-    }
-
-    if (step === "type") {
-      if (inferredScope) {
-        closeWizard();
-        return;
-      }
-
-      setSelectedScope(null);
-      setStep("scope");
-      return;
-    }
-
-    closeWizard();
-  }
-
   async function handleSubmit() {
     const parsedValue = Number.parseFloat(value.replace(",", "."));
 
@@ -368,9 +332,6 @@ export function FabWizard() {
                   <p className="font-heading text-[10px] uppercase tracking-[0.18em] text-neo-pink sm:text-sm sm:tracking-[0.28em]">
                     Novo lancamento
                   </p>
-                  <p className="font-body text-[10px] font-bold uppercase tracking-[0.1em] text-neo-dark/70 sm:text-sm sm:tracking-wide">
-                    Fechar, voltar e salvar.
-                  </p>
                 </div>
                 <button
                   type="button"
@@ -416,9 +377,6 @@ export function FabWizard() {
                         className="border-4 border-neo-dark bg-neo-cyan p-5 text-left shadow-[6px_6px_0_#0F172A] transition-all hover:-translate-y-1 sm:p-8"
                       >
                         <p className="font-heading text-3xl uppercase text-neo-dark sm:text-4xl">Casa</p>
-                        <p className="mt-2 font-body text-xs font-bold uppercase tracking-[0.08em] text-neo-dark/70 sm:mt-3 sm:text-sm sm:tracking-wide">
-                          Conta compartilhada, contribuicao e fluxo coletivo.
-                        </p>
                       </button>
                       <button
                         type="button"
@@ -426,9 +384,6 @@ export function FabWizard() {
                         className="border-4 border-neo-dark bg-neo-yellow p-5 text-left shadow-[6px_6px_0_#0F172A] transition-all hover:-translate-y-1 sm:p-8"
                       >
                         <p className="font-heading text-3xl uppercase text-neo-dark sm:text-4xl">Pessoal</p>
-                        <p className="mt-2 font-body text-xs font-bold uppercase tracking-[0.08em] text-neo-dark/70 sm:mt-3 sm:text-sm sm:tracking-wide">
-                          Renda, conta ou gasto do seu fluxo privado.
-                        </p>
                       </button>
                     </div>
                   </div>
@@ -452,19 +407,13 @@ export function FabWizard() {
                         className="border-4 border-neo-dark bg-neo-lime p-5 text-left shadow-[6px_6px_0_#0F172A] transition-all hover:-translate-y-1 sm:p-8"
                       >
                         <p className="font-heading text-3xl uppercase text-neo-dark sm:text-4xl">Receita</p>
-                        <p className="mt-2 font-body text-xs font-bold uppercase tracking-[0.08em] text-neo-dark/70 sm:mt-3 sm:text-sm sm:tracking-wide">
-                          Entradas como salario, freela ou recebimentos extras.
-                        </p>
                       </button>
                       <button
                         type="button"
                         onClick={() => handleSelectTipo(TipoTransacao.DESPESA)}
                         className="border-4 border-neo-dark bg-neo-pink p-5 text-left shadow-[6px_6px_0_#0F172A] transition-all hover:-translate-y-1 sm:p-8"
                       >
-                        <p className="font-heading text-3xl uppercase text-white sm:text-4xl">Despesa</p>
-                        <p className="mt-2 font-body text-xs font-bold uppercase tracking-[0.08em] text-white/80 sm:mt-3 sm:text-sm sm:tracking-wide">
-                          Contas e gastos que reduzem sua margem no mes.
-                        </p>
+                        <p className="font-heading text-3xl uppercase text-neo-dark sm:text-4xl">Despesa</p>
                       </button>
                     </div>
                   </div>
@@ -571,7 +520,7 @@ export function FabWizard() {
                       </div>
 
                       {error ? (
-                        <div className="border-4 border-neo-dark bg-neo-pink px-4 py-3 font-body text-base font-bold text-white">
+                        <div className="border-4 border-neo-dark bg-neo-pink px-4 py-3 font-body text-base font-bold text-neo-dark">
                           {error}
                         </div>
                       ) : null}
