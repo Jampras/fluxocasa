@@ -947,11 +947,11 @@ export function PersonalActions({
               key={expense.id}
               id={`expense-${expense.id}`}
               open={isFocused(`expense-${expense.id}`) ? true : undefined}
-              className="neo-subsurface rounded-none p-4 shadow-[4px_4px_0_#0F172A] border border-white/80 transition-all hover:-translate-y-0.5 group"
+              className="neo-subsurface rounded-none p-4 shadow-[4px_4px_0_#0F172A] border border-neo-dark/15 transition-all hover:-translate-y-0.5 group"
             >
               <summary className="cursor-pointer list-none flex items-center justify-between gap-4 outline-none">
                 <div className="flex items-center gap-4">
-                  <div className="grid h-[3.25rem] w-[3.25rem] shrink-0 place-items-center rounded-full bg-neo-bg/15 text-neo-yellow font-bold text-xl mix-blend-multiply">
+                  <div className="grid h-[3.25rem] w-[3.25rem] shrink-0 place-items-center rounded-full bg-neo-cream/70 text-neo-yellow font-bold text-xl mix-blend-multiply">
                     {expense.category.substring(0, 1).toUpperCase()}
                   </div>
                   <div>

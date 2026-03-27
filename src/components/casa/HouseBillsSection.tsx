@@ -33,7 +33,7 @@ export function HouseBillsSection({
         {items.map((item) => (
           <div
             key={item.id}
-            className="neo-subsurface flex flex-col gap-2 rounded-none border border-white/80 p-3 shadow-[4px_4px_0_#0F172A] transition-all hover:-translate-y-0.5 sm:p-4"
+            className="neo-subsurface flex flex-col gap-2 rounded-none border border-neo-dark/15 p-3 shadow-[4px_4px_0_#0F172A] transition-all hover:-translate-y-0.5 sm:p-4"
           >
             <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
               <div className="min-w-0">
@@ -50,7 +50,7 @@ export function HouseBillsSection({
                     ? "bg-green-500/10 text-green-700"
                     : item.status === "warning"
                       ? "bg-amber-500/10 text-amber-700"
-                      : "bg-neo-bg/10 text-neo-dark/70"
+                      : "bg-neo-cream text-neo-dark/70"
                 }`}
               >
                 {statusLabelMap[item.status]}

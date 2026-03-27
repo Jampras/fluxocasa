@@ -14,7 +14,7 @@ export function HouseOverview({ snapshot }: HouseOverviewProps) {
         <div className="relative z-10 space-y-4 sm:space-y-6">
           <div className="flex items-start justify-between">
             <p className="text-base font-medium tracking-wide text-neo-dark sm:text-lg md:text-xl">Caixa da Casa</p>
-            <div className="rounded-full bg-neo-bg/20 px-2.5 py-1 text-[9px] font-bold uppercase tracking-[0.14em] text-neo-dark/90 backdrop-blur-md sm:px-3 sm:text-[10px] sm:tracking-wider">
+            <div className="rounded-full bg-neo-cream/85 px-2.5 py-1 text-[9px] font-bold uppercase tracking-[0.14em] text-neo-dark/90 backdrop-blur-md sm:px-3 sm:text-[10px] sm:tracking-wider">
               Casa
             </div>
           </div>

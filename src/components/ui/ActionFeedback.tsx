@@ -19,7 +19,7 @@ export function ActionFeedback({
         className
       )}
     >
-      <span className="mr-2 inline-block border-[3px] border-current bg-white/70 px-2 py-0.5 font-heading text-[10px] tracking-[0.16em] sm:text-xs">
+      <span className="mr-2 inline-block border-[3px] border-current bg-neo-cream px-2 py-0.5 font-heading text-[10px] tracking-[0.16em] sm:text-xs">
         {tone === "success" ? "LEVEL UP" : "ATENCAO"}
       </span>
       {message}

@@ -307,7 +307,7 @@ export function CalendarGridModal({
                 {cell.dayNumber}
               </span>
               {cell.items.length > 0 ? (
-                <span className="hidden rounded-full bg-white/80 px-1.5 py-0.5 text-[9px] font-black uppercase tracking-[0.08em] text-neo-dark sm:inline">
+                  <span className="hidden rounded-full bg-neo-cream px-1.5 py-0.5 text-[9px] font-black uppercase tracking-[0.08em] text-neo-dark sm:inline">
                   {cell.items.length}
                 </span>
               ) : null}

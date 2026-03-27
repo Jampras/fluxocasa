@@ -14,16 +14,16 @@ export function ContributionsList({ items }: ContributionsListProps) {
     <Card className="bg-transparent  border-none p-0 mt-8">
       <div className="mb-4 flex items-center justify-between pl-2">
         <h3 className="text-2xl font-bold text-neo-dark">Contribuicoes</h3>
-        <Badge className="bg-neo-bg text-neo-dark border-none font-bold text-xs">{items.length} moradores</Badge>
+        <Badge className="bg-neo-cream text-neo-dark border-none font-bold text-xs">{items.length} moradores</Badge>
       </div>
       {items.length === 0 ? <p className="text-sm text-neo-pink pl-2">Nenhuma contribuicao declarada ainda.</p> : null}
       <div className="grid gap-3">
         {items.map((item) => (
           <div
             key={item.id}
-            className="flex items-center gap-4 rounded-none bg-neo-bg p-4 shadow-[4px_4px_0_#0F172A] border border-white/80 transition-all hover:-translate-y-0.5"
+            className="neo-subsurface flex items-center gap-4 rounded-none p-4 shadow-[4px_4px_0_#0F172A] border border-neo-dark/15 transition-all hover:-translate-y-0.5"
           >
-            <div className="grid h-[3rem] w-[3rem] shrink-0 place-items-center rounded-full bg-neo-bg/15 font-bold text-neo-yellow text-lg mix-blend-multiply">
+            <div className="grid h-[3rem] w-[3rem] shrink-0 place-items-center rounded-full bg-neo-cream/70 font-bold text-neo-yellow text-lg mix-blend-multiply">
               {item.avatar}
             </div>
             <div className="flex-1 space-y-2">
